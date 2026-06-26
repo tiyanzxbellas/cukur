@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Profile - API Saurus Monochrome</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<style>
+:root {
+    --bg-main: #F4F4F5;
+    --bg-card: #FFFFFF;
+    --border-dark: #000000;
+    --text-main: #000000;
+    --text-muted: #52525B;
+    --gray-light: #E4E4E7;
+    --gray-med: #D4D4D8;
+    --gray-dark: #A1A1AA;
+    --bg-inverse: #000000;
+    --text-inverse: #FFFFFF;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 999px;
+    --border-thick: 2.5px solid var(--border-dark);
+    --border-dashed: 2.5px dashed var(--border-dark);
+    --shadow-solid: 4px 4px 0px var(--border-dark);
+    --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+    --shadow-active: 0px 0px 0px transparent;
+}
+body.dark-theme {
+    --bg-main: #121212;
+    --bg-card: #1E1E1E;
+    --border-dark: #000000;
+    --text-main: #FFFFFF;
+    --text-muted: #A1A1AA;
+    --gray-light: #27272A;
+    --gray-med: #3F3F46;
+    --gray-dark: #52525B;
+    --bg-inverse: #FFFFFF;
+    --text-inverse: #000000;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
+}
+.moving-background-pattern {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+    background-size: 32px 32px;
+    opacity: 0.15;
+    animation: pan-background 40s linear infinite;
+    pointer-events: none;
+}
+@keyframes pan-background {
+    0% { background-position: 0 0; }
+    100% { background-position: 100vw 100vh; }
+}
+.fixed-bg-photo {
+    position: fixed;
+    inset: 0;
+    background-image: url('https://i.ibb.co/hR2yfJHd/Saurus28039813.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+body.dark-theme .fixed-bg-photo {
+    opacity: 0.15;
+}
+.app-viewport {
+    width: 100%;
+    max-width: 768px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    gap: 24px;
+}
+.top-navigation-cluster {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-main);
+    padding: 16px 20px;
+    border-bottom: var(--border-thick);
+}
+.kinetic-hamburger-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+}
+.kinetic-hamburger-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.kinetic-line {
+    width: 22px;
+    height: 3px;
+    background-color: var(--text-inverse);
+    border-radius: 2px;
+}
+.center-brand-group {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+}
+.cluster-actions {
+    display: flex;
+    gap: 10px;
+}
+.action-btn-circle {
+    width: 48px;
+    height: 48px;
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+}
+.action-btn-circle:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.action-btn-circle.is-active-state {
+    background-color: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.section-padding {
+    padding: 0 20px;
+    width: 100%;
+}
+.section-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.section-title-line {
+    flex: 1;
+    height: 3px;
+    background: var(--border-dark);
+}
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.auth-sliding-container {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-solid);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    min-height: 550px;
+    display: block;
+}
+.form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--bg-card);
+}
+.sign-in-container {
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+.auth-sliding-container.right-panel-active .sign-in-container {
+    transform: translateX(100%);
+}
+.sign-up-container {
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+.auth-sliding-container.right-panel-active .sign-up-container {
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+    animation: show 0.6s;
+}
+@keyframes show {
+    0%, 49.99% { opacity: 0; z-index: 1; }
+    50%, 100% { opacity: 1; z-index: 5; }
+}
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.6s ease-in-out;
+    z-index: 100;
+}
+.auth-sliding-container.right-panel-active .overlay-container {
+    transform: translateX(-100%);
+}
+.overlay {
+    background: var(--bg-inverse);
+    background-image: radial-gradient(var(--text-muted) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    color: var(--text-inverse);
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+.auth-sliding-container.right-panel-active .overlay {
+    transform: translateX(50%);
+}
+.overlay-panel {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    text-align: center;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+}
+.overlay-left {
+    transform: translateX(-20%);
+}
+.auth-sliding-container.right-panel-active .overlay-left {
+    transform: translateX(0);
+}
+.overlay-right {
+    right: 0;
+    transform: translateX(0);
+}
+.auth-sliding-container.right-panel-active .overlay-right {
+    transform: translateX(20%);
+}
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: inherit;
+}
+.auth-subtitle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    color: inherit;
+}
+.modern-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+.modern-input-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.modern-input-field {
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+}
+.modern-input-field:focus {
+    background: var(--bg-card);
+    box-shadow: var(--shadow-solid-sm);
+    transform: translate(-2px, -2px);
+}
+.btn-action-primary {
+    width: 100%;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+.btn-action-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.btn-action-ghost {
+    background: transparent;
+    color: var(--text-inverse);
+    border: 2px solid var(--text-inverse);
+    padding: 12px 30px;
+    border-radius: var(--radius-md);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.3s, color 0.3s;
+}
+.btn-action-ghost:hover {
+    background: var(--text-inverse);
+    color: var(--bg-inverse);
+}
+.error-message-block {
+    color: #ef4444;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-align: center;
+    min-height: 18px;
+    margin-bottom: 10px;
+}
+.mobile-toggle-btn {
+    display: none;
+}
+@media (max-width: 768px) {
+    .auth-sliding-container {
+        min-height: 650px;
+    }
+    .form-container {
+        width: 100%;
+        padding: 30px 20px;
+    }
+    .sign-in-container {
+        transform: translateX(0);
+        opacity: 1;
+        z-index: 5;
+    }
+    .auth-sliding-container.right-panel-active .sign-in-container {
+        transform: translateX(-100%);
+        opacity: 0;
+        z-index: 1;
+    }
+    .sign-up-container {
+        transform: translateX(100%);
+        opacity: 0;
+        z-index: 1;
+        animation: none;
+    }
+    .auth-sliding-container.right-panel-active .sign-up-container {
+        transform: translateX(0);
+        opacity: 1;
+        z-index: 5;
+        animation: none;
+    }
+    .overlay-container {
+        display: none;
+    }
+    .mobile-toggle-btn {
+        display: flex;
+        margin-top: 20px;
+        width: 100%;
+        background: transparent;
+        color: var(--text-main);
+        border: 2px dashed var(--border-dark);
+        padding: 14px;
+        border-radius: var(--radius-md);
+        font-weight: 900;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        justify-content: center;
+        align-items: center;
+        transition: background 0.3s;
+    }
+    .mobile-toggle-btn:active {
+        background: var(--gray-light);
+    }
+}
+.guest-card-container {
+    background: var(--bg-card);
+    border: var(--border-thick);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-solid);
+    margin-bottom: 24px;
+}
+.guest-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.guest-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--gray-light);
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--text-main);
+    box-shadow: var(--shadow-solid-sm);
+}
+.guest-info {
+    display: flex;
+    flex-direction: column;
+}
+.guest-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.guest-subtitle {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.guest-promo-box {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: var(--border-thick);
+}
+.guest-promo-title {
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+}
+.guest-code-value {
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-family: monospace;
+    font-size: 1.4rem;
+    font-weight: 900;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    letter-spacing: 2px;
+    border: var(--border-dashed);
+}
+.profile-card-container {
+    background: var(--bg-card);
+    border: var(--border-thick);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-solid);
+}
+.profile-header-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: var(--border-thick);
+}
+.profile-avatar-box {
+    width: 80px;
+    height: 80px;
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    background: var(--gray-light);
+    box-shadow: var(--shadow-solid-sm);
+    position: relative;
+    flex-shrink: 0;
+}
+.profile-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+.profile-name {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+.profile-email {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.profile-badge {
+    display: inline-block;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 0.65rem;
+    font-weight: 900;
+    margin-top: 6px;
+    width: fit-content;
+}
+.btn-edit-inline {
+    width: 44px;
+    height: 44px;
+    border: var(--border-thick);
+    border-radius: var(--radius-sm);
+    background: var(--gray-light);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-edit-inline:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.key-management-box {
+    background: var(--gray-light);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    border: var(--border-thick);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.key-management-header {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+.key-display-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.key-display-value {
+    background: var(--bg-card);
+    border: var(--border-thick);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.btn-action-small {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: var(--border-thick);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-action-small:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.two-col-actions {
+    display: flex;
+    gap: 12px;
+}
+.asymmetric-data-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+    gap: 16px;
+    width: 100%;
+}
+.metric-statistic-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-solid);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+}
+.metric-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gray-light);
+    border: 2px solid var(--border-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--text-main);
+}
+.metric-label-text {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: auto;
+}
+.metric-value-text {
+    font-size: 1.4rem;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wide-metric-card {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+}
+.wide-metric-card .metric-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+.wide-metric-card .metric-label-text {
+    margin-top: 0;
+}
+.advanced-chart-container {
+    grid-column: span 2;
+    background: var(--gray-light);
+    border-radius: var(--radius-lg);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-solid);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.chart-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chart-title-typography {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    background: var(--bg-card);
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--border-dark);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.dynamic-chart-wrapper {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 12px;
+    height: 120px;
+    width: 100%;
+}
+.modern-chart-bar-wrap {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    justify-content: flex-end;
+}
+.modern-chart-bar {
+    width: 100%;
+    background: var(--text-main);
+    border-radius: 4px;
+    transition: height 0.5s ease;
+    min-height: 5%;
+}
+.modern-chart-label {
+    font-size: 0.65rem;
+    color: var(--text-main);
+    font-weight: 900;
+}
+.modern-table-scroller {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: var(--border-thick);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-solid);
+}
+.modern-ip-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.modern-ip-table th {
+    background: var(--gray-light);
+    color: var(--text-main);
+    font-weight: 900;
+    text-align: left;
+    padding: 12px;
+    white-space: nowrap;
+    border-bottom: var(--border-thick);
+    text-transform: uppercase;
+}
+.modern-ip-table td {
+    padding: 12px;
+    border-bottom: 2px solid var(--gray-light);
+    color: var(--text-main);
+    vertical-align: middle;
+}
+.modern-ip-table tr:last-child td { border-bottom: none; }
+.modern-ip-chip {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 900;
+    font-family: monospace;
+}
+.modern-ip-chip.is-unknown {
+    background: var(--gray-light);
+    color: var(--text-muted);
+    border: 2px solid var(--border-dark);
+}
+.modern-log-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: var(--border-thick);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-solid-sm);
+}
+.log-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.log-card-path {
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--text-main);
+}
+.log-card-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 800;
+}
+.log-card-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+.log-card-ip { font-family: monospace; }
+.log-status-badge {
+    font-size: 0.7rem; font-weight: 800; padding: 1px 7px;
+    border-radius: 4px; font-family: monospace;
+}
+.log-status-ok { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.log-status-warn { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.log-status-err { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.log-card-ua {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+.empty-data-notice {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.application-footer-block {
+    text-align: center;
+    padding: 20px 20px 60px 20px;
+    width: 100%;
+}
+.footer-primary-text {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.footer-secondary-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-top: 8px;
+    background: var(--gray-light);
+    display: inline-block;
+    padding: 6px 12px;
+    border: 2px solid var(--border-dark);
+}
+.kinetic-overlay-navigation {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.kinetic-overlay-navigation.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.navigation-menu-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 85%;
+    max-width: 340px;
+    height: 100%;
+    background: var(--bg-main);
+    border-right: var(--border-thick);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 10px 0 0 rgba(0,0,0,0.3);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 2;
+    pointer-events: auto;
+}
+.kinetic-overlay-navigation.is-active .navigation-menu-card {
+    transform: translateX(0);
+}
+.nav-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: var(--border-thick);
+    background: var(--bg-card);
+    flex-shrink: 0;
+}
+.nav-card-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.btn-close-sidebar {
+    background: var(--bg-card);
+    border: 2px solid var(--border-dark);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text-main);
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    flex-shrink: 0;
+}
+.btn-close-sidebar:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.nav-links-stagger {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.nav-links-stagger::-webkit-scrollbar {
+    width: 0;
+}
+.navigation-route-link {
+    text-decoration: none;
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 14px 16px;
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: var(--shadow-solid-sm);
+    text-transform: uppercase;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.navigation-route-link i {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
+.navigation-route-link:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.navigation-route-link.route-active {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.toast-notification-float {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(50px);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    padding: 14px 24px;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-solid);
+    border: var(--border-thick);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+}
+.toast-notification-float.is-shown {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+.modal-edit-profile {
+    display: none;
+    flex-direction: column;
+    background: var(--bg-card);
+    width: 90%;
+    max-width: 400px;
+    border-radius: var(--radius-lg);
+    border: var(--border-thick);
+    padding: 30px 24px;
+    box-shadow: var(--shadow-solid);
+    z-index: 1000;
+    position: relative;
+}
+.kinetic-overlay-navigation.is-edit .modal-edit-profile {
+    display: flex;
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.upload-btn-styled {
+    background: var(--gray-light);
+    color: var(--text-main);
+    border: var(--border-dashed);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+.upload-btn-styled:active { transform: scale(0.97); }
+</style>
+<script>
+(function(){
+    var t = localStorage.getItem('Saurus-theme') || localStorage.getItem('Saurus_theme');
+    var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: #121212 !important; }
+</style>
+
+<style>
+/* ─── OTP → redirect ke /otp ─────────────────────────────────── */
+</style>
+</head>
+<body>
+
+<div class="fixed-bg-photo"></div>
+<div class="moving-background-pattern"></div>
+<div id="toast-element" class="toast-notification-float"></div>
+
+<div class="app-viewport">
+    <div class="top-navigation-cluster">
+        <button class="kinetic-hamburger-btn" id="trigger-menu" aria-label="Buka menu">
+            <span class="kinetic-line line-top"></span>
+            <span class="kinetic-line line-mid"></span>
+            <span class="kinetic-line line-bot"></span>
+        </button>
+        <div class="center-brand-group">API Saurus</div>
+        <div class="cluster-actions">
+            <button class="action-btn-circle" id="btn-theme-toggle" aria-label="Toggle theme">
+                <i id="theme-icon" class="ph-bold ph-moon"></i>
+            </button>
+            <button class="action-btn-circle" id="trigger-audio" aria-label="Toggle audio">
+                <i id="audio-state-icon" class="ph-bold ph-speaker-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="section-padding" id="guest-wrapper" style="display:block;">
+        <div class="guest-card-container" id="guest-section">
+            <div class="guest-header">
+                <div class="guest-icon"><i class="ph-fill ph-ghost"></i></div>
+                <div class="guest-info">
+                    <div class="guest-title">AKUN GUEST</div>
+                    <div class="guest-subtitle">Mode Uji Coba Terbatas</div>
+                </div>
+            </div>
+            
+            <div class="guest-promo-box">
+                <div class="guest-promo-title">
+                    <span><i class="ph-bold ph-key"></i> KUNCI API PUBLIK</span>
+                    <span id="guest-days-txt">5 HARI</span>
+                </div>
+                <div class="guest-code-value" id="guest-key-display">Saurus</div>
+            </div>
+
+            <button class="btn-action-primary" onclick="document.getElementById('guest-wrapper').style.display='none'; document.getElementById('auth-wrapper').style.display='block';">
+                <i class="ph-bold ph-sign-in"></i> LOGIN / DAFTAR
+            </button>
+        </div>
+    </div>
+
+    <div class="section-padding" id="auth-wrapper" style="display:none;">
+        <button class="btn-action-primary" style="margin-bottom:20px; background:var(--bg-card); color:var(--text-main);" onclick="document.getElementById('auth-wrapper').style.display='none'; document.getElementById('guest-wrapper').style.display='block';">
+            <i class="ph-bold ph-arrow-left"></i> KEMBALI KE GUEST
+        </button>
+        
+        <div class="auth-sliding-container" id="auth-container">
+            <div class="form-container sign-up-container">
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <div class="auth-title">BUAT AKUN</div>
+                    <button class="btn-action-primary" id="btn-register-google" style="background:var(--bg-card); color:var(--text-main); margin-bottom:12px; margin-top:0;"><i class="ph-bold ph-google-logo"></i> DAFTAR DENGAN GOOGLE</button>
+                    <div class="auth-subtitle">Atau gunakan email Anda untuk mendaftar</div>
+                    <div class="modern-input-group">
+                        <input type="text" class="modern-input-field" id="r-name" placeholder="Nama Anda">
+                    </div>
+                    <div class="modern-input-group">
+                        <input type="email" class="modern-input-field" id="r-email" placeholder="Email Anda">
+                    </div>
+                    <div class="modern-input-group">
+                        <input type="password" class="modern-input-field" id="r-pass" placeholder="Kata Sandi">
+                    </div>
+                    <div class="error-message-block" id="r-err"></div>
+                    <button class="btn-action-primary" id="btn-register">DAFTAR SEKARANG</button>
+                    <button class="mobile-toggle-btn" id="mobileSignInBtn">SUDAH PUNYA AKUN? MASUK</button>
+                </div>
+            </div>
+            
+            <div class="form-container sign-in-container">
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <div class="auth-title">MASUK SISTEM</div>
+                    <button class="btn-action-primary" id="btn-login-google" style="background:var(--bg-card); color:var(--text-main); margin-bottom:12px; margin-top:0;"><i class="ph-bold ph-google-logo"></i> LOGIN DENGAN GOOGLE</button>
+                    <div class="auth-subtitle">Atau gunakan email Anda yang sudah ada</div>
+                    <div class="modern-input-group">
+                        <input type="email" class="modern-input-field" id="l-email" placeholder="Email Anda">
+                    </div>
+                    <div class="modern-input-group">
+                        <input type="password" class="modern-input-field" id="l-pass" placeholder="Kata Sandi">
+                    </div>
+                    <div class="error-message-block" id="l-err"></div>
+                    <button class="btn-action-primary" id="btn-login-email">LOGIN</button>
+                    <button class="mobile-toggle-btn" id="mobileSignUpBtn">BELUM PUNYA AKUN? DAFTAR</button>
+                </div>
+            </div>
+
+            <div class="overlay-container">
+                <div class="overlay">
+                    <div class="overlay-panel overlay-left">
+                        <div class="auth-title">SELAMAT DATANG!</div>
+                        <div class="auth-subtitle">Sudah memiliki akun terdaftar dalam sistem Saurus?</div>
+                        <button class="btn-action-ghost" id="signIn">MASUK</button>
+                    </div>
+                    <div class="overlay-panel overlay-right">
+                        <div class="auth-title">HALO, KAWAN!</div>
+                        <div class="auth-subtitle">Belum mendaftarkan identitas? Mulai akses penuh sekarang juga.</div>
+                        <button class="btn-action-ghost" id="signUp">DAFTAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-padding" id="profile-wrapper" style="display:none;">
+        <div class="profile-card-container" id="profile-section">
+            <div class="profile-header-row">
+                <div class="profile-avatar-box">
+                    <img id="u-avatar" src="https://files.catbox.moe/9y8310.jpg" alt="Avatar Saurus">
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name" id="u-name">—</div>
+                    <div class="profile-email" id="u-email">—</div>
+                    <div class="profile-badge" id="u-plan">FREE PLAN</div>
+                </div>
+                <button class="btn-edit-inline" id="btn-trigger-edit"><i class="ph-bold ph-pencil-simple"></i></button>
+            </div>
+
+            <div class="key-management-box">
+                <div class="key-management-header"><i class="ph-bold ph-key"></i> KUNCI API AKTIF</div>
+                <div class="key-display-row">
+                    <div class="key-display-value" id="apikey-display">••••••••••••••••</div>
+                    <button class="btn-action-small" id="btn-reveal"><i class="ph-bold ph-eye"></i></button>
+                    <button class="btn-action-small" id="btn-copy"><i class="ph-bold ph-copy"></i></button>
+                </div>
+                <div class="two-col-actions" style="margin-top:10px;">
+                    <button class="btn-action-primary" id="btn-regen" style="margin-top:0; background:var(--bg-card); color:var(--text-main); flex:1;"><i class="ph-bold ph-arrows-clockwise"></i> GENERATE BARU</button>
+                    <button class="btn-action-primary" id="btn-logout" style="margin-top:0; flex:1;"><i class="ph-bold ph-sign-out"></i> LOGOUT SISTEM</button>
+                </div>
+            </div>
+
+            <div class="section-title-wrapper" style="margin-top:10px;">
+                <div class="section-title">ANALISIS SISTEM</div>
+                <div class="section-title-line"></div>
+            </div>
+
+            <div class="asymmetric-data-layout-grid" id="stats-grid">
+                <div class="metric-statistic-card wide-metric-card">
+                    <div class="metric-icon-wrapper"><i class="ph-bold ph-plugs-connected"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-label-text">TOTAL REQUEST</span>
+                        <span class="metric-value-text" id="s-total">0</span>
+                    </div>
+                </div>
+                <div class="metric-statistic-card">
+                    <div class="metric-icon-wrapper"><i class="ph-bold ph-activity"></i></div>
+                    <span class="metric-label-text">HARI INI</span>
+                    <span class="metric-value-text" id="s-today">0</span>
+                </div>
+                <div class="metric-statistic-card">
+                    <div class="metric-icon-wrapper"><i class="ph-bold ph-globe"></i></div>
+                    <span class="metric-label-text">AKSES IP</span>
+                    <span class="metric-value-text" id="s-ips">0</span>
+                </div>
+                <div class="advanced-chart-container">
+                    <div class="chart-header-row">
+                        <div class="chart-title-typography"><i class="ph-bold ph-chart-line-up"></i> FLUKTUASI (10 HARI)</div>
+                    </div>
+                    <div class="dynamic-chart-wrapper" id="daily-chart">
+                        <div class="empty-data-notice" style="width:100%">Memuat konfigurasi grafik...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title-wrapper" style="margin-top:24px;">
+                <div class="section-title">LOG AKSES IP</div>
+                <div class="section-title-line"></div>
+            </div>
+            <div class="modern-table-scroller">
+                <table class="modern-ip-table" id="ip-table">
+                    <thead>
+                        <tr><th>ALAMAT IP</th><th>KONEKSI TERAKHIR</th><th>INTENSITAS</th><th>JALUR EKSEKUSI</th><th>TINDAKAN</th></tr>
+                    </thead>
+                    <tbody id="ip-tbody">
+                        <tr><td colspan="5" class="empty-data-notice">Memuat riwayat jaringan...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-title-wrapper" style="margin-top:24px;">
+                <div class="section-title">RIWAYAT TRANSMISI</div>
+                <div class="section-title-line"></div>
+            </div>
+            <button class="btn-action-primary" id="btn-clear-logs" style="margin-top:0; margin-bottom:16px; background:var(--bg-card); color:var(--text-main);"><i class="ph-bold ph-trash"></i> BERSIHKAN LOG</button>
+            <div id="req-logs">
+                <div class="empty-data-notice">Memuat paket transmisi...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="application-footer-block">
+        <div class="footer-primary-text">API BY Saurus</div>
+        <div class="footer-secondary-text">YANG DDOS HAMA</div>
+    </div>
+</div>
+
+<div class="kinetic-overlay-navigation" id="navigation-overlay">
+    <div class="navigation-menu-card" id="navigation-menu-card">
+        <div class="nav-card-header">
+            <span class="nav-card-title">Menu Utama</span>
+            <button class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Tutup menu"><i class="ph-bold ph-x"></i></button>
+        </div>
+        <div class="nav-links-stagger">
+            <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> Dasbor Utama</a>
+            <a href="/profile" class="navigation-route-link route-active"><i class="ph-bold ph-user-circle"></i> Akun & ApiKey</a>
+            <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> Dokumentasi API</a>
+            <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> Repositori Snippet</a>
+            <a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+            <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> Streaming Anime</a>
+            <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> Streaming Donghua</a>
+            <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> Baca Manga</a>
+            <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> Baca Manhwa</a>
+            <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> Bioskop Film</a>
+            <a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+            <a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+            <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+            <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> Claim Panel</a>
+            <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> Aplikasi Mod</a>
+            <a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> Host Media</a>
+        </div>
+    </div>
+</div>
+
+<div class="kinetic-overlay-navigation" id="editProfileOverlay">
+    <div class="modal-edit-profile" id="edit-profile-modal">
+        <div class="section-title-wrapper" style="margin-bottom:20px;">
+            <div class="section-title"><i class="ph-fill ph-pencil-simple"></i> EDIT PROFIL</div>
+            <div class="section-title-line"></div>
+        </div>
+        
+        <div class="modern-input-group">
+            <label class="modern-input-label">NAMA TAMPILAN</label>
+            <input type="text" class="modern-input-field" id="edit-p-name" placeholder="Nama Anda">
+        </div>
+
+        <div class="modern-input-group">
+            <label class="modern-input-label">FOTO PROFIL</label>
+            <input type="file" id="inp-file-photo" accept="image/*" style="display:none">
+            <button class="upload-btn-styled" id="btn-upload-photo">
+                <i class="ph-bold ph-upload-simple"></i> PILIH DARI GALERI
+            </button>
+            <input type="hidden" id="edit-p-photo">
+            <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-align:center; margin-top:8px; text-transform:uppercase;" id="upload-status-txt">JPG, PNG Maks 5MB</div>
+        </div>
+
+        <div class="two-col-actions" style="margin-top: 24px;">
+            <button class="btn-action-primary" id="btn-cancel-edit" style="background:var(--bg-card); color:var(--text-main); margin-top:0; flex:1;">BATAL</button>
+            <button class="btn-action-primary" id="btn-save-edit" style="margin-top:0; flex:1;">SIMPAN</button>
+        </div>
+    </div>
+</div>
+
+<audio id="audio-engine" loop preload="auto">
+    <source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+function initTheme() {
+    const isDark = localStorage.getItem('Saurus-theme') === 'dark' || localStorage.getItem('Saurus_theme') === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+        document.getElementById('btn-theme-toggle').classList.add('is-active-state');
+    }
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+}
+initTheme();
+
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
+btnThemeToggle.onclick = (e) => {
+    const btn = e.currentTarget;
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+    btn.classList.toggle('is-active-state', isDark);
+};
+
+const aEngine = document.getElementById('audio-engine');
+const btnAudio = document.getElementById('trigger-audio');
+const iconAudio = document.getElementById('audio-state-icon');
+const AUDIO_MEM_KEY = 'Saurus_sys_audio_state';
+
+function syncAudioVisuals(isActive) {
+    if (isActive) {
+        btnAudio.classList.add('is-active-state');
+        iconAudio.className = 'ph-bold ph-speaker-high';
+    } else {
+        btnAudio.classList.remove('is-active-state');
+        iconAudio.className = 'ph-bold ph-speaker-slash';
+    }
+}
+
+if (localStorage.getItem(AUDIO_MEM_KEY) === '1') {
+    aEngine.play().then(() => syncAudioVisuals(true)).catch(() => {
+        document.addEventListener('click', function fallbackPlay() {
+            if (localStorage.getItem(AUDIO_MEM_KEY) === '1') {
+                aEngine.play().then(() => syncAudioVisuals(true)).catch(() => {});
+            }
+            document.removeEventListener('click', fallbackPlay);
+        }, { once: true });
+    });
+}
+
+btnAudio.addEventListener('click', () => {
+    if (aEngine.paused) {
+        aEngine.play().then(() => {
+            localStorage.setItem(AUDIO_MEM_KEY, '1');
+            syncAudioVisuals(true);
+        }).catch(() => {});
+    } else {
+        aEngine.pause();
+        localStorage.setItem(AUDIO_MEM_KEY, '0');
+        syncAudioVisuals(false);
+    }
+});
+
+const btnMenu = document.getElementById('trigger-menu');
+const navOverlay = document.getElementById('navigation-overlay');
+const navMenuCard = document.getElementById('navigation-menu-card');
+const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+
+function openSidebar() {
+    navOverlay.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    navOverlay.classList.remove('is-active');
+    document.body.style.overflow = '';
+}
+
+btnMenu.addEventListener('click', openSidebar);
+btnCloseSidebar.addEventListener('click', closeSidebar);
+navOverlay.addEventListener('click', (e) => {
+    if (e.target === navOverlay) closeSidebar();
+});
+
+const signUpButton = document.getElementById('signUp');
+const signInButton = document.getElementById('signIn');
+const mobileSignUpBtn = document.getElementById('mobileSignUpBtn');
+const mobileSignInBtn = document.getElementById('mobileSignInBtn');
+const container = document.getElementById('auth-container');
+
+signUpButton.addEventListener('click', () => {
+    container.classList.add("right-panel-active");
+});
+
+signInButton.addEventListener('click', () => {
+    container.classList.remove("right-panel-active");
+});
+
+mobileSignUpBtn.addEventListener('click', () => {
+    container.classList.add("right-panel-active");
+});
+
+mobileSignInBtn.addEventListener('click', () => {
+    container.classList.remove("right-panel-active");
+});
+
+let auth = null;
+const FB = {
+    async _token() {
+        try {
+            const u = firebase.auth().currentUser;
+            return u ? await u.getIdToken() : null;
+        } catch { return null; }
+    },
+    async _authHeaders() {
+        const t = await this._token();
+        return t ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` } : { 'Content-Type': 'application/json' };
+    },
+    async getUserProfile(uid) {
+        const h = await this._authHeaders();
+        const r = await fetch(`/api/fb/user-profile?uid=${encodeURIComponent(uid)}`, { headers: h });
+        return r.json();
+    },
+    async upsertUser(uid, data) {
+        await fetch('/api/fb/user-upsert', { method: 'POST', headers: await this._authHeaders(), body: JSON.stringify({ uid, ...data }) }).catch(() => {});
+    }
+};
+
+// auth akan diinit setelah Firebase ready
+
+const toastRef = document.getElementById('toast-element');
+let toastTimerId = null;
+
+function showToast(messageText) {
+    toastRef.innerHTML = `<i class="ph-bold ph-bell-ringing"></i> ${messageText}`;
+    toastRef.className = 'toast-notification-float is-shown';
+    if (toastTimerId) clearTimeout(toastTimerId);
+    toastTimerId = setTimeout(() => toastRef.className = 'toast-notification-float', 2500);
+}
+
+function initGuestCountdown() {
+    document.getElementById('guest-wrapper').style.display = 'block';
+    document.getElementById('profile-wrapper').style.display = 'none';
+}
+
+function mapFirebaseError(code) {
+    const m = {
+        'auth/user-not-found': 'Email tidak terdaftar.',
+        'auth/wrong-password': 'Kata sandi salah.',
+        'auth/invalid-credential': 'Kredensial tidak sesuai.',
+        'auth/email-already-in-use': 'Email telah digunakan.',
+        'auth/weak-password': 'Kata sandi minimal 6 karakter.',
+        'auth/invalid-email': 'Format email tidak valid.'
+    };
+    return m[code] || ('Error: ' + code);
+}
+
+// ─── OTP: redirect ke /otp (standalone page) ─────────────────────────────
+const OTP_SESSION_KEY = 'Saurus_otp_session';
+
+function redirectToOtp(user, email) {
+    // Simpan session data sebelum redirect
+    try {
+        sessionStorage.setItem(OTP_SESSION_KEY, JSON.stringify({
+            uid: user.uid,
+            email: email,
+            otpSent: false,
+            ts: Date.now()
+        }));
+    } catch {}
+    window.location.href = '/otp';
+}
+
+document.getElementById('btn-login-email').onclick = async () => {
+    if (!auth) { showToast('SISTEM BELUM SIAP, COBA LAGI'); return; }
+    const email = document.getElementById('l-email').value.trim();
+    const pass = document.getElementById('l-pass').value;
+    const err = document.getElementById('l-err');
+    err.textContent = '';
+    if (!email || !pass) { err.textContent = 'Lengkapi semua bidang.'; return; }
+    const btn = document.getElementById('btn-login-email');
+    btn.disabled = true; btn.textContent = 'MEMPROSES...';
+    try {
+        const cred = await auth.signInWithEmailAndPassword(email, pass);
+        redirectToOtp(cred.user, email);
+        return; // jangan re-enable btn, udah redirect
+    } catch (e) {
+        err.textContent = mapFirebaseError(e.code);
+    }
+    btn.disabled = false; btn.textContent = 'LOGIN';
+};
+
+document.getElementById('btn-register').onclick = async () => {
+    if (!auth) { showToast('SISTEM BELUM SIAP, COBA LAGI'); return; }
+    const name = document.getElementById('r-name').value.trim();
+    const email = document.getElementById('r-email').value.trim();
+    const pass = document.getElementById('r-pass').value;
+    const err = document.getElementById('r-err');
+    err.textContent = '';
+    if (!name || !email || !pass) { err.textContent = 'Semua parameter wajib disematkan.'; return; }
+    if (pass.length < 6) { err.textContent = 'Keamanan minimum 6 karakter.'; return; }
+    try {
+        const c = await auth.createUserWithEmailAndPassword(email, pass);
+        await c.user.updateProfile({ displayName: name });
+        showToast('Identitas sukses dialokasikan.');
+    } catch (e) {
+        err.textContent = mapFirebaseError(e.code);
+    }
+};
+
+const googleLogin = async (errEl) => {
+    if (!auth) { showToast('SISTEM BELUM SIAP, COBA LAGI'); return; }
+    try {
+        await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    } catch (e) {
+        if (errEl) document.getElementById(errEl).textContent = mapFirebaseError(e.code);
+    }
+};
+
+document.getElementById('btn-login-google').onclick = () => googleLogin('l-err');
+document.getElementById('btn-register-google').onclick = () => googleLogin('r-err');
+
+let currentUser = null, currentKey = null, keyHidden = true;
+let unsubStats = null;
+
+function genKey() {
+    return 'Saurus-' + Array.from({ length: 2 }, () => Math.random().toString(36).substring(2, 9).toUpperCase()).join('');
+}
+
+async function loadProfile(user) {
+    // Pastikan hanya profile yang keliatan
+    document.getElementById('guest-wrapper').style.display = 'none';
+    document.getElementById('auth-wrapper').style.display = 'none';
+    document.getElementById('profile-wrapper').style.display = 'block';
+    document.getElementById('u-name').textContent = user.displayName || 'ANONIM';
+    document.getElementById('u-email').textContent = user.email || 'DATA NIHIL';
+
+    const profileRes = await FB.getUserProfile(user.uid);
+    const doc = profileRes.data;
+    if (!doc || !doc.apiKey) {
+        const newKey = genKey();
+        currentKey = newKey;
+        if (newKey && newKey !== 'Saurus') localStorage.setItem('Saurus_user_apikey', newKey);
+        await FB.upsertUser(user.uid, { apiKey: newKey, plan: 'FREE', name: user.displayName || 'Pengguna', photoURL: user.photoURL || null });
+    } else {
+        currentKey = doc.apiKey;
+        if (doc.apiKey && doc.apiKey !== 'Saurus') localStorage.setItem('Saurus_user_apikey', doc.apiKey);
+        const plan = doc.plan || 'FREE';
+        document.getElementById('u-plan').textContent = plan + ' PLAN';
+        if (doc.photoURL) document.getElementById('u-avatar').src = doc.photoURL;
+        if (doc.name) document.getElementById('u-name').textContent = doc.name;
+    }
+    
+    keyHidden = true;
+    document.getElementById('apikey-display').textContent = '••••••••••••••••';
+    document.getElementById('btn-reveal').innerHTML = '<i class="ph-bold ph-eye"></i>';
+
+    if (unsubStats) { clearInterval(unsubStats); unsubStats = null; }
+
+    async function loadStatsFromAPI() {
+        if (!currentKey || currentKey === 'Saurus') return;
+        try {
+            const r = await fetch('/api/key-info?apikey=' + encodeURIComponent(currentKey));
+            const json = await r.json();
+            if (!json.ok) return;
+            const data = json.data;
+
+            document.getElementById('s-total').textContent = (data.totalRequests || 0).toLocaleString();
+            document.getElementById('s-ips').textContent = (data.ipLog || []).length;
+            renderIpLog(data.ipLog || []);
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayData = (data.dailyUsage || []).find(d => d.date === todayStr);
+            const cnt = todayData ? (todayData.count || 0) : 0;
+            document.getElementById('s-today').textContent = cnt.toLocaleString();
+
+            renderReqLogs(data.recentLogs || []);
+            renderDailyChart((data.dailyUsage || []).slice(-10));
+        } catch(e) {}
+    }
+
+    loadStatsFromAPI();
+    unsubStats = setInterval(loadStatsFromAPI, 30000);
+}
+
+function renderDailyChart(daily) {
+    const chart = document.getElementById('daily-chart');
+    if (!daily.length) {
+        chart.innerHTML = '<div class="empty-data-notice" style="width:100%">TIDAK ADA DATA</div>';
+        return;
+    }
+    const sorted = [...daily].sort((a, b) => a.date.localeCompare(b.date)).slice(-10);
+    const maxCount = Math.max(1, ...sorted.map(d => d.count || 0));
+    chart.innerHTML = '';
+    sorted.forEach(d => {
+        const pct = Math.max(8, Math.round(((d.count || 0) / maxCount) * 100));
+        const wrap = document.createElement('div');
+        wrap.className = 'modern-chart-bar-wrap';
+        wrap.innerHTML = `<div class="modern-chart-bar" style="height:${pct}%" title="${d.date}: ${d.count || 0} req"></div><div class="modern-chart-label">${(d.date || '').slice(5)}</div>`;
+        chart.appendChild(wrap);
+    });
+}
+
+function renderIpLog(ipLog) {
+    const tbody = document.getElementById('ip-tbody');
+    if (!ipLog.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-data-notice">KOSONG</td></tr>';
+        return;
+    }
+    tbody.innerHTML = '';
+    ipLog.forEach(entry => {
+        const tr = document.createElement('tr');
+        const ipClass = entry.ip === 'unknown' ? 'modern-ip-chip is-unknown' : 'modern-ip-chip';
+        const lastSeen = entry.lastSeen ? new Date(entry.lastSeen).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+        const ipVal = entry.ip || '';
+        const btn = document.createElement('button');
+        btn.className = 'btn-action-small';
+        btn.innerHTML = '<i class="ph-bold ph-shield-slash"></i> REVOKE';
+        btn.addEventListener('click', function() { revokeIp(ipVal); });
+        tr.innerHTML = `
+            <td><span class="${ipClass}">${entry.ip || '?'}</span></td>
+            <td>${lastSeen}</td>
+            <td style="font-weight:900;">${entry.count || 1}x</td>
+            <td style="font-family:monospace;">${(entry.lastEndpoint || '—').slice(0, 40)}</td>
+            <td></td>
+        `;
+        tr.querySelector('td:last-child').appendChild(btn);
+        tbody.appendChild(tr);
+    });
+}
+
+function renderReqLogs(logs) {
+    const container = document.getElementById('req-logs');
+    if (!logs.length) {
+        container.innerHTML = '<div class="empty-data-notice">BELUM ADA RIWAYAT REQUEST</div>';
+        return;
+    }
+    container.innerHTML = '';
+    logs.forEach(log => {
+        const div = document.createElement('div');
+        div.className = 'modern-log-card';
+        const ts = log.ts ? new Date(log.ts).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
+        const method = (log.method || 'GET').toUpperCase();
+        const status = log.status || 200;
+        const statusClass = status >= 500 ? 'log-status-err' : status >= 400 ? 'log-status-warn' : 'log-status-ok';
+        const methodColor = method === 'POST' ? '#f59e0b' : method === 'DELETE' ? '#ef4444' : '#6366f1';
+        div.innerHTML = `
+            <div class="log-card-header">
+                <span class="log-card-path">${log.endpoint || '—'}</span>
+                <span class="log-card-time">${ts}</span>
+            </div>
+            <div class="log-card-meta">
+                <span class="log-method-badge" style="background:${methodColor}22;color:${methodColor};border:1px solid ${methodColor}44;padding:1px 7px;border-radius:4px;font-size:0.7rem;font-weight:800;">${method}</span>
+                <span class="log-status-badge ${statusClass}">${status}</span>
+                <span class="log-card-ip">${log.ip || '?'}</span>
+            </div>
+            ${log.ua ? `<div class="log-card-ua" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${log.ua}</div>` : ''}
+        `;
+        container.appendChild(div);
+    });
+}
+
+async function revokeIp(ip) {
+    if (!currentKey) return;
+    try {
+        const res = await fetch('/api/revoke-ip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apikey: currentKey, ip }) });
+        const json = await res.json();
+        if (json.ok) { showToast('BLOKADE IP DIOTORISASI'); }
+    } catch (e) {
+        showToast('GAGAL MEMUTUS KONEKSI');
+    }
+}
+
+document.getElementById('btn-clear-logs').onclick = async () => {
+    if (!currentKey) return;
+    try {
+        const res = await fetch('/api/clear-logs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apikey: currentKey }) });
+        const json = await res.json();
+        if (json.ok) { showToast('PENGHAPUSAN SUKSES'); }
+    } catch (e) {
+        showToast('GAGAL MENGHAPUS LOG');
+    }
+};
+
+document.getElementById('btn-reveal').onclick = () => {
+    if (!currentKey) return;
+    keyHidden = !keyHidden;
+    document.getElementById('apikey-display').textContent = keyHidden ? '••••••••••••••••' : currentKey;
+    document.getElementById('btn-reveal').innerHTML = keyHidden ? '<i class="ph-bold ph-eye"></i>' : '<i class="ph-bold ph-eye-slash"></i>';
+};
+
+document.getElementById('btn-copy').onclick = () => {
+    if (!currentKey) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentKey).catch(() => {
+            const ta = document.createElement('textarea'); ta.value = currentKey; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        });
+    } else {
+        const ta = document.createElement('textarea'); ta.value = currentKey; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    showToast('KUNCI DISALIN KE PAPAN KLIP');
+};
+
+document.getElementById('btn-regen').onclick = async () => {
+    if (!currentUser) return;
+    const newKey = genKey();
+    try {
+        await FB.upsertUser(currentUser.uid, { apiKey: newKey });
+        currentKey = newKey; keyHidden = false;
+        document.getElementById('apikey-display').textContent = currentKey;
+        document.getElementById('btn-reveal').innerHTML = '<i class="ph-bold ph-eye-slash"></i>';
+        showToast('SINKRONISASI KUNCI SELESAI');
+    } catch (e) {
+        showToast('SINKRONISASI GAGAL');
+    }
+};
+
+const editOverlay = document.getElementById('editProfileOverlay');
+const btnTriggerEdit = document.getElementById('btn-trigger-edit');
+const btnCancelEdit = document.getElementById('btn-cancel-edit');
+const btnSaveEdit = document.getElementById('btn-save-edit');
+const inpEditName = document.getElementById('edit-p-name');
+const inpEditPhoto = document.getElementById('edit-p-photo');
+const btnUploadPhoto = document.getElementById('btn-upload-photo');
+const inpFilePhoto = document.getElementById('inp-file-photo');
+const uploadStatus = document.getElementById('upload-status-txt');
+
+btnTriggerEdit.onclick = () => {
+    if (!currentUser) return;
+    inpEditName.value = currentUser.displayName || document.getElementById('u-name').textContent || '';
+    inpEditPhoto.value = currentUser.photoURL || document.getElementById('u-avatar').src || '';
+    editOverlay.classList.add('is-edit', 'is-active');
+};
+
+btnCancelEdit.onclick = () => {
+    editOverlay.classList.remove('is-edit', 'is-active');
+};
+
+editOverlay.onclick = (e) => {
+    if (e.target === editOverlay) editOverlay.classList.remove('is-edit', 'is-active');
+};
+
+btnUploadPhoto.onclick = () => {
+    inpFilePhoto.click();
+};
+
+inpFilePhoto.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    uploadStatus.innerHTML = 'MENGUNGGAH...';
+    btnUploadPhoto.style.pointerEvents = 'none';
+    try {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file, file.name);
+        const response = await fetch('/api/tourl/upload', {
+            method: 'POST',
+            body: uploadFormData
+        });
+        const result = await response.json();
+        if (result.ok && result.data?.url) {
+            inpEditPhoto.value = result.data.url;
+            uploadStatus.innerHTML = 'UNGGAHAN SELESAI';
+        } else {
+            throw new Error(result.message || 'URL TIDAK VALID');
+        }
+    } catch (err) {
+        uploadStatus.innerHTML = 'UNGGAHAN GAGAL';
+    }
+    btnUploadPhoto.style.pointerEvents = 'auto';
+};
+
+btnSaveEdit.onclick = async () => {
+    if (!currentUser) return;
+    const newName = inpEditName.value.trim() || 'ANONIM';
+    const newPhoto = inpEditPhoto.value.trim() || '';
+    btnSaveEdit.innerHTML = 'SIMPAN';
+    try {
+        const profileUpdate = {};
+        if (newName) profileUpdate.displayName = newName;
+        if (newPhoto) profileUpdate.photoURL = newPhoto;
+        try { await currentUser.updateProfile(profileUpdate); } catch(authErr) {}
+        const fsUpdate = {};
+        if (newName) fsUpdate.name = newName;
+        if (newPhoto) fsUpdate.photoURL = newPhoto;
+        try {
+            await FB.upsertUser(currentUser.uid, fsUpdate);
+        } catch(fsErr) {
+            if (currentKey && currentKey !== 'Saurus') {
+                await fetch('/api/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apikey: currentKey, ...fsUpdate })
+                });
+            }
+        }
+        if (newName) document.getElementById('u-name').textContent = newName;
+        if (newPhoto) document.getElementById('u-avatar').src = newPhoto;
+        showToast('PEMBARUAN BERHASIL');
+        editOverlay.classList.remove('is-edit', 'is-active');
+        uploadStatus.innerHTML = 'JPG, PNG MAKS 5MB';
+    } catch (e) {
+        showToast('GAGAL MEMPERBARUI');
+    }
+};
+
+document.getElementById('btn-logout').onclick = () => {
+    if (!auth) return;
+    if (unsubStats) { clearInterval(unsubStats); unsubStats = null; }
+    auth.signOut();
+};
+
+// Tampilkan cache dulu buat UX cepat, nanti auth confirm via onAuthStateChanged
+(function instantAuth() {
+    const cached = localStorage.getItem('Saurus_user_cache');
+    if (cached) {
+        try {
+            const u = JSON.parse(cached);
+            document.getElementById('guest-wrapper').style.display = 'none';
+            document.getElementById('auth-wrapper').style.display = 'none';
+            document.getElementById('profile-wrapper').style.display = 'block';
+            if (u.photoURL) document.getElementById('u-avatar').src = u.photoURL;
+            if (u.displayName) document.getElementById('u-name').textContent = u.displayName;
+            if (u.email) document.getElementById('u-email').textContent = u.email;
+        } catch(e) {}
+    }
+})();
+
+// auth dan onAuthStateChanged sudah dipindah ke _initFirebase() di bawah
+</script>
+<script src="/shared.js"></script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase === 'undefined') return;
+    if (!firebase.apps || !firebase.apps.length) {
+        const r = await fetch('/api/fb/client-config');
+        const j = await r.json();
+        if (!j.ok) throw new Error('Gagal load Firebase config');
+        firebase.initializeApp(j.data);
+    }
+    // Init auth setelah Firebase ready
+    auth = firebase.auth();
+
+    auth.onAuthStateChanged(async user => {
+        if (user) {
+            currentUser = user;
+            localStorage.setItem('Saurus_user_cache', JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL
+            }));
+            document.getElementById('guest-wrapper').style.display = 'none';
+            document.getElementById('auth-wrapper').style.display = 'none';
+            loadProfile(user);
+        } else {
+            currentUser = null; currentKey = null;
+            localStorage.removeItem('Saurus_user_cache');
+            if (unsubStats) { clearInterval(unsubStats); unsubStats = null; }
+            document.getElementById('profile-wrapper').style.display = 'none';
+            document.getElementById('auth-wrapper').style.display = 'none';
+            initGuestCountdown();
+        }
+    });
+}
+_initFirebase().catch(e => console.error('Firebase init gagal:', e));
+</script>
+</body>
+</html>

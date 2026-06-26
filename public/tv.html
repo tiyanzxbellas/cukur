@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F4F4F5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SaurusAPI">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Streaming TV - Saurus API</title>
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+  <meta property="og:site_name" content="Saurus API">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    :root {
+      --bg-main: #F4F4F5;
+      --bg-card: #FFFFFF;
+      --border-dark: #000000;
+      --text-main: #000000;
+      --text-muted: #52525B;
+      --gray-light: #E4E4E7;
+      --gray-med: #D4D4D8;
+      --gray-dark: #A1A1AA;
+      --bg-inverse: #000000;
+      --text-inverse: #FFFFFF;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+      --border-thick: 2.5px solid var(--border-dark);
+      --border-dashed: 2.5px dashed var(--border-dark);
+      --shadow-solid: 4px 4px 0px var(--border-dark);
+      --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+      --shadow-active: 0px 0px 0px transparent;
+    }
+
+    body.dark-theme {
+      --bg-main: #121212;
+      --bg-card: #1E1E1E;
+      --border-dark: #000000;
+      --text-main: #FFFFFF;
+      --text-muted: #A1A1AA;
+      --gray-light: #27272A;
+      --gray-med: #3F3F46;
+      --gray-dark: #52525B;
+      --bg-inverse: #FFFFFF;
+      --text-inverse: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    .moving-background-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+      background-size: 32px 32px;
+      opacity: 0.15;
+      animation: pan-background 40s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pan-background {
+      0% { background-position: 0 0; }
+      100% { background-position: 100vw 100vh; }
+    }
+
+    .fixed-bg-photo {
+      position: fixed;
+      inset: 0;
+      background-image: url('https://i.ibb.co/hR2yfJHd/Saurus28039813.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 0;
+      opacity: 0.25;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    body.dark-theme .fixed-bg-photo {
+      opacity: 0.15;
+    }
+
+    body.sidebar-open {
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .app-viewport {
+      width: 100%;
+      max-width: 768px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 0 0 100px 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+      gap: 24px;
+    }
+
+    .top-navigation-cluster {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-main);
+      padding: 16px 20px;
+      border-bottom: var(--border-thick);
+    }
+
+    .kinetic-hamburger-btn {
+      width: 48px;
+      height: 48px;
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+    }
+
+    .kinetic-hamburger-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .kinetic-line {
+      width: 22px;
+      height: 3px;
+      background-color: var(--text-inverse);
+      border-radius: 2px;
+    }
+
+    .center-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .cluster-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn-circle {
+      width: 48px;
+      height: 48px;
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+    }
+
+    .action-btn-circle:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .action-btn-circle.is-active-state {
+      background-color: var(--bg-inverse);
+      color: var(--text-inverse);
+    }
+
+    .section-padding {
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .section-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-title-line {
+      flex: 1;
+      height: 3px;
+      background: var(--border-dark);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tv-player-container {
+      width: 100%;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-solid);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tv-video-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      position: relative;
+    }
+
+    .tv-video-element {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .tv-status-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.8);
+      color: #FFF;
+      z-index: 10;
+      gap: 12px;
+      transition: opacity 0.3s;
+    }
+
+    .tv-status-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .tv-status-icon {
+      font-size: 48px;
+    }
+
+    .tv-status-text {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .tv-player-info {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--gray-light);
+      border-top: var(--border-thick);
+    }
+
+    .tv-current-channel {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tv-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+      background: var(--bg-card);
+      padding: 6px 12px;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-pill);
+    }
+
+    .tv-dot {
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    .tv-dot.offline {
+      background: var(--gray-dark);
+      animation: none;
+    }
+
+    @keyframes pulse-dot {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 0, 0, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+    }
+
+    .channel-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .channel-btn {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+      touch-action: manipulation;
+    }
+
+    .channel-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .channel-btn.active {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+    }
+
+    .channel-btn.active .channel-icon {
+      color: var(--text-inverse);
+    }
+
+    .channel-icon {
+      font-size: 28px;
+      color: var(--text-main);
+    }
+
+    .channel-name {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .application-footer-block {
+      text-align: center;
+      padding: 20px 20px 60px 20px;
+      width: 100%;
+    }
+
+    .footer-primary-text {
+      font-size: 1.1rem;
+      color: var(--text-main);
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .footer-secondary-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 8px;
+      background: var(--gray-light);
+      display: inline-block;
+      padding: 6px 12px;
+      border: 2px solid var(--border-dark);
+    }
+
+    .kinetic-overlay-navigation {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 900;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .kinetic-overlay-navigation.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .navigation-menu-card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 85%;
+      max-width: 340px;
+      height: 100%;
+      background: var(--bg-main);
+      border-right: var(--border-thick);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 10px 0 0 rgba(0,0,0,0.3);
+      transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+      overflow: hidden;
+      z-index: 2;
+      pointer-events: auto;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .kinetic-overlay-navigation.is-active .navigation-menu-card {
+      transform: translateX(0);
+    }
+
+    .navigation-menu-card::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .nav-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      border-bottom: var(--border-thick);
+      background: var(--bg-card);
+      flex-shrink: 0;
+    }
+
+    .nav-card-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .btn-close-sidebar {
+      background: var(--bg-card);
+      border: 2px solid var(--border-dark);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .btn-close-sidebar:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .nav-links-stagger {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .nav-links-stagger::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .navigation-route-link {
+      text-decoration: none;
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 14px 16px;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .navigation-route-link i {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+
+    .navigation-route-link:active {
+      transform: translate(2px, 2px) !important;
+      box-shadow: var(--shadow-active) !important;
+    }
+
+    .navigation-route-link.route-active {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+    }
+
+    .nav-card-footer {
+      padding: 20px;
+      border-top: var(--border-thick);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+    }
+
+    .nav-footer-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid var(--border-dark);
+    }
+
+    .nav-footer-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .nav-footer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-footer-name {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .nav-footer-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .error-container {
+      width: 100%;
+      padding: 16px;
+      background: #ef4444;
+      color: #ffffff;
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-solid);
+    }
+
+    .error-container i {
+      font-size: 24px;
+    }
+  </style>
+  <script>
+    (function(){
+      var t = localStorage.getItem('Saurus-theme') || localStorage.getItem('Saurus_theme');
+      var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.classList.add('pre-dark');
+    })();
+  </script>
+  <style>
+    html.pre-dark body { background-color: #121212 !important; }
+  </style>
+</head>
+<body>
+
+<div class="fixed-bg-photo"></div>
+<div class="moving-background-pattern"></div>
+
+<div class="app-viewport">
+  <div class="top-navigation-cluster">
+    <button class="kinetic-hamburger-btn" id="trigger-menu" aria-label="Buka menu">
+      <span class="kinetic-line line-top"></span>
+      <span class="kinetic-line line-mid"></span>
+      <span class="kinetic-line line-bot"></span>
+    </button>
+    <div class="center-brand-group">
+      <i class="ph-bold ph-television"></i> STREAMING TV
+    </div>
+    <div class="cluster-actions">
+      <button class="action-btn-circle" id="btn-theme-toggle" aria-label="Toggle theme">
+        <i id="theme-icon" class="ph-bold ph-moon"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="section-padding">
+    <div class="error-container" id="error-message">
+      <i class="ph-bold ph-warning-circle"></i>
+      <span id="error-text">Terjadi kesalahan pada server.</span>
+    </div>
+  </div>
+
+  <div class="section-padding">
+    <div class="tv-player-container">
+      <div class="tv-video-wrapper">
+        <video id="tv-video-element" class="tv-video-element" controls playsinline></video>
+        <div class="tv-status-overlay" id="tv-status-overlay">
+          <i class="ph-bold ph-monitor-play tv-status-icon"></i>
+          <span class="tv-status-text" id="tv-overlay-text">PILIH CHANNEL UNTUK MEMULAI</span>
+        </div>
+      </div>
+      <div class="tv-player-info">
+        <div class="tv-current-channel" id="tv-current-channel">
+          <i class="ph-bold ph-broadcast"></i> BELUM ADA CHANNEL
+        </div>
+        <div class="tv-status-indicator">
+          <div class="tv-dot offline" id="tv-status-dot"></div>
+          <span id="tv-status-label">OFFLINE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title-wrapper">
+    <div class="section-title">Daftar Channel</div>
+    <div class="section-title-line"></div>
+  </div>
+
+  <div class="channel-grid-container" id="channel-grid">
+  </div>
+
+  <div class="application-footer-block">
+    <div class="footer-primary-text">API BY Saurus</div>
+    <div class="footer-secondary-text">HLS PLAYER ENGINE</div>
+  </div>
+</div>
+
+<div class="kinetic-overlay-navigation" id="navigation-overlay">
+  <div class="navigation-menu-card" id="navigation-menu-card">
+    <div class="nav-card-header">
+      <span class="nav-card-title">Menu Utama</span>
+      <button class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Tutup menu"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="nav-links-stagger">
+      <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> Dasbor Utama</a>
+      <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> Akun & ApiKey</a>
+      <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> Dokumentasi API</a>
+      <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> Repositori Snippet</a>
+      <a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+      <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> Streaming Anime</a>
+      <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> Streaming Donghua</a>
+      <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> Baca Manga</a>
+      <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> Baca Manhwa</a>
+      <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> Bioskop Film</a>
+      <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+      <a href="/tv" class="navigation-route-link route-active"><i class="ph-bold ph-television"></i> Streaming TV</a>
+      <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> Claim Panel</a>
+      <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> Aplikasi Mod</a>
+      <a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> Host Media</a>
+    </div>
+    <div class="nav-card-footer">
+      <div class="nav-footer-avatar">
+        <img src="https://files.catbox.moe/9y8310.jpg" alt="Saurus">
+      </div>
+      <div class="nav-footer-info">
+        <span class="nav-footer-name">API Saurus</span>
+        <span class="nav-footer-desc">Infrastruktur REST API</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initTheme() {
+    const isDark = localStorage.getItem('Saurus-theme') === 'dark' || localStorage.getItem('Saurus_theme') === 'dark';
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      document.getElementById('btn-theme-toggle').classList.add('is-active-state');
+    }
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+  }
+  initTheme();
+
+  const btnThemeToggle = document.getElementById('btn-theme-toggle');
+  btnThemeToggle.onclick = (e) => {
+    const btn = e.currentTarget;
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+    btn.classList.toggle('is-active-state', isDark);
+  };
+
+  const btnMenu = document.getElementById('trigger-menu');
+  const navOverlay = document.getElementById('navigation-overlay');
+  const navMenuCard = document.getElementById('navigation-menu-card');
+  const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+
+  function openSidebar() {
+    navOverlay.classList.add('is-active');
+    document.body.classList.add('sidebar-open');
+  }
+
+  function closeSidebar() {
+    navOverlay.classList.remove('is-active');
+    document.body.classList.remove('sidebar-open');
+    navMenuCard.style.transition = '';
+    navMenuCard.style.transform = '';
+  }
+
+  btnMenu.addEventListener('click', openSidebar);
+  btnCloseSidebar.addEventListener('click', closeSidebar);
+  navOverlay.addEventListener('click', (e) => {
+    if (e.target === navOverlay) closeSidebar();
+  });
+
+  let sbStartX = 0, sbCurrentX = 0, isDraggingSidebar = false;
+  function startDragSidebar(x) {
+    sbStartX = x; sbCurrentX = x; isDraggingSidebar = true;
+    navMenuCard.style.transition = 'none';
+  }
+  function dragSidebar(x) {
+    if (!isDraggingSidebar) return;
+    sbCurrentX = x;
+    const diff = sbCurrentX - sbStartX;
+    if (diff < 0) navMenuCard.style.transform = `translateX(${diff}px)`;
+  }
+  function endDragSidebar() {
+    if (!isDraggingSidebar) return;
+    isDraggingSidebar = false;
+    navMenuCard.style.transition = 'transform 0.4s cubic-bezier(0.2, 0, 0.2, 1)';
+    const diff = sbCurrentX - sbStartX;
+    if (diff < -80) closeSidebar();
+    else navMenuCard.style.transform = 'translateX(0)';
+  }
+  function shouldIgnoreDragTarget(target) {
+    return !!target.closest('a, button, input, textarea, select, label');
+  }
+  navMenuCard.addEventListener('touchstart', (e) => {
+    if (shouldIgnoreDragTarget(e.target)) return;
+    startDragSidebar(e.touches[0].clientX);
+  }, { passive: true });
+  navMenuCard.addEventListener('touchmove', (e) => {
+    if (shouldIgnoreDragTarget(e.target)) return;
+    dragSidebar(e.touches[0].clientX);
+  }, { passive: true });
+  navMenuCard.addEventListener('touchend', endDragSidebar);
+
+  const channelList = [
+    { id: "rtv", name: "RTV" },
+    { id: "trans7", name: "TRANS 7" },
+    { id: "transtv", name: "TRANS TV" },
+    { id: "tvone", name: "TV ONE" },
+    { id: "kompastv", name: "KOMPAS TV" },
+    { id: "mdtv", name: "MD TV" },
+    { id: "tvri", name: "TVRI" },
+    { id: "tvriworld", name: "TVRI WORLD" },
+    { id: "metrotv", name: "METRO TV" },
+    { id: "btv", name: "BTV" },
+    { id: "sctv", name: "SCTV" },
+    { id: "mdji", name: "MDJI" },
+    { id: "indosiar", name: "INDOSIAR" },
+    { id: "cnntv", name: "CNN TV" },
+    { id: "cnbctv", name: "CNBC TV" },
+    { id: "beritasatu", name: "BERITA SATU" },
+    { id: "sporttv", name: "SPORT TV" },
+    { id: "ebskids", name: "EBS KIDS" }
+  ];
+
+  const gridContainer = document.getElementById('channel-grid');
+  const videoElement = document.getElementById('tv-video-element');
+  const overlay = document.getElementById('tv-status-overlay');
+  const overlayText = document.getElementById('tv-overlay-text');
+  const currentChannelDisplay = document.getElementById('tv-current-channel');
+  const statusDot = document.getElementById('tv-status-dot');
+  const statusLabel = document.getElementById('tv-status-label');
+  const errorContainer = document.getElementById('error-message');
+  const errorText = document.getElementById('error-text');
+
+  let hlsInstance = null;
+  let activeChannelId = null;
+
+  function renderGrid() {
+    gridContainer.innerHTML = '';
+    channelList.forEach(ch => {
+      const btn = document.createElement('div');
+      btn.className = 'channel-btn';
+      btn.dataset.id = ch.id;
+      btn.innerHTML = `
+        <i class="ph-bold ph-television channel-icon"></i>
+        <span class="channel-name">${ch.name}</span>
+      `;
+      btn.addEventListener('click', () => loadChannel(ch.id, ch.name));
+      gridContainer.appendChild(btn);
+    });
+  }
+
+  function showError(msg) {
+    errorText.textContent = msg;
+    errorContainer.style.display = 'flex';
+    setTimeout(() => {
+      errorContainer.style.display = 'none';
+    }, 5000);
+  }
+
+  function setPlayerStatus(isLoading, isError, message) {
+    if (isLoading) {
+      overlay.classList.remove('hidden');
+      overlayText.textContent = message || "MEMUAT CHANNEL...";
+      statusDot.className = 'tv-dot offline';
+      statusLabel.textContent = 'MEMUAT';
+    } else if (isError) {
+      overlay.classList.remove('hidden');
+      overlayText.textContent = message || "GAGAL MEMUAT STREAM";
+      statusDot.className = 'tv-dot offline';
+      statusLabel.textContent = 'ERROR';
+    } else {
+      overlay.classList.add('hidden');
+      statusDot.className = 'tv-dot';
+      statusLabel.textContent = 'LIVE';
+    }
+  }
+
+  function destroyPlayer() {
+    if (hlsInstance) {
+      hlsInstance.destroy();
+      hlsInstance = null;
+    }
+    videoElement.removeAttribute('src');
+    videoElement.load();
+  }
+
+  async function loadChannel(channelId, channelName) {
+    activeChannelId = channelId;
+    document.querySelectorAll('.channel-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.id === channelId);
+    });
+
+    currentChannelDisplay.innerHTML = `<i class="ph-bold ph-broadcast"></i> ${channelName}`;
+    setPlayerStatus(true, false, `MENGHUBUNGKAN KE ${channelName}...`);
+    destroyPlayer();
+
+    try {
+      const response = await fetch(`/api/tv?channel=${encodeURIComponent(channelId)}`);
+      const payload = await response.json();
+
+      if (!response.ok || !payload.status) {
+        throw new Error(payload.result?.msg || payload.message || "Gagal mengambil data dari server");
+      }
+
+      const streamUrl = payload.result?.primary_url;
+      if (!streamUrl) {
+        throw new Error("URL Stream tidak ditemukan untuk channel ini");
+      }
+
+      initializeStream(streamUrl);
+
+    } catch (err) {
+      setPlayerStatus(false, true, "KONEKSI TERPUTUS");
+      showError(err.message);
+    }
+  }
+
+  function initializeStream(url) {
+    if (Hls.isSupported()) {
+      hlsInstance = new Hls({
+        maxBufferLength: 30,
+        maxMaxBufferLength: 600,
+        enableWorker: true
+      });
+      hlsInstance.loadSource(url);
+      hlsInstance.attachMedia(videoElement);
+      
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+        setPlayerStatus(false, false);
+        videoElement.play().catch(() => {
+          setPlayerStatus(false, true, "KLIK PLAY UNTUK MEMULAI");
+        });
+      });
+
+      hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hlsInstance.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hlsInstance.recoverMediaError();
+              break;
+            default:
+              destroyPlayer();
+              setPlayerStatus(false, true, "STREAM TIDAK TERSEDIA");
+              showError("Kesalahan pemutaran yang fatal.");
+              break;
+          }
+        }
+      });
+    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      videoElement.src = url;
+      videoElement.addEventListener('loadedmetadata', function() {
+        setPlayerStatus(false, false);
+        videoElement.play().catch(() => {
+          setPlayerStatus(false, true, "KLIK PLAY UNTUK MEMULAI");
+        });
+      });
+      videoElement.addEventListener('error', function() {
+        setPlayerStatus(false, true, "STREAM TIDAK TERSEDIA");
+      });
+    } else {
+      setPlayerStatus(false, true, "BROWSER TIDAK MENDUKUNG");
+      showError("Browser Anda tidak mendukung pemutaran HLS.");
+    }
+  }
+
+  window.addEventListener('load', renderGrid);
+</script>
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Verifikasi OTP — API Saurus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #111111;
+  --bg-input: #1a1a1a;
+  --border: #2a2a2a;
+  --border-focus: #6366f1;
+  --text: #f4f4f5;
+  --text-muted: #71717a;
+  --accent: #6366f1;
+  --accent-glow: rgba(99,102,241,0.2);
+  --error: #ef4444;
+  --success: #22c55e;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ─── NOISE OVERLAY ─────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.otp-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 32px 36px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
+}
+
+/* ─── HEADER ─────────────── */
+.otp-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.otp-lock-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.35);
+}
+
+.otp-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.otp-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.otp-sub strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─── DIGITS ─────────────── */
+.otp-digits {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.otp-digit {
+  width: 48px;
+  height: 58px;
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  caret-color: var(--accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.otp-digit:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  transform: scale(1.05);
+}
+
+.otp-digit.filled {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.07);
+}
+
+/* ─── PASTE BUTTON ─────────────── */
+.otp-paste-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: var(--text-muted);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 20px;
+}
+
+.otp-paste-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+  color: var(--text);
+}
+
+/* ─── PASSWORD FIELD ─────────────── */
+.field-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.otp-pass-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.otp-pass-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 44px 12px 14px;
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.otp-pass-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.otp-pass-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.otp-pass-toggle:hover { color: var(--text); }
+
+/* ─── ERROR / TIMER ─────────────── */
+.otp-err {
+  color: var(--error);
+  font-size: 0.78rem;
+  min-height: 18px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.otp-timer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'DM Mono', monospace;
+}
+
+.otp-timer.urgent { color: var(--error); }
+
+/* ─── VERIFY BUTTON ─────────────── */
+.btn-verify {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+}
+
+.btn-verify:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 6px 24px rgba(99,102,241,0.5);
+}
+
+.btn-verify:active:not(:disabled) {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+.btn-verify:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ─── RESEND ROW ─────────────── */
+.otp-resend-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.otp-resend-row span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btn-resend {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.btn-resend:hover:not(:disabled) { background: var(--accent-glow); }
+.btn-resend:disabled { color: var(--text-muted); cursor: not-allowed; }
+
+/* ─── BACK LINK ─────────────── */
+.otp-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: color 0.15s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+.otp-back:hover { color: var(--text); }
+
+/* ─── SUCCESS STATE ─────────────── */
+.otp-success {
+  text-align: center;
+  padding: 20px 0;
+  display: none;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(34,197,94,0.15);
+  border: 2px solid var(--success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+  color: var(--success);
+}
+
+.success-title {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--success);
+  margin-bottom: 8px;
+}
+
+.success-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ─── TOAST ─────────────── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #18181b;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 0.8rem;
+  color: var(--text);
+  z-index: 9999;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+}
+
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ─── LOADING OVERLAY ─────────────── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  transition: opacity 0.3s;
+}
+
+#loading-screen.hidden { opacity: 0; pointer-events: none; }
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <div class="loading-text">Memuat Sesi...</div>
+</div>
+
+<!-- OTP Card -->
+<div class="otp-card" id="otp-card" style="display:none;">
+
+  <!-- Header -->
+  <div class="otp-header">
+    <div class="otp-lock-icon"><i class="ph-bold ph-lock-key"></i></div>
+    <div class="otp-title">Verifikasi Login</div>
+    <div class="otp-sub">Kode OTP 6-digit dikirim ke<br><strong id="otp-email-display">—</strong></div>
+  </div>
+
+  <!-- Main form -->
+  <div id="otp-form-area">
+    <!-- Digit Inputs -->
+    <div class="otp-digits">
+      <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" id="od1" autocomplete="off">
+      <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" id="od2" autocomplete="off">
+      <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" id="od3" autocomplete="off">
+      <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" id="od4" autocomplete="off">
+      <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" id="od5" autocomplete="off">
+      <input class="otp-digit" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]" id="od6" autocomplete="off">
+    </div>
+
+    <!-- Paste Button -->
+    <button class="otp-paste-btn" id="btn-otp-paste">
+      <i class="ph-bold ph-clipboard-text"></i>
+      <span>Tempel OTP dari clipboard</span>
+    </button>
+
+    <!-- Password confirm -->
+    <label class="field-label" for="otp-pass-verify">Konfirmasi Kata Sandi</label>
+    <div class="otp-pass-wrap">
+      <input class="otp-pass-input" type="password" id="otp-pass-verify" placeholder="Masukkan kata sandi kamu">
+      <button class="otp-pass-toggle" id="btn-pass-toggle" type="button" tabindex="-1">
+        <i class="ph-bold ph-eye" id="pass-eye-icon"></i>
+      </button>
+    </div>
+
+    <div class="otp-err" id="otp-err"></div>
+
+    <div class="otp-timer" id="otp-timer">Kode berlaku: 5:00</div>
+
+    <button class="btn-verify" id="btn-otp-verify">
+      <i class="ph-bold ph-check-circle"></i> VERIFIKASI &amp; MASUK
+    </button>
+
+    <div class="otp-resend-row">
+      <span>Tidak menerima kode?</span>
+      <button class="btn-resend" id="btn-otp-resend">Kirim Ulang</button>
+    </div>
+  </div>
+
+  <!-- Success State -->
+  <div class="otp-success" id="otp-success">
+    <div class="success-icon"><i class="ph-bold ph-check-circle"></i></div>
+    <div class="success-title">TERVERIFIKASI</div>
+    <div class="success-sub">Mengalihkan ke halaman profil...</div>
+  </div>
+
+  <!-- Back -->
+  <button class="otp-back" id="btn-back">
+    <i class="ph-bold ph-arrow-left"></i> Kembali ke Login
+  </button>
+</div>
+
+<!-- Error Card (no session) -->
+<div class="otp-card" id="error-card" style="display:none;text-align:center;">
+  <div class="otp-header">
+    <div class="otp-lock-icon" style="background:rgba(239,68,68,0.15);box-shadow:none;border:2px solid #ef4444;color:#ef4444;"><i class="ph-bold ph-warning"></i></div>
+    <div class="otp-title" style="color:#ef4444;">Sesi Tidak Valid</div>
+    <div class="otp-sub">Tidak ada sesi OTP aktif.<br>Silakan login ulang dari halaman profil.</div>
+  </div>
+  <a href="/profile" style="display:block;text-align:center;margin-top:8px;color:var(--accent);font-size:0.82rem;font-weight:700;text-decoration:none;">
+    <i class="ph-bold ph-arrow-left"></i> Ke Halaman Login
+  </a>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<script>
+// ─── Firebase Init ────────────────────────────────────────────────────────
+const auth = firebase.auth();
+
+// ─── Session Data ─────────────────────────────────────────────────────────
+// profile.html simpan data OTP pending ke sessionStorage sebelum redirect
+const SESSION_KEY = 'Saurus_otp_session';
+
+function getSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── Timer ────────────────────────────────────────────────────────────────
+let _timerInterval = null;
+let _timerSeconds = 300;
+
+function startTimer() {
+  _timerSeconds = 300;
+  const el = document.getElementById('otp-timer');
+  clearInterval(_timerInterval);
+  el.classList.remove('urgent');
+  _timerInterval = setInterval(() => {
+    _timerSeconds--;
+    const m = Math.floor(_timerSeconds / 60);
+    const s = _timerSeconds % 60;
+    el.textContent = 'Kode berlaku: ' + m + ':' + s.toString().padStart(2, '0');
+    if (_timerSeconds <= 60) el.classList.add('urgent');
+    if (_timerSeconds <= 0) {
+      clearInterval(_timerInterval);
+      el.textContent = 'Kode sudah expired. Klik Kirim Ulang.';
+    }
+  }, 1000);
+}
+
+// ─── Digit Inputs ─────────────────────────────────────────────────────────
+const otpIds = ['od1','od2','od3','od4','od5','od6'];
+
+function getOtpValue() {
+  return otpIds.map(id => document.getElementById(id).value).join('');
+}
+
+function fillDigits(digits) {
+  const clean = digits.replace(/[^0-9]/g, '').slice(0, 6);
+  otpIds.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.value = clean[i] || '';
+    el.classList.toggle('filled', !!clean[i]);
+  });
+  const nextIdx = Math.min(clean.length, otpIds.length - 1);
+  document.getElementById(otpIds[nextIdx]).focus();
+  return clean.length === 6;
+}
+
+otpIds.forEach((id, idx) => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    el.value = el.value.replace(/[^0-9]/g, '').slice(-1);
+    el.classList.toggle('filled', !!el.value);
+    if (el.value && idx < otpIds.length - 1) document.getElementById(otpIds[idx + 1]).focus();
+  });
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Backspace') {
+      if (!el.value && idx > 0) document.getElementById(otpIds[idx - 1]).focus();
+      el.classList.remove('filled');
+    }
+  });
+  el.addEventListener('paste', e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    fillDigits(text);
+  });
+});
+
+// ─── Paste Button ─────────────────────────────────────────────────────────
+document.getElementById('btn-otp-paste').addEventListener('click', async () => {
+  const errEl = document.getElementById('otp-err');
+  errEl.textContent = '';
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!fillDigits(text)) errEl.textContent = 'Clipboard tidak ada kode OTP valid.';
+      return;
+    } catch {}
+  }
+  // Fallback execCommand
+  try {
+    const ta = document.createElement('textarea');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0.01;z-index:99999;font-size:16px;';
+    document.body.appendChild(ta);
+    ta.focus();
+    document.execCommand('paste');
+    const val = ta.value;
+    document.body.removeChild(ta);
+    if (val && fillDigits(val)) return;
+  } catch {}
+  document.getElementById('od1').focus();
+  errEl.style.color = '#6366f1';
+  errEl.textContent = 'Tekan & tahan kotak → Tempel.';
+  setTimeout(() => { errEl.style.color = ''; errEl.textContent = ''; }, 3000);
+});
+
+// ─── Password Toggle ──────────────────────────────────────────────────────
+document.getElementById('btn-pass-toggle').addEventListener('click', () => {
+  const inp = document.getElementById('otp-pass-verify');
+  const icon = document.getElementById('pass-eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.className = 'ph-bold ph-eye-slash';
+  } else {
+    inp.type = 'password';
+    icon.className = 'ph-bold ph-eye';
+  }
+});
+
+// ─── Main State ───────────────────────────────────────────────────────────
+let _pendingUser = null;
+let _pendingEmail = '';
+
+async function sendOtp(uid, email) {
+  const r = await fetch('/api/fb/send-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid, email })
+  });
+  return r.json();
+}
+
+// ─── Verify Button ────────────────────────────────────────────────────────
+document.getElementById('btn-otp-verify').addEventListener('click', async () => {
+  const otp = getOtpValue();
+  const pass = document.getElementById('otp-pass-verify').value;
+  const errEl = document.getElementById('otp-err');
+  errEl.textContent = '';
+
+  if (otp.length !== 6) { errEl.textContent = 'Masukkan 6 digit OTP.'; return; }
+  if (!pass) { errEl.textContent = 'Konfirmasi kata sandi dulu.'; return; }
+  if (!_pendingUser) { errEl.textContent = 'Sesi hilang. Coba login ulang.'; return; }
+
+  const btn = document.getElementById('btn-otp-verify');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ph-bold ph-circle-notch" style="animation:spin 0.7s linear infinite;display:inline-block;"></i> MEMVERIFIKASI...';
+
+  try {
+    const verRes = await fetch('/api/fb/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: _pendingUser.uid, otp })
+    });
+    const verData = await verRes.json();
+    if (!verData.ok) {
+      errEl.textContent = verData.message;
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ph-bold ph-check-circle"></i> VERIFIKASI &amp; MASUK';
+      return;
+    }
+
+    // Re-auth
+    const cred = firebase.auth.EmailAuthProvider.credential(_pendingEmail, pass);
+    await _pendingUser.reauthenticateWithCredential(cred);
+
+    // Success
+    clearInterval(_timerInterval);
+    clearSession();
+    document.getElementById('otp-form-area').style.display = 'none';
+    document.getElementById('btn-back').style.display = 'none';
+    document.getElementById('otp-success').style.display = 'block';
+
+    showToast('Login berhasil & terverifikasi!');
+    setTimeout(() => { window.location.href = '/profile'; }, 1800);
+
+  } catch (e) {
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      errEl.textContent = 'Kata sandi salah.';
+    } else {
+      errEl.textContent = e.message || 'Verifikasi gagal.';
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph-bold ph-check-circle"></i> VERIFIKASI &amp; MASUK';
+  }
+});
+
+// ─── Resend ───────────────────────────────────────────────────────────────
+document.getElementById('btn-otp-resend').addEventListener('click', async () => {
+  if (!_pendingUser) return;
+  const btn = document.getElementById('btn-otp-resend');
+  btn.disabled = true;
+  document.getElementById('otp-err').textContent = '';
+  const r = await sendOtp(_pendingUser.uid, _pendingEmail);
+  if (r.ok) {
+    startTimer();
+    showToast('OTP baru terkirim!');
+  } else {
+    document.getElementById('otp-err').textContent = r.message || 'Gagal kirim ulang OTP.';
+  }
+  setTimeout(() => { btn.disabled = false; }, 5000);
+});
+
+// ─── Back Button ──────────────────────────────────────────────────────────
+document.getElementById('btn-back').addEventListener('click', async () => {
+  clearSession();
+  clearInterval(_timerInterval);
+  try { await auth.signOut(); } catch {}
+  window.location.href = '/profile';
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+function hideLoading() {
+  const s = document.getElementById('loading-screen');
+  s.classList.add('hidden');
+  setTimeout(() => s.remove(), 400);
+}
+
+function showErrorCard() {
+  hideLoading();
+  document.getElementById('error-card').style.display = 'block';
+}
+
+function showOtpCard() {
+  hideLoading();
+  document.getElementById('otp-card').style.display = 'block';
+  setTimeout(() => document.getElementById('od1').focus(), 200);
+}
+
+// Check session on load
+auth.onAuthStateChanged(async user => {
+  const session = getSession();
+
+  if (!session) {
+    // Cek juga kalau user udah login tapi session hilang (misal refresh)
+    if (user) {
+      // User masih logged in tapi session OTP ga ada → kirim OTP baru
+      _pendingUser = user;
+      _pendingEmail = user.email || '';
+      document.getElementById('otp-email-display').textContent = _pendingEmail;
+      const otpRes = await sendOtp(user.uid, user.email);
+      if (!otpRes.ok && !otpRes.dev_otp) {
+        // SMTP belum setup, dev mode
+      }
+      startTimer();
+      showOtpCard();
+    } else {
+      showErrorCard();
+    }
+    return;
+  }
+
+  // Ada session → user harusnya udah sign in
+  if (!user) {
+    // User belum sign in tapi ada session data → error
+    showErrorCard();
+    return;
+  }
+
+  _pendingUser = user;
+  _pendingEmail = session.email || user.email || '';
+  document.getElementById('otp-email-display').textContent = _pendingEmail;
+
+  // Kalau session punya flag 'otpSent', jangan kirim ulang
+  if (!session.otpSent) {
+    const otpRes = await sendOtp(user.uid, _pendingEmail);
+    if (otpRes.ok || otpRes.dev_otp) {
+      try {
+        const s = getSession();
+        if (s) { s.otpSent = true; sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+      } catch {}
+    }
+  }
+
+  startTimer();
+  showOtpCard();
+});
+</script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) return;
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+}
+_initFirebase();
+</script>
+</body>
+</html>

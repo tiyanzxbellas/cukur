@@ -1,0 +1,2388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F4F4F5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Saurus AI">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Saurus AI - API Saurus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg-main: #F4F4F5;
+      --bg-card: #FFFFFF;
+      --border-dark: #000000;
+      --text-main: #000000;
+      --text-muted: #52525B;
+      --bg-inverse: #000000;
+      --text-inverse: #FFFFFF;
+      --gray-light: #E4E4E7;
+      --gray-med: #D4D4D8;
+      
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+
+      --border-thick: 2.5px solid var(--border-dark);
+      --border-dashed: 2.5px dashed var(--border-dark);
+      
+      --shadow-solid: 4px 4px 0px var(--border-dark);
+      --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+      --shadow-active: 0px 0px 0px transparent;
+    }
+
+    body.dark-theme {
+      --bg-main: #121212;
+      --bg-card: #1E1E1E;
+      --border-dark: #000000;
+      --text-main: #FFFFFF;
+      --text-muted: #A1A1AA;
+      --bg-inverse: #FFFFFF;
+      --text-inverse: #000000;
+      --gray-light: #27272A;
+      --gray-med: #3F3F46;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-main);
+      color: var(--text-main);
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .moving-background-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+      background-size: 32px 32px;
+      opacity: 0.15;
+      animation: pan-background 40s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pan-background {
+      0% { background-position: 0 0; }
+      100% { background-position: 100vw 100vh; }
+    }
+
+    .ai-viewport {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 600px;
+      margin: 0 auto;
+      position: fixed;
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
+      z-index: 1;
+    }
+
+    .auth-gate-wrapper {
+      position: absolute;
+      inset: 0;
+      z-index: 999;
+      background: var(--bg-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .auth-gate-wrapper.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .auth-slider-container {
+      width: 100%;
+      max-width: 400px;
+      height: 620px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-solid);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-panel {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px 32px;
+      background: var(--bg-card);
+      transition: transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 10;
+    }
+
+    .panel-signin {
+      left: 0;
+    }
+
+    .panel-signup {
+      left: 100%;
+    }
+
+    .auth-slider-container.slide-active .panel-signin {
+      transform: translateX(-100%);
+    }
+
+    .auth-slider-container.slide-active .panel-signup {
+      transform: translateX(-100%);
+    }
+
+    .auth-orb {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px auto;
+      background: var(--gray-light);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--text-main);
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .auth-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-align: center;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .auth-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+
+    .auth-input {
+      width: 100%;
+      background: var(--bg-main);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 700;
+      outline: none;
+      transition: box-shadow 0.2s, background-color 0.2s;
+    }
+
+    .auth-input:focus {
+      background: var(--bg-card);
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .auth-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .auth-btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-transform: uppercase;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .auth-btn-primary:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .auth-btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-main);
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin: 20px 0;
+    }
+
+    .auth-divider::before, 
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: var(--border-dark);
+    }
+
+    .auth-btn-google {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-transform: uppercase;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .auth-btn-google:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .auth-switch-text {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .auth-switch-link {
+      color: var(--text-main);
+      font-weight: 900;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+
+    .auth-error-box {
+      font-size: 0.8rem;
+      color: var(--text-inverse);
+      background: var(--bg-inverse);
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .auth-error-box.show {
+      display: block;
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 16px 8px 16px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-solid);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .ai-header-back {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-main);
+      border: var(--border-thick);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1.2rem;
+      text-decoration: none;
+      flex-shrink: 0;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .ai-header-back:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .ai-header-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--gray-light);
+      border: var(--border-thick);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--text-main);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .ai-online-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text-main);
+      border: 2px solid var(--bg-card);
+    }
+
+    .ai-header-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ai-header-name {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .ai-header-status {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .ai-header-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gray-light);
+      border: var(--border-thick);
+      object-fit: cover;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--text-main);
+      flex-shrink: 0;
+      font-weight: 900;
+    }
+
+    .ai-user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ai-header-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .ai-header-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+      background: var(--gray-light);
+    }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 16px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ai-messages::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ai-welcome-box {
+      width: 100%;
+      background: var(--gray-light);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-solid);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 32px 24px;
+      margin-top: 16px;
+    }
+
+    .ai-welcome-orb {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      border: var(--border-thick);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      color: var(--text-main);
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .ai-welcome-box h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .ai-welcome-box p {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .ai-suggestions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .ai-suggestion-chip {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      padding: 14px 20px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+    }
+
+    .ai-suggestion-chip i {
+      color: var(--text-main);
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      background: var(--gray-light);
+      border-radius: 50%;
+      padding: 4px;
+      border: var(--border-thick);
+    }
+
+    .ai-suggestion-chip:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .msg-row {
+      display: flex;
+      gap: 12px;
+      animation: msg-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes msg-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-row.user {
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border: var(--border-thick);
+    }
+
+    .msg-avatar.ai-av {
+      background: var(--gray-light);
+      color: var(--text-main);
+    }
+
+    .msg-avatar.user-av {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      overflow: hidden;
+      font-weight: 900;
+    }
+
+    .msg-avatar.user-av img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .msg-bubble {
+      max-width: 82%;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.6;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      box-shadow: var(--shadow-solid-sm);
+      border: var(--border-thick);
+    }
+
+    .msg-row.ai .msg-bubble {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+    }
+
+    .msg-row.user .msg-bubble {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
+    }
+
+    .msg-row.ai .msg-bubble strong, 
+    .msg-row.ai .msg-bubble b {
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .msg-row.ai .msg-bubble em, 
+    .msg-row.ai .msg-bubble i {
+      font-style: italic;
+      color: var(--text-muted);
+    }
+
+    .msg-row.ai .msg-bubble code {
+      background: var(--gray-light);
+      border: 2px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      color: var(--text-main);
+      font-weight: 900;
+    }
+
+    .code-block-wrapper {
+      margin: 12px 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: var(--border-thick);
+      background: var(--bg-main);
+    }
+
+    .code-block-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border-bottom: var(--border-thick);
+    }
+
+    .code-lang-badge {
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .code-toolbar-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .code-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-main);
+      border: 2px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+    }
+
+    .code-btn:active {
+      transform: translate(2px,2px);
+      box-shadow: var(--shadow-active);
+      background: var(--gray-light);
+    }
+
+    .msg-row.ai .msg-bubble pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.85em;
+      -webkit-overflow-scrolling: touch;
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    .msg-row.ai .msg-bubble pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: 1em;
+    }
+
+    .html-preview-frame {
+      width: 100%;
+      height: 300px;
+      border: none;
+      border-top: var(--border-thick);
+      background: #FFFFFF;
+      display: none;
+    }
+
+    .html-preview-frame.show {
+      display: block;
+    }
+
+    .msg-row.ai .msg-bubble ul {
+      padding-left: 6px;
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .msg-row.ai .msg-bubble ul li {
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .msg-row.ai .msg-bubble ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 8px;
+      height: 8px;
+      background: var(--border-dark);
+      border-radius: 50%;
+    }
+
+    .msg-row.ai .msg-bubble ol {
+      padding-left: 24px;
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-weight: 900;
+    }
+
+    .msg-row.ai .msg-bubble ol li {
+      list-style: decimal;
+      padding-left: 8px;
+    }
+
+    .msg-row.ai .msg-bubble p {
+      margin: 6px 0;
+    }
+
+    .msg-row.ai .msg-bubble p:first-child { margin-top: 0; }
+    .msg-row.ai .msg-bubble p:last-child { margin-bottom: 0; }
+
+    .msg-row.ai .msg-bubble h1, 
+    .msg-row.ai .msg-bubble h2, 
+    .msg-row.ai .msg-bubble h3 {
+      font-weight: 900;
+      color: var(--text-main);
+      margin: 12px 0 6px;
+      text-transform: uppercase;
+    }
+
+    .msg-row.ai .msg-bubble h1 { font-size: 1.2rem; }
+    .msg-row.ai .msg-bubble h2 { font-size: 1.1rem; }
+    .msg-row.ai .msg-bubble h3 { font-size: 1rem; }
+
+    .msg-row.ai .msg-bubble hr {
+      border: none;
+      border-top: var(--border-thick);
+      margin: 12px 0;
+    }
+
+    .msg-row.ai .msg-bubble blockquote {
+      border-left: 4px solid var(--border-dark);
+      padding: 8px 16px;
+      margin: 8px 0;
+      background: var(--gray-light);
+      border-radius: 0 12px 12px 0;
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 12px;
+      animation: msg-in 0.3s ease;
+    }
+
+    .typing-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-solid-sm);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+      padding: 16px 20px;
+    }
+
+    .typing-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-dark);
+      animation: typing-bounce 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing-bounce {
+      0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .ai-input-area {
+      flex-shrink: 0;
+      margin: 0 16px 16px 16px;
+      padding: 12px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-solid);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ai-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      min-height: 48px;
+    }
+
+    .ai-textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+      line-height: 1.5;
+      overflow-y: auto;
+      padding: 0 8px;
+      align-self: center;
+    }
+
+    .ai-textarea::placeholder {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .ai-send-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--bg-inverse);
+      border: var(--border-thick);
+      color: var(--text-inverse);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .ai-send-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .ai-send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--gray-med);
+      color: var(--border-dark);
+    }
+
+    .ai-input-hint {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 800;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .cs-reply-inbox {
+      display: none;
+      margin: 0 16px 12px 16px;
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      animation: msg-in 0.3s ease;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid);
+    }
+
+    .cs-reply-inbox.show {
+      display: block;
+    }
+
+    .inbox-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .inbox-from {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--text-inverse);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .inbox-time {
+      font-size: 0.75rem;
+      color: var(--text-inverse);
+      font-weight: 800;
+      margin-left: auto;
+    }
+
+    .inbox-message {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.6;
+      font-weight: 800;
+      background: var(--bg-card);
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: var(--border-thick);
+    }
+
+    .inbox-dismiss {
+      font-size: 0.75rem;
+      color: var(--text-inverse);
+      margin-top: 12px;
+      text-align: right;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .settings-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .settings-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(340px, 85vw);
+      background: var(--bg-main);
+      z-index: 900;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-left: var(--border-thick);
+    }
+
+    .settings-panel.open {
+      transform: translateX(0);
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px;
+      background: var(--bg-card);
+      border-bottom: var(--border-thick);
+    }
+
+    .settings-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: uppercase;
+    }
+
+    .settings-title i {
+      color: var(--text-main);
+      font-size: 1.4rem;
+    }
+
+    .settings-close {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--bg-inverse);
+      border: var(--border-thick);
+      color: var(--text-inverse);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .settings-close:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .settings-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .settings-group-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .settings-input {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      outline: none;
+      width: 100%;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    textarea.settings-input {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.5;
+    }
+
+    .settings-save-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      color: var(--text-inverse);
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+    }
+
+    .settings-save-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .settings-clear-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+    }
+
+    .settings-clear-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+      background: var(--gray-light);
+    }
+
+    .settings-logout-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-main);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+    }
+
+    .settings-logout-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .settings-version {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 16px 0;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .cs-fab {
+      position: fixed;
+      bottom: 120px;
+      right: 24px;
+      z-index: 500;
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      background: var(--bg-inverse);
+      border: var(--border-thick);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--text-inverse);
+      box-shadow: var(--shadow-solid);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .cs-fab:active {
+      transform: translate(4px, 4px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .cs-suggest-bubble {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: 12px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .cs-suggest-bubble:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .cs-suggest-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      color: var(--text-inverse);
+      background: var(--bg-inverse);
+      padding: 8px;
+      border-radius: 50%;
+      border: var(--border-thick);
+    }
+
+    .cs-suggest-text {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .cs-suggest-arrow {
+      margin-left: auto;
+      color: var(--text-main);
+      font-size: 1.4rem;
+    }
+
+    .cs-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .cs-modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .cs-modal {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--bg-main);
+      border: var(--border-thick);
+      border-radius: 32px 32px 0 0;
+      padding: 32px 24px;
+      padding-bottom: max(32px, env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.25,1,0.5,1);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .cs-modal-overlay.open .cs-modal {
+      transform: translateY(0);
+    }
+
+    .cs-modal-handle {
+      width: 60px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 10px;
+      margin: 0 auto 16px;
+    }
+
+    .cs-modal-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-transform: uppercase;
+    }
+
+    .cs-modal-title i {
+      color: var(--text-inverse);
+      font-size: 1.8rem;
+      background: var(--bg-inverse);
+      padding: 8px;
+      border-radius: 12px;
+      border: var(--border-thick);
+    }
+
+    .cs-modal-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .cs-modal-textarea {
+      width: 100%;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      resize: none;
+      outline: none;
+      min-height: 120px;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .cs-modal-send {
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-pill);
+      color: var(--text-inverse);
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+      text-transform: uppercase;
+    }
+
+    .cs-modal-send:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .cs-modal-send:disabled {
+      opacity: 0.6;
+    }
+
+    .cs-modal-cancel {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: center;
+      padding: 12px;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+  </style>
+  <script>
+    (function(){
+      var t = localStorage.getItem('Saurus-theme');
+      var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.classList.add('pre-dark');
+    })();
+  </script>
+  <style>
+    html.pre-dark body { background-color: #121212 !important; }
+  </style>
+<style>
+/* ─── OTP Modal ai.html ─────────────────────────────── */
+#otp-overlay-ai {
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);
+  align-items:center; justify-content:center;
+}
+#otp-overlay-ai.active { display:flex; }
+#otp-box-ai {
+  background:var(--bg-card,#1a1a2e);
+  border:2px solid var(--border,#333);
+  border-radius:18px; padding:32px 24px;
+  max-width:360px; width:90%;
+  display:flex; flex-direction:column; gap:14px;
+  color:var(--text,#fff);
+}
+#otp-box-ai .otp-h { font-size:1rem; font-weight:800; letter-spacing:1px; }
+#otp-box-ai .otp-s { font-size:0.78rem; opacity:0.6; margin-top:-6px; }
+.ai-otp-row { display:flex; gap:8px; justify-content:center; }
+.ai-otp-d {
+  width:44px; height:52px; border:2px solid var(--border,#444);
+  border-radius:10px; font-size:1.5rem; font-weight:800;
+  text-align:center; background:var(--bg-input,#0d0d1a);
+  color:var(--text,#fff); outline:none; caret-color:transparent;
+  transition:border-color 0.15s, transform 0.1s;
+}
+.ai-otp-d:focus { border-color:#6366f1; transform:scale(1.06); }
+.ai-otp-d.filled { border-color:#6366f1; background:rgba(99,102,241,0.12); }
+.ai-paste-row {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(99,102,241,0.07); border:1.5px dashed #6366f1;
+  border-radius:8px; padding:9px 12px; cursor:pointer;
+  transition:background 0.2s;
+}
+.ai-paste-row:hover { background:rgba(99,102,241,0.13); }
+.ai-paste-row span { font-size:0.8rem; color:#a1a1aa; }
+#ai-otp-pass {
+  width:100%; padding:11px 14px; border:2px solid var(--border,#444);
+  border-radius:8px; background:var(--bg-input,#0d0d1a);
+  color:var(--text,#fff); outline:none; font-size:0.9rem; box-sizing:border-box;
+  transition:border-color 0.15s;
+}
+#ai-otp-pass:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.15); }
+#ai-otp-err { color:#f87171; font-size:0.78rem; min-height:16px; }
+#btn-ai-otp-verify {
+  width:100%; padding:13px; border:none; border-radius:10px;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:#fff; font-weight:800; font-size:0.9rem;
+  letter-spacing:1px; cursor:pointer; transition:opacity 0.2s, transform 0.1s;
+}
+#btn-ai-otp-verify:active { opacity:0.75; transform:scale(0.98); }
+#btn-ai-otp-verify:disabled { opacity:0.5; cursor:not-allowed; }
+.ai-otp-bottom { display:flex; align-items:center; justify-content:space-between; }
+#ai-otp-timer { font-size:0.75rem; opacity:0.55; }
+#btn-ai-otp-resend {
+  background:none; border:none; color:#6366f1;
+  font-size:0.78rem; cursor:pointer; font-weight:600;
+}
+</style>
+</head>
+<body>
+  <!-- ─── OTP Modal ──────────────────────────────────────────── -->
+  <div id="otp-overlay-ai">
+    <div id="otp-box-ai">
+      <div class="otp-h">🔐 VERIFIKASI LOGIN</div>
+      <div class="otp-s">OTP dikirim ke <span id="ai-otp-email" style="font-weight:700;opacity:1;"></span></div>
+      <div class="ai-otp-row">
+        <input class="ai-otp-d" maxlength="1" type="text" inputmode="numeric" id="aod1">
+        <input class="ai-otp-d" maxlength="1" type="text" inputmode="numeric" id="aod2">
+        <input class="ai-otp-d" maxlength="1" type="text" inputmode="numeric" id="aod3">
+        <input class="ai-otp-d" maxlength="1" type="text" inputmode="numeric" id="aod4">
+        <input class="ai-otp-d" maxlength="1" type="text" inputmode="numeric" id="aod5">
+        <input class="ai-otp-d" maxlength="1" type="text" inputmode="numeric" id="aod6">
+      </div>
+      <div class="ai-paste-row" id="btn-ai-otp-paste">
+        <span>📋</span><span>Tempel OTP dari clipboard</span>
+      </div>
+      <input id="ai-otp-pass" type="password" placeholder="Konfirmasi Password">
+      <div id="ai-otp-err"></div>
+      <button id="btn-ai-otp-verify">VERIFIKASI &amp; MASUK</button>
+      <div class="ai-otp-bottom">
+        <div id="ai-otp-timer"></div>
+        <button id="btn-ai-otp-resend">Kirim ulang OTP</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="moving-background-pattern"></div>
+
+  <div class="auth-gate-wrapper" id="login-gate">
+    <div class="auth-slider-container" id="auth-slider">
+      
+      <div class="auth-panel panel-signin">
+        <div class="auth-orb"><i class="ph-bold ph-lock-key"></i></div>
+        <div class="auth-title">LOGIN DULU</div>
+        
+        <div class="auth-input-group">
+          <input type="email" class="auth-input" id="login-email" placeholder="Email Lo">
+          <input type="password" class="auth-input" id="login-pass" placeholder="Password Rahasia">
+        </div>
+        
+        <div class="auth-error-box" id="login-error"></div>
+        
+        <button class="auth-btn-primary" id="btn-login-email">
+          BUKA GERBANG
+        </button>
+        
+        <div class="auth-divider">JALAN PINTAS</div>
+        
+        <button class="auth-btn-google" id="btn-login-google">
+          <i class="ph-bold ph-google-logo"></i> GAS PAKE GOOGLE
+        </button>
+
+        <div class="auth-switch-text">
+          Belum punya tiket masuk? 
+          <span class="auth-switch-link" id="go-to-signup">DAFTAR DI SINI</span>
+        </div>
+      </div>
+
+      <div class="auth-panel panel-signup">
+        <div class="auth-orb"><i class="ph-bold ph-user-plus"></i></div>
+        <div class="auth-title">DAFTAR BARU</div>
+        
+        <div class="auth-input-group">
+          <input type="text" class="auth-input" id="reg-name" placeholder="Nama Keren Lo">
+          <input type="email" class="auth-input" id="reg-email" placeholder="Email Aktif">
+          <input type="password" class="auth-input" id="reg-pass" placeholder="Bikin Password">
+        </div>
+        
+        <div class="auth-error-box" id="reg-error"></div>
+        
+        <button class="auth-btn-primary" id="btn-register">
+          DAFTAR SEKARANG
+        </button>
+        
+        <div class="auth-divider">JALAN PINTAS</div>
+        
+        <button class="auth-btn-google" id="btn-register-google">
+          <i class="ph-bold ph-google-logo"></i> DAFTAR PAKE GOOGLE
+        </button>
+
+        <div class="auth-switch-text">
+          Udah punya akun? 
+          <span class="auth-switch-link" id="go-to-signin">MASUK AJA</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ai-viewport">
+    <div class="ai-header">
+      <a href="/" class="ai-header-back"><i class="ph-bold ph-arrow-left"></i></a>
+      <div class="ai-header-avatar">
+        <i class="ph-bold ph-robot"></i>
+        <div class="ai-online-dot"></div>
+      </div>
+      <div class="ai-header-info">
+        <div class="ai-header-name">Saurus AI</div>
+        <div class="ai-header-status" id="header-status"><i class="ph-fill ph-circle"></i> Memuat Data...</div>
+      </div>
+      <div class="ai-header-user">
+        <div class="ai-user-avatar" id="header-user-avatar">
+          <i class="ph-bold ph-user"></i>
+        </div>
+        <button class="ai-header-btn" id="btn-clear-chat" title="Hapus chat"><i class="ph-bold ph-trash"></i></button>
+        <button class="ai-header-btn" id="btn-settings" title="Pengaturan"><i class="ph-bold ph-sliders-horizontal"></i></button>
+      </div>
+    </div>
+
+    <div class="cs-reply-inbox" id="cs-reply-inbox" onclick="dismissInbox()">
+      <div class="inbox-header">
+        <div class="inbox-from"><i class="ph-bold ph-envelope-open"></i> PESAAN DARI OWNER</div>
+        <div class="inbox-time" id="inbox-time"></div>
+      </div>
+      <div class="inbox-message" id="inbox-message"></div>
+      <div class="inbox-dismiss">Klik box ini untuk nutup pesan.</div>
+    </div>
+
+    <div class="ai-messages" id="messages-container">
+      <div class="ai-welcome-box" id="welcome-screen">
+        <div class="ai-welcome-orb"><i class="ph-bold ph-robot"></i></div>
+        <h2>HALO! GUE Saurus AI</h2>
+        <p>Asisten virtual paling asik yang siap bantu jawabin pertanyaan lu, bikin kode, nulis artikel, atau sekedar nemenin lu gabut.</p>
+      </div>
+      <div class="ai-suggestions" id="welcome-suggestions">
+        <button class="ai-suggestion-chip" onclick="fillAndSend('Apa itu API Saurus dan apa saja fiturnya?')">
+          <i class="ph-bold ph-info"></i> Jelaskan apa itu API Saurus!
+        </button>
+        <button class="ai-suggestion-chip" onclick="fillAndSend('Buatkan saya kode Python untuk scraping website')">
+          <i class="ph-bold ph-code"></i> Bikinin kode web scraper dong
+        </button>
+        <button class="ai-suggestion-chip" onclick="fillAndSend('Gimana sih caranya move on dari mantan yang toxic?')">
+          <i class="ph-bold ph-heart-break"></i> Tips ampuh buat move on
+        </button>
+        <button class="ai-suggestion-chip" onclick="fillAndSend('Ceritakan sebuah lelucon garing tentang anak IT')">
+          <i class="ph-bold ph-smiley"></i> Kasih gue jokes bapak-bapak IT
+        </button>
+      </div>
+    </div>
+
+    <div class="ai-input-area">
+      <div class="ai-input-row">
+        <textarea class="ai-textarea" id="ai-textarea" placeholder="Tanya sesuatu ke Saurus..." rows="1"></textarea>
+        <button class="ai-send-btn" id="ai-send-btn"><i class="ph-bold ph-paper-plane-right"></i></button>
+      </div>
+      <div class="ai-input-hint" id="ai-input-hint"><i class="ph-bold ph-lightning"></i> Saurus AI Engine v2.0 - Powered by Siputzx</div>
+    </div>
+  </div>
+
+  <button class="cs-fab" id="cs-fab-btn" title="Hubungi CS">
+    <i class="ph-bold ph-headset"></i>
+  </button>
+
+  <div class="cs-modal-overlay" id="cs-modal-overlay">
+    <div class="cs-modal">
+      <div class="cs-modal-handle"></div>
+      <div class="cs-modal-title"><i class="ph-bold ph-headset"></i> CS / Lapor Bug</div>
+      <div class="cs-modal-sub">Nemu bug atau ada fitur yang error? Langsung laporin ke owner lewat sini. Chat lu bakal masuk langsung ke sistem pusat.</div>
+      <textarea class="cs-modal-textarea" id="cs-complaint-text" placeholder="Contoh: Bang, bot nya nge-bug pas disuruh nulis kode..." maxlength="1000"></textarea>
+      <button class="cs-modal-send" id="cs-send-btn"><i class="ph-bold ph-paper-plane-right"></i> KIRIM LAPORAN</button>
+      <button class="cs-modal-cancel" onclick="closeCSModal()">BATAL AJA DAH</button>
+    </div>
+  </div>
+
+  <div class="settings-overlay" id="settings-overlay" onclick="closeSettings()"></div>
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-header">
+      <span class="settings-title"><i class="ph-bold ph-sliders-horizontal"></i> KONTROL SISTEM</span>
+      <button class="settings-close" onclick="closeSettings()"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-group">
+        <div class="settings-group-label">Karakter AI (System Prompt)</div>
+        <textarea class="settings-input" id="setting-system" placeholder="Instruksi persona untuk AI..."></textarea>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-label">Mesin AI Utama</div>
+        <select class="settings-input" id="setting-model">
+          <option value="glm47flash">Saurus Flash (GLM-4.7)</option>
+        </select>
+      </div>
+      <button class="settings-save-btn" onclick="saveSettings()"><i class="ph-bold ph-floppy-disk"></i> SIMPAN KONFIGURASI</button>
+      <button class="settings-clear-btn" onclick="clearChat()"><i class="ph-bold ph-trash"></i> BERSIHKAN LAYAR CHAT</button>
+      <button class="settings-logout-btn" onclick="doLogout()"><i class="ph-bold ph-sign-out"></i> KELUAR DARI SISTEM</button>
+      <div class="settings-version">Saurus AI V2.0</div>
+    </div>
+  </div>
+
+  <script>
+(async function() {
+    if (!firebase.apps.length) {
+      const r = await fetch('/api/fb/client-config');
+      const j = await r.json();
+      if (!j.ok) throw new Error('Gagal load Firebase config');
+      if (!firebase.apps.length) firebase.initializeApp(j.data);
+    }
+    const auth = firebase.auth();
+    const db = firebase.database();
+    
+    let currentUser = null;
+    let isBusy = false;
+    const MAX_HISTORY = 10;
+    let chatHistory = [];
+
+    const goSignupBtn = document.getElementById('go-to-signup');
+    const goSigninBtn = document.getElementById('go-to-signin');
+    const authSlider = document.getElementById('auth-slider');
+
+    goSignupBtn.addEventListener('click', () => {
+      authSlider.classList.add('slide-active');
+    });
+
+    goSigninBtn.addEventListener('click', () => {
+      authSlider.classList.remove('slide-active');
+    });
+
+    function addToHistory(role, text) {
+      chatHistory.push({ role, text });
+      if (chatHistory.length > MAX_HISTORY) {
+        chatHistory = chatHistory.slice(-MAX_HISTORY);
+      }
+    }
+
+    function buildHistoryContext() {
+      if (!chatHistory.length) return '';
+      return '\n\n[Riwayat percakapan:]\n' + chatHistory.map(m => (m.role === 'user' ? 'User: ' : 'Saurus: ') + m.text).join('\n') + '\n[Lanjutkan percakapan]';
+    }
+
+    const COMPLAINT_REGEX = /\b(eror|error|bug|rusak|mati|down|gagal|tidak bisa|gabisa|gak bisa|ga bisa|broken|crash|problem|masalah|kendala|komplain|complaint|tolong perbaiki|fix|bantuin)\b/i;
+    let settings = { 
+      system: 'Halo! Saya adalah Saurus, sebuah model kecerdasan buatan canggih. Saya dirancang untuk membantu menjawab pertanyaan, memberikan informasi, dan membantu Anda dalam berbagai tugas penulisan maupun pemrograman.', 
+      model: 'glm47flash' 
+    };
+
+    function loadSettings() {
+      try { 
+        const s = JSON.parse(localStorage.getItem('Saurus_ai_settings_v2') || '{}'); 
+        settings = { ...settings, ...s }; 
+      } catch(e) {}
+      
+      document.getElementById('setting-system').value = settings.system;
+      const modelEl = document.getElementById('setting-model');
+      if (modelEl) {
+        modelEl.value = settings.model || 'glm47flash';
+      }
+    }
+
+    function saveSettings() {
+      settings.system = document.getElementById('setting-system').value.trim() || settings.system;
+      const modelEl = document.getElementById('setting-model');
+      settings.model = modelEl ? modelEl.value : 'glm47flash';
+      localStorage.setItem('Saurus_ai_settings_v2', JSON.stringify(settings));
+      closeSettings();
+      addSystemMsg('<i class="ph-bold ph-check-circle"></i> Konfigurasi berhasil disimpan di memori lokal.');
+    }
+
+    function openSettings() { 
+      document.getElementById('settings-overlay').classList.add('open'); 
+      document.getElementById('settings-panel').classList.add('open'); 
+    }
+
+    function closeSettings() { 
+      document.getElementById('settings-overlay').classList.remove('open'); 
+      document.getElementById('settings-panel').classList.remove('open'); 
+    }
+
+    const loginGate = document.getElementById('login-gate');
+
+    (function() {
+      const cached = localStorage.getItem('Saurus_user_cache_v2');
+      if (cached) {
+        try {
+          const u = JSON.parse(cached);
+          loginGate.classList.add('hidden');
+          document.getElementById('header-status').innerHTML = '<i class="ph-fill ph-check-circle" style="color:#10B981"></i> Sistem Terkoneksi';
+          const avatarEl = document.getElementById('header-user-avatar');
+          if (u.photoURL) { 
+            avatarEl.innerHTML = `<img src="${u.photoURL}" alt="avatar">`; 
+          } else { 
+            const initial = (u.displayName || u.email || 'U')[0].toUpperCase(); 
+            avatarEl.innerHTML = `<span>${initial}</span>`; 
+          }
+        } catch(e) {}
+      }
+    })();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        localStorage.setItem('Saurus_user_cache_v2', JSON.stringify({ 
+          uid: user.uid, 
+          email: user.email, 
+          displayName: user.displayName, 
+          photoURL: user.photoURL 
+        }));
+        
+        loginGate.classList.add('hidden');
+        document.getElementById('header-status').innerHTML = '<i class="ph-fill ph-check-circle" style="color:#10B981"></i> Sistem Terkoneksi';
+        
+        const avatarEl = document.getElementById('header-user-avatar');
+        if (user.photoURL) { 
+          avatarEl.innerHTML = `<img src="${user.photoURL}" alt="avatar">`; 
+        } else { 
+          const initial = (user.displayName || user.email || 'U')[0].toUpperCase(); 
+          avatarEl.innerHTML = `<span>${initial}</span>`; 
+        }
+        
+        startInboxListener(user.uid);
+        
+        const prefill = sessionStorage.getItem('ai_prefill');
+        if (prefill) { 
+          sessionStorage.removeItem('ai_prefill'); 
+          setTimeout(() => { 
+            document.getElementById('ai-textarea').value = prefill; 
+            sendMessage(); 
+          }, 100); 
+        }
+      } else {
+        currentUser = null;
+        localStorage.removeItem('Saurus_user_cache_v2');
+        loginGate.classList.remove('hidden');
+        document.getElementById('header-status').innerHTML = '<i class="ph-bold ph-prohibit" style="color:#EF4444"></i> Akses Terputus';
+      }
+    });
+
+    function showLoginError(id, msg) { 
+      const el = document.getElementById(id); 
+      el.innerHTML = `<i class="ph-bold ph-warning"></i> ${msg}`; 
+      el.classList.add('show'); 
+      setTimeout(() => {
+        el.classList.remove('show');
+      }, 4000); 
+    }
+
+    // ─── OTP State (ai.html) ───────────────────────────────────
+    let _aiOtpUser = null, _aiOtpEmail = '', _aiOtpTimer = null, _aiOtpSec = 300;
+
+    function startAiOtpTimer() {
+      _aiOtpSec = 300;
+      const el = document.getElementById('ai-otp-timer');
+      clearInterval(_aiOtpTimer);
+      _aiOtpTimer = setInterval(function() {
+        _aiOtpSec--;
+        const m = Math.floor(_aiOtpSec/60), s = _aiOtpSec%60;
+        if (el) el.textContent = 'Berlaku: ' + m + ':' + s.toString().padStart(2,'0');
+        if (_aiOtpSec <= 0) { clearInterval(_aiOtpTimer); if(el) el.textContent = 'OTP expired. Kirim ulang.'; }
+      }, 1000);
+    }
+
+    async function sendAiOtp(uid, email) {
+      const r = await fetch('/api/fb/send-otp', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({uid, email})
+      });
+      return r.json();
+    }
+
+    function showAiOtpModal(email) {
+      _aiOtpEmail = email;
+      document.getElementById('ai-otp-email').textContent = email;
+      document.getElementById('otp-overlay-ai').classList.add('active');
+      document.getElementById('ai-otp-err').textContent = '';
+      document.getElementById('ai-otp-pass').value = '';
+      ['aod1','aod2','aod3','aod4','aod5','aod6'].forEach(function(id){ document.getElementById(id).value=''; });
+      startAiOtpTimer();
+      setTimeout(function(){ document.getElementById('aod1').focus(); }, 100);
+    }
+
+    function hideAiOtpModal() {
+      document.getElementById('otp-overlay-ai').classList.remove('active');
+      clearInterval(_aiOtpTimer);
+    }
+
+    var _aiOtpIds = ['aod1','aod2','aod3','aod4','aod5','aod6'];
+    _aiOtpIds.forEach(function(id, idx, arr) {
+      var el = document.getElementById(id);
+      el.addEventListener('input', function() {
+        el.value = el.value.replace(/[^0-9]/g,'').slice(-1);
+        el.classList.toggle('filled', !!el.value);
+        if (el.value && idx < arr.length-1) document.getElementById(arr[idx+1]).focus();
+      });
+      el.addEventListener('keydown', function(e) {
+        if (e.key==='Backspace') {
+          if (!el.value && idx>0) document.getElementById(arr[idx-1]).focus();
+          el.classList.remove('filled');
+        }
+      });
+      el.addEventListener('paste', function(e) {
+        e.preventDefault();
+        var pasted = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+        if (!pasted) return;
+        pasted.split('').forEach(function(ch,i) {
+          if (arr[idx+i]) { var t=document.getElementById(arr[idx+i]); t.value=ch; t.classList.add('filled'); }
+        });
+        var ni = Math.min(idx+pasted.length, arr.length-1);
+        document.getElementById(arr[ni]).focus();
+      });
+    });
+
+    document.getElementById('btn-ai-otp-paste').addEventListener('click', async function() {
+      var errEl = document.getElementById('ai-otp-err');
+      errEl.textContent = '';
+      function fillAiDigits(text) {
+        var digits = text.replace(/[^0-9]/g,'').slice(0,6);
+        if (!digits) { errEl.textContent = 'Clipboard tidak ada kode OTP.'; return false; }
+        _aiOtpIds.forEach(function(id, i) {
+          var el = document.getElementById(id);
+          el.value = digits[i] || '';
+          el.classList.toggle('filled', !!digits[i]);
+        });
+        if (digits.length === 6) document.getElementById('btn-ai-otp-verify').focus();
+        else if (_aiOtpIds[digits.length]) document.getElementById(_aiOtpIds[digits.length]).focus();
+        return true;
+      }
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          var text = await navigator.clipboard.readText();
+          fillAiDigits(text);
+          return;
+        } catch(e) {}
+      }
+      try {
+        var ta = document.createElement('textarea');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0.01;z-index:99999;font-size:16px;';
+        document.body.appendChild(ta);
+        ta.focus();
+        var ok = document.execCommand('paste');
+        var val = ta.value;
+        document.body.removeChild(ta);
+        if (ok && val) { fillAiDigits(val); return; }
+      } catch(e2) {}
+      document.getElementById('aod1').focus();
+      errEl.style.color = '#6366f1';
+      errEl.textContent = 'Tekan & tahan kotak lalu pilih "Tempel".';
+      setTimeout(function(){ errEl.style.color = ''; errEl.textContent = ''; }, 3000);
+    });
+
+    document.getElementById('btn-ai-otp-verify').addEventListener('click', async function() {
+      var otp = ['aod1','aod2','aod3','aod4','aod5','aod6'].map(function(id){ return document.getElementById(id).value; }).join('');
+      var pass = document.getElementById('ai-otp-pass').value;
+      var errEl = document.getElementById('ai-otp-err');
+      errEl.textContent = '';
+      if (otp.length !== 6) { errEl.textContent = 'Masukkan 6 digit OTP.'; return; }
+      if (!pass) { errEl.textContent = 'Konfirmasi password dulu.'; return; }
+      if (!_aiOtpUser) { errEl.textContent = 'Sesi hilang. Login ulang.'; return; }
+      var btn = document.getElementById('btn-ai-otp-verify');
+      btn.disabled = true; btn.textContent = 'MEMVERIFIKASI...';
+      try {
+        var vr = await fetch('/api/fb/verify-otp', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({uid: _aiOtpUser.uid, otp: otp})
+        });
+        var vd = await vr.json();
+        if (!vd.ok) { errEl.textContent = vd.message; btn.disabled=false; btn.textContent='VERIFIKASI & MASUK'; return; }
+        var cred = firebase.auth.EmailAuthProvider.credential(_aiOtpEmail, pass);
+        await _aiOtpUser.reauthenticateWithCredential(cred);
+        hideAiOtpModal();
+        _aiOtpUser = null;
+      } catch(e) {
+        errEl.textContent = (e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') ? 'Password salah.' : (e.message||'Verifikasi gagal.');
+        btn.disabled=false; btn.textContent='VERIFIKASI & MASUK';
+      }
+    });
+
+    document.getElementById('btn-ai-otp-resend').addEventListener('click', async function() {
+      if (!_aiOtpUser) return;
+      document.getElementById('ai-otp-err').textContent = '';
+      var r = await sendAiOtp(_aiOtpUser.uid, _aiOtpEmail);
+      if (r.ok) startAiOtpTimer();
+      else document.getElementById('ai-otp-err').textContent = r.message;
+    });
+
+    document.getElementById('btn-login-email').addEventListener('click', async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      if (!email || !pass) { 
+        showLoginError('login-error', 'Isi email dan password lu.'); 
+        return; 
+      }
+      const btn = document.getElementById('btn-login-email');
+      btn.disabled = true; 
+      btn.innerHTML = '<i class="ph-bold ph-spinner"></i> MEMPROSES...';
+      try { 
+        const cred = await auth.signInWithEmailAndPassword(email, pass);
+        _aiOtpUser = cred.user;
+        const otpRes = await sendAiOtp(cred.user.uid, email);
+        if (!otpRes.ok && !otpRes.dev_otp) {
+          showLoginError('login-error', otpRes.message || 'Gagal kirim OTP.');
+          await auth.signOut(); _aiOtpUser = null;
+          btn.disabled=false; btn.innerHTML='BUKA GERBANG'; return;
+        }
+        showAiOtpModal(email);
+      } catch(e) { 
+        showLoginError('login-error', 'Login gagal. Coba lagi.'); 
+      }
+      btn.disabled = false; 
+      btn.innerHTML = 'BUKA GERBANG'; 
+    });
+
+    function googleSignIn() { 
+      const provider = new firebase.auth.GoogleAuthProvider(); 
+      auth.signInWithPopup(provider).catch(e => { 
+        showLoginError('login-error', 'Login Google dibatalin.'); 
+        showLoginError('reg-error', 'Daftar Google dibatalin.'); 
+      }); 
+    }
+
+    document.getElementById('btn-login-google').addEventListener('click', googleSignIn);
+    document.getElementById('btn-register-google').addEventListener('click', googleSignIn);
+
+    document.getElementById('btn-register').addEventListener('click', async () => {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pass = document.getElementById('reg-pass').value;
+      
+      if (!email || !pass) { 
+        showLoginError('reg-error', 'Isi email dan password lu bos.'); 
+        return; 
+      }
+      
+      const btn = document.getElementById('btn-register');
+      btn.disabled = true; 
+      btn.innerHTML = '<i class="ph-bold ph-spinner"></i> MENDAFTARKAN...';
+      
+      try { 
+        const cred = await auth.createUserWithEmailAndPassword(email, pass); 
+        if (name) {
+          await cred.user.updateProfile({ displayName: name }); 
+        }
+      } catch(e) { 
+        showLoginError('reg-error', 'Daftar gagal. Email mungkin udah dipake.'); 
+        btn.disabled = false; 
+        btn.innerHTML = 'DAFTAR SEKARANG'; 
+      }
+    });
+
+    ['login-email','login-pass'].forEach(id => { 
+      document.getElementById(id).addEventListener('keydown', e => { 
+        if (e.key === 'Enter') {
+          document.getElementById('btn-login-email').click(); 
+        }
+      }); 
+    });
+
+    ['reg-name','reg-email','reg-pass'].forEach(id => { 
+      document.getElementById(id).addEventListener('keydown', e => { 
+        if (e.key === 'Enter') {
+          document.getElementById('btn-register').click(); 
+        }
+      }); 
+    });
+
+    function doLogout() { 
+      auth.signOut(); 
+      closeSettings(); 
+      clearChat(); 
+    }
+
+    function renderMarkdown(text) {
+      if (typeof marked === 'undefined') return escHtml(text);
+      try {
+        marked.use({ breaks: true, gfm: true });
+        let html = marked.parse(text);
+        html = html.replace(/<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/gi, (match, lang, code) => { 
+          return buildCodeBlock(lang, code); 
+        });
+        html = html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/gi, (match, code) => { 
+          return buildCodeBlock('code', code); 
+        });
+        return html;
+      } catch(e) { 
+        return escHtml(text); 
+      }
+    }
+
+    function buildCodeBlock(lang, code) {
+      const id = 'cb-' + Math.random().toString(36).slice(2, 8);
+      const isHTML = lang.toLowerCase() === 'html';
+      const previewBtn = isHTML ? `<button class="code-btn preview-btn" onclick="togglePreview('${id}')"><i class="ph-bold ph-play"></i> PREVIEW</button>` : '';
+      return `<div class="code-block-wrapper" id="${id}"><div class="code-block-toolbar"><span class="code-lang-badge">${lang}</span><div class="code-toolbar-btns">${previewBtn}<button class="code-btn" onclick="copyCode('${id}', this)"><i class="ph-bold ph-copy"></i> SALIN</button></div></div><pre><code>${code}</code></pre>${isHTML ? `<iframe class="html-preview-frame" id="frame-${id}"></iframe>` : ''}</div>`;
+    }
+
+    function copyCode(id, btn) {
+      const pre = document.querySelector('#' + id + ' pre code');
+      if (!pre) return;
+      
+      const text = pre.textContent;
+      navigator.clipboard.writeText(text).then(() => { 
+        btn.innerHTML = '<i class="ph-bold ph-check-circle"></i> DISALIN!'; 
+        btn.classList.add('copied'); 
+        setTimeout(() => { 
+          btn.innerHTML = '<i class="ph-bold ph-copy"></i> SALIN'; 
+          btn.classList.remove('copied'); 
+        }, 2000); 
+      }).catch(() => { 
+        const ta = document.createElement('textarea'); 
+        ta.value = text; 
+        document.body.appendChild(ta); 
+        ta.select(); 
+        document.execCommand('copy'); 
+        document.body.removeChild(ta); 
+        btn.innerHTML = '<i class="ph-bold ph-check-circle"></i> DISALIN!'; 
+        setTimeout(() => { 
+          btn.innerHTML = '<i class="ph-bold ph-copy"></i> SALIN'; 
+        }, 2000); 
+      });
+    }
+
+    function togglePreview(id) {
+      const frame = document.getElementById('frame-' + id);
+      const pre = document.querySelector('#' + id + ' pre code');
+      if (!frame || !pre) return;
+      
+      const isShown = frame.classList.toggle('show');
+      if (isShown) { 
+        const doc = frame.contentDocument || frame.contentWindow.document; 
+        doc.open(); 
+        doc.write(pre.textContent); 
+        doc.close(); 
+      }
+    }
+
+    function escHtml(str) { 
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); 
+    }
+
+    const msgContainer = document.getElementById('messages-container');
+
+    function scrollBottom() { 
+      requestAnimationFrame(() => { 
+        msgContainer.scrollTop = msgContainer.scrollHeight; 
+      }); 
+    }
+
+    function hideWelcome() { 
+      const w = document.getElementById('welcome-screen'); 
+      const ws = document.getElementById('welcome-suggestions'); 
+      if (w) w.style.display = 'none'; 
+      if (ws) ws.style.display = 'none'; 
+    }
+
+    function addUserMsg(text) {
+      hideWelcome();
+      const row = document.createElement('div');
+      row.className = 'msg-row user';
+      const avatarContent = currentUser?.photoURL ? `<img src="${currentUser.photoURL}" alt="avatar">` : `<i class="ph-bold ph-user"></i>`;
+      row.innerHTML = `<div class="msg-avatar user-av">${avatarContent}</div><div class="msg-bubble">${escHtml(text)}</div>`;
+      msgContainer.appendChild(row);
+      scrollBottom();
+    }
+
+    function addAIMsg(html) {
+      hideWelcome();
+      const row = document.createElement('div');
+      row.className = 'msg-row ai';
+      row.innerHTML = `<div class="msg-avatar ai-av"><i class="ph-bold ph-robot"></i></div><div class="msg-bubble">${html}</div>`;
+      msgContainer.appendChild(row);
+      scrollBottom();
+    }
+
+    function addSystemMsg(text) {
+      const div = document.createElement('div');
+      div.style.cssText = 'text-align:center;font-size:0.75rem;font-weight:800;color:var(--text-muted);padding:8px 0;animation:msg-in 0.3s ease;display:flex;align-items:center;justify-content:center;gap:6px;text-transform:uppercase;';
+      div.innerHTML = text;
+      msgContainer.appendChild(div);
+      scrollBottom();
+    }
+
+    function showTyping() {
+      hideWelcome();
+      const el = document.createElement('div');
+      el.className = 'typing-indicator';
+      el.id = 'typing-indicator';
+      el.innerHTML = `<div class="msg-avatar ai-av"><i class="ph-bold ph-robot"></i></div><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+      msgContainer.appendChild(el);
+      scrollBottom();
+    }
+
+    function removeTyping() { 
+      const el = document.getElementById('typing-indicator'); 
+      if (el) el.remove(); 
+    }
+
+    async function sendMessage() {
+      if (!currentUser) { 
+        loginGate.classList.remove('hidden'); 
+        return; 
+      }
+      if (isBusy) return;
+      
+      const ta = document.getElementById('ai-textarea');
+      const text = ta.value.trim();
+      
+      if (!text) return;
+      
+      addUserMsg(text);
+      ta.value = '';
+      ta.style.height = '';
+      isBusy = true;
+      document.getElementById('ai-send-btn').disabled = true;
+      showTyping();
+      
+      const isComplaint = COMPLAINT_REGEX.test(text);
+      
+      try { 
+        await handleChat(text, isComplaint); 
+      } catch(err) { 
+        removeTyping(); 
+        addAIMsg(`<i class="ph-bold ph-warning"></i> <em>Error jaringan: ${escHtml(err.message)}</em>`); 
+      }
+      
+      isBusy = false;
+      document.getElementById('ai-send-btn').disabled = false;
+    }
+
+    async function handleChat(text, isComplaint = false) {
+      const historyContext = buildHistoryContext();
+      const fullPrompt = historyContext ? `${historyContext}\nUser: ${text}` : text;
+      const url = new URL('https://api.siputzx.my.id/api/ai/glm47flash');
+      url.searchParams.set('prompt', fullPrompt);
+      url.searchParams.set('system', settings.system);
+      url.searchParams.set('temperature', '0.7');
+      
+      const resp = await fetch(url.toString());
+      if (!resp.ok) {
+        throw new Error('Sistem AI nolak koneksi');
+      }
+      
+      const data = await resp.json();
+      removeTyping();
+      const reply = data?.data?.response || null;
+      
+      if (reply) {
+        addToHistory('user', text);
+        addToHistory('ai', String(reply).substring(0, 500));
+        addAIMsg(renderMarkdown(String(reply)));
+        if (isComplaint) {
+          setTimeout(() => addCSSuggest(text), 600);
+        }
+      } else {
+        addAIMsg('Waduh, otak server lagi nge-blank. Boleh diulang?');
+      }
+    }
+
+    function clearChat() {
+      chatHistory = [];
+      msgContainer.innerHTML = `<div class="ai-welcome-box" id="welcome-screen"><div class="ai-welcome-orb"><i class="ph-bold ph-robot"></i></div><h2>HALO! GUE Saurus AI</h2><p>Asisten virtual paling asik yang siap bantu jawabin pertanyaan lu, bikin kode, nulis artikel, atau sekedar nemenin lu gabut.</p></div><div class="ai-suggestions" id="welcome-suggestions"><button class="ai-suggestion-chip" onclick="fillAndSend('Apa itu API Saurus dan apa saja fiturnya?')"><i class="ph-bold ph-info"></i> Jelaskan apa itu API Saurus!</button><button class="ai-suggestion-chip" onclick="fillAndSend('Buatkan saya kode Python untuk scraping website')"><i class="ph-bold ph-code"></i> Bikinin kode web scraper dong</button><button class="ai-suggestion-chip" onclick="fillAndSend('Gimana sih caranya move on dari mantan yang toxic?')"><i class="ph-bold ph-heart-break"></i> Tips ampuh buat move on</button><button class="ai-suggestion-chip" onclick="fillAndSend('Ceritakan sebuah lelucon garing tentang anak IT')"><i class="ph-bold ph-smiley"></i> Kasih gue jokes bapak-bapak IT</button></div>`;
+      closeSettings();
+    }
+
+    function fillAndSend(text) { 
+      document.getElementById('ai-textarea').value = text; 
+      sendMessage(); 
+    }
+
+    const textarea = document.getElementById('ai-textarea');
+    
+    textarea.addEventListener('input', function() { 
+      this.style.height = 'auto'; 
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px'; 
+    });
+    
+    textarea.addEventListener('keydown', function(e) { 
+      if (e.key === 'Enter' && !e.shiftKey) { 
+        e.preventDefault(); 
+        sendMessage(); 
+      } 
+    });
+
+    function fixViewportHeight() { 
+      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight; 
+      document.querySelector('.ai-viewport').style.height = h + 'px'; 
+      scrollBottom(); 
+    }
+
+    fixViewportHeight();
+    
+    if (window.visualViewport) { 
+      window.visualViewport.addEventListener('resize', fixViewportHeight); 
+      window.visualViewport.addEventListener('scroll', fixViewportHeight); 
+    } else { 
+      window.addEventListener('resize', fixViewportHeight); 
+    }
+    
+    textarea.addEventListener('focus', () => {
+      setTimeout(() => { 
+        fixViewportHeight(); 
+        scrollBottom(); 
+      }, 300);
+    });
+
+    document.getElementById('ai-send-btn').addEventListener('click', sendMessage);
+    document.getElementById('btn-settings').addEventListener('click', openSettings);
+    document.getElementById('btn-clear-chat').addEventListener('click', clearChat);
+
+    function startInboxListener(uid) {
+      db.ref('cs_complaints').orderByChild('uid').equalTo(uid).on('value', snap => {
+        if (!snap.exists()) return;
+        
+        let latestReply = null;
+        snap.forEach(child => { 
+          const d = child.val(); 
+          if (d.reply && d.repliedAt) { 
+            if (!latestReply || d.repliedAt > latestReply.repliedAt) { 
+              latestReply = d; 
+            } 
+          } 
+        });
+        
+        if (!latestReply) return;
+        
+        const lastSeen = localStorage.getItem('Saurus_inbox_seen_v2');
+        if (lastSeen && parseInt(lastSeen) >= latestReply.repliedAt) return;
+        
+        document.getElementById('inbox-message').textContent = latestReply.reply;
+        const ago = timeAgoInbox(latestReply.repliedAt);
+        document.getElementById('inbox-time').textContent = ago;
+        document.getElementById('cs-reply-inbox').classList.add('show');
+      });
+    }
+
+    function dismissInbox() { 
+      document.getElementById('cs-reply-inbox').classList.remove('show'); 
+      localStorage.setItem('Saurus_inbox_seen_v2', Date.now().toString()); 
+    }
+
+    function timeAgoInbox(ts) { 
+      const diff = Date.now() - ts; 
+      const m = Math.floor(diff / 60000); 
+      if (m < 1) return 'Baru aja'; 
+      if (m < 60) return m + ' menit yg lalu'; 
+      const h = Math.floor(m / 60); 
+      if (h < 24) return h + ' jam yg lalu'; 
+      return Math.floor(h / 24) + ' hari yg lalu'; 
+    }
+
+    function openCSModal(prefill = '') { 
+      if (prefill) {
+        document.getElementById('cs-complaint-text').value = prefill; 
+      }
+      document.getElementById('cs-modal-overlay').classList.add('open'); 
+    }
+
+    function closeCSModal() { 
+      document.getElementById('cs-modal-overlay').classList.remove('open'); 
+    }
+
+    document.getElementById('cs-fab-btn').addEventListener('click', () => openCSModal());
+    
+    document.getElementById('cs-modal-overlay').addEventListener('click', e => { 
+      if (e.target === document.getElementById('cs-modal-overlay')) {
+        closeCSModal(); 
+      }
+    });
+
+    document.getElementById('cs-send-btn').addEventListener('click', async () => {
+      if (!currentUser) { 
+        closeCSModal(); 
+        loginGate.classList.remove('hidden'); 
+        return; 
+      }
+      
+      const text = document.getElementById('cs-complaint-text').value.trim();
+      if (!text) return;
+      
+      const btn = document.getElementById('cs-send-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ph-bold ph-spinner"></i> MENGIRIM...';
+      
+      try {
+        const ref = db.ref('cs_complaints').push();
+        await ref.set({ 
+          uid: currentUser.uid, 
+          email: currentUser.email, 
+          displayName: currentUser.displayName || 'Pengguna', 
+          photoURL: currentUser.photoURL || null, 
+          message: text, 
+          timestamp: Date.now(), 
+          status: 'unread', 
+          reply: null 
+        });
+        
+        closeCSModal();
+        document.getElementById('cs-complaint-text').value = '';
+        addSystemMsg('<i class="ph-bold ph-check-circle"></i> PESAN BERHASIL DISAMPAIKAN KE OWNER.');
+      } catch(e) { 
+        addSystemMsg('<i class="ph-bold ph-warning"></i> GAGAL MENGIRIM. SERVER SIBUK.'); 
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ph-bold ph-paper-plane-right"></i> KIRIM LAPORAN';
+    });
+
+    function addCSSuggest(prefillText = '') {
+      hideWelcome();
+      const div = document.createElement('div');
+      div.className = 'msg-row ai';
+      div.innerHTML = `<div class="msg-avatar ai-av"><i class="ph-bold ph-robot"></i></div><div class="msg-bubble">Wah, kalau yang ini kayaknya butuh campur tangan manusia deh. Langsung aduin ke Owner aja ya lewat tiket CS di bawah ini:<div class="cs-suggest-bubble" onclick="openCSModal(${JSON.stringify(prefillText).replace(/"/g, '&quot;')})"><span class="cs-suggest-icon"><i class="ph-bold ph-headset"></i></span><div style="display:flex;flex-direction:column;gap:2px;"><div class="cs-suggest-text">HUBUNGI OWNER</div><span style="opacity:0.7;font-size:0.7rem;font-weight:700;text-transform:none;">Kirim laporan kendala sistem</span></div><i class="ph-bold ph-arrow-right cs-suggest-arrow"></i></div></div>`;
+      msgContainer.appendChild(div);
+      scrollBottom();
+    }
+    
+    loadSettings();
+
+    // Expose handlers referenced by inline onclick attributes
+    window.clearChat = clearChat;
+    window.closeCSModal = closeCSModal;
+    window.closeSettings = closeSettings;
+    window.copyCode = copyCode;
+    window.dismissInbox = dismissInbox;
+    window.doLogout = doLogout;
+    window.fillAndSend = fillAndSend;
+    window.openCSModal = openCSModal;
+    window.saveSettings = saveSettings;
+    window.togglePreview = togglePreview;
+})();
+  </script>
+</body>
+</html>

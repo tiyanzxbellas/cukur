@@ -1,0 +1,18 @@
+{
+  "name": "Saurus API",
+  "short_name": "SaurusAPI",
+  "description": "REST API serbaguna — AI, downloader, tools, anime, dan banyak lagi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

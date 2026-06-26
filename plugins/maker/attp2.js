@@ -1,0 +1,52 @@
+// File: plugins/maker/attp2.js
+'use strict';
+
+const axios = require('axios');
+
+module.exports = {
+  id:          'maker-attp2',
+  name:        'Attp2',
+  category:    'Maker',
+  path:        '/api/maker/attp2',
+  method:      'GET',
+  description: 'Alternate text meme image',
+
+  params: [
+    {
+      name: 'text',
+      required: true,
+      example: 'ayo scroll fesnuk!',
+      description: 'Input text',
+    },
+    {
+      name: 'color',
+      required: true,
+      example: '["#FF0000", "#00FF00", "#0000FF"]',
+      description: 'Input color',
+    }
+  ],
+
+  handler: async (req, getInput, res) => {
+    const text = getInput(req, 'text');
+    const color = getInput(req, 'color');
+    if (!text) return { ok: false, status: 400, message: "Parameter 'text' wajib diisi." };
+    if (!color) return { ok: false, status: 400, message: "Parameter 'color' wajib diisi." };
+
+    try {
+      const { data } = await axios.get('https://api.neoxr.eu/api/attp2', {
+        params: {
+          text,
+          color,
+          apikey: 'yMb35i',
+        },
+        timeout: 20000,
+        headers: { Accept: 'application/json', 'User-Agent': 'ElynnAPI/1.0' },
+      });
+
+      if (!data?.status) return { ok: false, status: 502, message: data?.message || 'Upstream error.' };
+      return { ok: true, result: data.data };
+    } catch (err) {
+      return { ok: false, status: 500, message: err.message || 'Internal server error.' };
+    }
+  },
+};

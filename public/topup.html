@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SaurusAPI">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Topup Games - API Saurus</title>
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+  <meta property="og:site_name" content="Saurus API">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    :root {
+      --color-bg-base: #f8fafc;
+      --color-text-main: #0f172a;
+      --color-text-muted: #64748b;
+      --color-text-subtle: #94a3b8;
+      --color-surface: #ffffff;
+      --color-surface-elevated: #f1f5f9;
+      --color-surface-interactive: #e2e8f0;
+      --color-primary-base: #3b82f6;
+      --color-primary-dark: #2563eb;
+      --color-primary-alpha: rgba(59, 130, 246, 0.15);
+      --color-accent-indigo: #6366f1;
+      --color-accent-purple: #8b5cf6;
+      --color-success-base: #10b981;
+      --color-danger-base: #ef4444;
+      --color-warning-base: #f59e0b;
+      --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+      --shadow-card: 0 12px 24px -6px rgba(0, 0, 0, 0.05), 0 4px 8px -4px rgba(0, 0, 0, 0.03);
+      --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.4);
+      --radius-round: 50%;
+      --radius-sm: 16px;
+      --radius-md: 24px;
+      --radius-lg: 36px;
+    }
+
+    body.dark-theme {
+      --color-bg-base: #020617;
+      --color-text-main: #f8fafc;
+      --color-text-muted: #cbd5e1;
+      --color-text-subtle: #64748b;
+      --color-surface: #0f172a;
+      --color-surface-elevated: #1e293b;
+      --color-surface-interactive: #334155;
+      --color-primary-base: #3b82f6;
+      --color-primary-dark: #2563eb;
+      --color-primary-alpha: rgba(59, 130, 246, 0.2);
+      --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+      --shadow-card: 0 12px 24px -6px rgba(0, 0, 0, 0.4), 0 4px 8px -4px rgba(0, 0, 0, 0.2);
+      --shadow-glow: 0 0 24px rgba(59, 130, 246, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--color-bg-base);
+      color: var(--color-text-main);
+      overflow-x: hidden;
+      transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.sidebar-open { overflow: hidden; touch-action: none; }
+
+    .animated-gradient-text {
+      background: linear-gradient(270deg, var(--color-primary-base), var(--color-accent-purple), #06b6d4, #f43f5e, var(--color-primary-base));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 6s ease infinite;
+      font-weight: 900;
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .app-viewport {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 0 0 120px 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      gap: 32px;
+    }
+
+    .top-navigation-cluster {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.01);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      padding: 20px 24px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    body.dark-theme .top-navigation-cluster {
+      background: rgba(2, 6, 23, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .kinetic-hamburger-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-round);
+      background-color: var(--color-surface);
+      border: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.4s ease;
+      touch-action: manipulation;
+    }
+
+    .kinetic-hamburger-btn:active { transform: scale(0.9); }
+
+    .kinetic-line {
+      width: 20px;
+      height: 2.5px;
+      background-color: var(--color-text-main);
+      border-radius: 4px;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.4s ease;
+    }
+
+    .center-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .dj-deck-container {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dj-vinyl-record {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: repeating-radial-gradient(#0f172a 0px, #1e293b 2px, #0f172a 4px);
+      border: 2px solid var(--color-surface);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .dj-vinyl-label {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary-base), var(--color-accent-purple));
+      border: 2px solid #fff;
+    }
+
+    .cluster-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .action-btn-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-round);
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background-color: var(--color-surface);
+      color: var(--color-text-main);
+      touch-action: manipulation;
+    }
+
+    .action-btn-circle:active { transform: scale(0.9); }
+    .action-btn-circle.is-active-state { background-color: var(--color-primary-base); color: #ffffff; }
+
+    .section-padding { padding: 0 24px; width: 100%; }
+
+    .hero-glass-overlay-panel {
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--color-surface), var(--color-surface-elevated));
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hero-glass-overlay-panel::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 250px;
+      height: 250px;
+      background: var(--color-primary-base);
+      filter: blur(120px);
+      opacity: 0.3;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--color-text-main);
+      line-height: 1.2;
+      position: relative;
+      z-index: 2;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      position: relative;
+      z-index: 2;
+      line-height: 1.6;
+    }
+
+    .glass-form-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: 30px 24px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 24px;
+      transition: background 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--color-text-main);
+      border-bottom: 2px solid var(--color-surface-elevated);
+      padding-bottom: 16px;
+      margin-bottom: 8px;
+    }
+
+    .section-header-icon {
+      background: var(--color-primary-alpha);
+      color: var(--color-primary-base);
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .custom-game-selection-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .game-search-box {
+      width: 100%;
+      background: var(--color-surface-elevated);
+      border: 2px solid transparent;
+      color: var(--color-text-main);
+      padding: 16px 20px 16px 50px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.3s ease;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='11' cy='11' r='8'%3e%3c/circle%3e%3cline x1='21' y1='21' x2='16.65' y2='16.65'%3e%3c/line%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: 16px center;
+      background-size: 20px;
+    }
+
+    .game-search-box:focus {
+      border-color: var(--color-primary-base);
+      background-color: var(--color-surface);
+      box-shadow: 0 0 0 4px var(--color-primary-alpha);
+    }
+
+    .dynamic-game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 8px;
+      padding-bottom: 8px;
+    }
+
+    .dynamic-game-grid::-webkit-scrollbar { width: 6px; }
+    .dynamic-game-grid::-webkit-scrollbar-track { background: transparent; }
+    .dynamic-game-grid::-webkit-scrollbar-thumb { background: var(--color-surface-interactive); border-radius: 10px; }
+
+    .game-card-item {
+      background: var(--color-surface-elevated);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 110px;
+    }
+
+    .game-card-item:active { transform: scale(0.92); }
+
+    .game-card-item.selected {
+      border-color: var(--color-primary-base);
+      background: var(--color-primary-alpha);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-4px);
+    }
+
+    .game-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--color-primary-base), var(--color-accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.5rem;
+      font-weight: 900;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .game-card-item.selected .game-card-icon {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .game-card-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--color-text-main);
+      line-height: 1.3;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-row-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .input-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--color-surface-elevated);
+      border: 2px solid transparent;
+      color: var(--color-text-main);
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--color-primary-base);
+      background: var(--color-surface);
+      box-shadow: 0 0 0 4px var(--color-primary-alpha);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--color-primary-base), var(--color-primary-dark));
+      color: #ffffff;
+      border: none;
+      padding: 18px;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 8px 24px -6px rgba(59, 130, 246, 0.6);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-primary:active { transform: scale(0.96); }
+    .btn-primary:disabled {
+      background: var(--color-surface-interactive);
+      color: var(--color-text-subtle);
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      width: 100%;
+      background: transparent;
+      color: var(--color-primary-base);
+      border: 2px solid var(--color-primary-base);
+      padding: 18px;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-outline:active {
+      transform: scale(0.96);
+      background: var(--color-primary-alpha);
+    }
+
+    .result-box {
+      background: var(--color-surface-elevated);
+      padding: 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      display: none;
+      word-break: break-all;
+      border-left: 5px solid var(--color-primary-base);
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+      line-height: 1.6;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .service-card {
+      background: var(--color-surface);
+      border: 2px solid var(--color-surface-interactive);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card:active { transform: scale(0.94); }
+
+    .service-card.selected {
+      border-color: var(--color-primary-base);
+      background: var(--color-primary-alpha);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-4px);
+    }
+
+    .service-card.selected::before {
+      content: '\e0cd';
+      font-family: 'Phosphor';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: var(--color-primary-base);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .service-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--color-text-main);
+      line-height: 1.4;
+    }
+
+    .service-price {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--color-primary-base);
+      margin-top: auto;
+    }
+
+    .service-status {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 8px;
+      align-self: flex-start;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--color-success-base);
+      text-transform: uppercase;
+    }
+
+    .service-status.empty {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--color-danger-base);
+    }
+
+    .payment-method-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .payment-card {
+      background: var(--color-surface-elevated);
+      border: 2px solid var(--color-surface-interactive);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-card.active {
+      border-color: var(--color-primary-base);
+      background: var(--color-primary-alpha);
+    }
+
+    .payment-icon-wrapper {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: var(--color-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--color-primary-base);
+      box-shadow: var(--shadow-card);
+    }
+
+    .payment-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .payment-title { font-size: 1rem; font-weight: 800; color: var(--color-text-main); }
+    .payment-desc { font-size: 0.8rem; font-weight: 600; color: var(--color-text-muted); }
+
+    .payment-check {
+      font-size: 1.5rem;
+      color: var(--color-primary-base);
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .payment-card.active .payment-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .order-summary {
+      background: var(--color-surface-elevated);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+      border: 1px dashed var(--color-surface-interactive);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text-main);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--color-surface-interactive);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-top: 8px;
+      font-size: 1.2rem;
+    }
+
+    .summary-label { color: var(--color-text-muted); font-weight: 700; }
+    .summary-value {
+      font-weight: 900;
+      color: var(--color-text-main);
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+
+    .summary-row:last-child .summary-value { color: var(--color-primary-base); font-size: 1.4rem; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-success { background: rgba(16, 185, 129, 0.15); color: var(--color-success-base); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-pending { background: rgba(245, 158, 11, 0.15); color: var(--color-warning-base); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-error { background: rgba(239, 68, 68, 0.15); color: var(--color-danger-base); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .application-footer-block {
+      text-align: center;
+      padding: 40px 24px;
+      width: 100%;
+    }
+
+    .footer-primary-text { font-size: 0.9rem; color: var(--color-text-main); font-weight: 800; letter-spacing: 2px; }
+    .footer-secondary-text { font-size: 0.75rem; color: var(--color-text-subtle); font-weight: 600; margin-top: 8px; }
+
+    .kinetic-overlay-navigation {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 900;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .kinetic-overlay-navigation.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .navigation-menu-card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 85%;
+      max-width: 360px;
+      height: 100%;
+      background: var(--color-surface);
+      border-radius: 0 32px 32px 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 20px 0 50px rgba(0,0,0,0.25);
+      transform: translateX(-100%);
+      transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), background 0.4s ease;
+      overflow: hidden;
+      z-index: 2;
+      pointer-events: auto;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .kinetic-overlay-navigation.is-active .navigation-menu-card { transform: translateX(0); }
+    .navigation-menu-card::-webkit-scrollbar { width: 0; }
+
+    .nav-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--color-surface-elevated);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 3;
+    }
+
+    .nav-card-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--color-text-main);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .btn-close-sidebar {
+      background: var(--color-surface-elevated);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-round);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--color-text-main);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .btn-close-sidebar:active { transform: scale(0.9); }
+
+    .nav-links-stagger {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overscroll-behavior: contain;
+      position: relative;
+      z-index: 3;
+    }
+
+    .nav-links-stagger::-webkit-scrollbar { width: 0; }
+
+    .navigation-route-link {
+      text-decoration: none;
+      background: transparent;
+      color: var(--color-text-main);
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      opacity: 0;
+      transform: translateX(-20px);
+      pointer-events: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      position: relative;
+      z-index: 4;
+    }
+
+    .navigation-route-link i {
+      font-size: 1.4rem;
+      color: var(--color-primary-base);
+      flex-shrink: 0;
+      width: 28px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .navigation-route-link:active { transform: scale(0.96) !important; }
+    .navigation-route-link:hover { background: var(--color-surface-elevated); }
+
+    .navigation-route-link.route-active {
+      background: var(--color-primary-base);
+      color: #ffffff;
+      box-shadow: 0 4px 16px -4px rgba(59, 130, 246, 0.5);
+    }
+    .navigation-route-link.route-active i { color: #ffffff; }
+
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    /* Stagger Animations */
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(1)  { transition: opacity 0.4s ease 0.05s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.05s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(2)  { transition: opacity 0.4s ease 0.08s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.08s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(3)  { transition: opacity 0.4s ease 0.11s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.11s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(4)  { transition: opacity 0.4s ease 0.14s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.14s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(5)  { transition: opacity 0.4s ease 0.17s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.17s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(6)  { transition: opacity 0.4s ease 0.20s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.20s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(7)  { transition: opacity 0.4s ease 0.23s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.23s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(8)  { transition: opacity 0.4s ease 0.26s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.26s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(9)  { transition: opacity 0.4s ease 0.29s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.29s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(10) { transition: opacity 0.4s ease 0.32s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.32s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(11) { transition: opacity 0.4s ease 0.35s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.35s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(12) { transition: opacity 0.4s ease 0.38s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.38s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(13) { transition: opacity 0.4s ease 0.41s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.41s; }
+    .kinetic-overlay-navigation.is-active .nav-links-stagger a:nth-child(14) { transition: opacity 0.4s ease 0.44s, transform 0.4s cubic-bezier(0.19,1,0.22,1) 0.44s; }
+
+    .nav-card-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--color-surface-elevated);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .nav-footer-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-card);
+    }
+
+    .nav-footer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .nav-footer-info { display: flex; flex-direction: column; }
+    .nav-footer-name { font-size: 0.95rem; font-weight: 900; color: var(--color-text-main); }
+    .nav-footer-desc { font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600; }
+
+    .toast-notification {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: var(--color-surface);
+      color: var(--color-text-main);
+      padding: 16px 24px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 0.95rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      z-index: 99999;
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid var(--color-primary-base);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .toast-notification.show-toast {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon { font-size: 1.5rem; color: var(--color-primary-base); }
+    
+    .loading-pulse { animation: opacityPulse 1.5s infinite alternate; }
+    @keyframes opacityPulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+    
+    .hidden-state { display: none !important; }
+  
+</style>
+
+<script>
+/* Saurus dark-sync: respect body.dark-theme system */
+(function(){
+    var t = localStorage.getItem('Saurus-theme');
+    var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: var(--bg-main, #1A1C23) !important; }
+</style>
+</head>
+<body>
+
+<div class="app-viewport">
+  <div class="top-navigation-cluster">
+    <button class="kinetic-hamburger-btn" id="trigger-menu" aria-label="Buka menu navigasi">
+      <span class="kinetic-line line-top"></span>
+      <span class="kinetic-line line-mid"></span>
+      <span class="kinetic-line line-bot"></span>
+    </button>
+    <div class="center-brand-group">
+      <div class="dj-deck-container" id="dj-vis">
+        <div class="dj-vinyl-record"><div class="dj-vinyl-label"></div></div>
+        <div class="dj-needle"></div>
+      </div>
+    </div>
+    <div class="cluster-actions">
+      <button class="action-btn-circle" id="btn-theme-toggle" aria-label="Ganti tema">
+        <i id="theme-icon" class="ph-bold ph-moon"></i>
+      </button>
+      <button class="action-btn-circle" id="trigger-audio" aria-label="Nyalakan audio">
+        <i id="audio-state-icon" class="ph-bold ph-speaker-slash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="section-padding">
+    <div class="hero-glass-overlay-panel">
+      <div class="hero-title">Topup Game<br><span class="animated-gradient-text">Instant & Aman</span></div>
+      <div class="hero-subtitle">Katalog dirender real-time dari API VIPayment[span_4](start_span)[span_4](end_span). Jika kosong, pastikan API Key & IP Server valid.</div>
+    </div>
+  </div>
+
+  <div class="section-padding">
+    <div class="glass-form-container">
+      <div class="section-header">
+        <div class="section-header-icon"><i class="ph-bold ph-game-controller"></i></div>
+        1. Pilih Game (Data Real-Time)
+      </div>
+      
+      <div class="custom-game-selection-wrapper">
+        <input type="text" id="game-search-input" class="game-search-box" placeholder="Cari game...">
+        <div class="dynamic-game-grid" id="dynamic-game-list">
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px 0; color: var(--color-text-muted); font-weight: 700; font-size: 0.9rem;" class="loading-pulse">
+            <i class="ph-bold ph-spinner ph-spin" style="font-size: 2rem; color: var(--color-primary-base); margin-bottom: 10px; display: block;"></i>
+            Menarik katalog API VIPayment...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-form-container hidden-state" id="player-data-container">
+      <div class="section-header">
+        <div class="section-header-icon"><i class="ph-bold ph-identification-card"></i></div>
+        2. Data Pemain
+      </div>
+      
+      <div class="input-row-split">
+        <div class="input-group">
+          <label class="input-label"><i class="ph-bold ph-fingerprint"></i> ID / Target</label>
+          <input type="text" id="player-id-input" class="form-control" placeholder="ID Pemain">
+        </div>
+        <div class="input-group">
+          <label class="input-label"><i class="ph-bold ph-map-pin"></i> Zone / Server</label>
+          <input type="text" id="player-zone-input" class="form-control" placeholder="Opsional">
+        </div>
+      </div>
+
+      <button id="btn-verify-nickname" class="btn-outline">
+        <i class="ph-bold ph-magnifying-glass"></i> Cek Nickname Otomatis
+      </button>
+      <div id="nickname-verification-result" class="result-box"></div>
+    </div>
+
+    <div class="glass-form-container hidden-state" id="items-catalog-container">
+      <div class="section-header">
+        <div class="section-header-icon"><i class="ph-bold ph-shopping-cart"></i></div>
+        3. Daftar Produk
+      </div>
+      <div class="service-grid" id="service-items-grid"></div>
+    </div>
+
+    <div class="glass-form-container hidden-state" id="payment-method-container">
+      <div class="section-header">
+        <div class="section-header-icon"><i class="ph-bold ph-wallet"></i></div>
+        4. Metode Pembayaran
+      </div>
+      
+      <div class="payment-method-container">
+        <div class="payment-card active">
+          <div class="payment-icon-wrapper"><i class="ph-bold ph-qr-code"></i></div>
+          <div class="payment-details">
+            <span class="payment-title">QRIS Otomatis</span>
+            <span class="payment-desc">Scan via GoPay, OVO, Dana</span>
+          </div>
+          <i class="ph-bold ph-check-circle payment-check"></i>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon-wrapper"><i class="ph-bold ph-coin"></i></div>
+          <div class="payment-details">
+            <span class="payment-title">Saldo API / Reseller</span>
+            <span class="payment-desc">Potong saldo VIPayment</span>
+          </div>
+          <i class="ph-bold ph-check-circle payment-check"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-form-container hidden-state" id="order-execution-container">
+      <div class="section-header">
+        <div class="section-header-icon"><i class="ph-bold ph-check-square"></i></div>
+        5. Eksekusi Pembelian
+      </div>
+      
+      <div class="order-summary">
+        <div class="summary-row"><span class="summary-label">Game</span><span class="summary-value" id="summary-game-name">-</span></div>
+        <div class="summary-row"><span class="summary-label">Player</span><span class="summary-value" id="summary-player-nick">-</span></div>
+        <div class="summary-row"><span class="summary-label">Target ID</span><span class="summary-value" id="summary-target-id">-</span></div>
+        <div class="summary-row"><span class="summary-label">Item</span><span class="summary-value" id="summary-item-name">-</span></div>
+        <div class="summary-row"><span class="summary-label">Total</span><span class="summary-value" id="summary-total-price">-</span></div>
+      </div>
+      
+      <button id="btn-execute-order" class="btn-primary">
+        <i class="ph-bold ph-paper-plane-right"></i> Proses Order
+      </button>
+      <div id="order-execution-result" class="result-box"></div>
+    </div>
+
+    <div class="glass-form-container">
+      <div class="section-header">
+        <div class="section-header-icon"><i class="ph-bold ph-radar"></i></div>
+        Cek Status Transaksi
+      </div>
+      <div class="input-group">
+        <label class="input-label">TrxID VIPayment</label>
+        <input type="text" id="tracking-trx-id" class="form-control" placeholder="Contoh: VP123456789">
+      </div>
+      <button id="btn-track-status" class="btn-outline" style="margin-top: 10px;">
+        <i class="ph-bold ph-magnifying-glass"></i> Cek Server VIP
+      </button>
+      <div id="tracking-result-box" class="result-box" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <div class="application-footer-block">
+    <div class="footer-primary-text">API BY Saurus</div>
+    <div class="footer-secondary-text">VIPAYMENT INTEGRATION SYSTEM</div>
+  </div>
+</div>
+
+<div class="kinetic-overlay-navigation" id="navigation-overlay">
+  <div class="navigation-menu-card" id="navigation-menu-card">
+    <div class="nav-card-header">
+      <span class="nav-card-title">MENU Saurus</span>
+      <button class="btn-close-sidebar" id="btn-close-sidebar"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="nav-links-stagger">
+      <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> Dasbor Utama</a>
+      <a href="/topup" class="navigation-route-link route-active"><i class="ph-bold ph-game-controller"></i> Topup Games</a>
+      <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> Akun & ApiKey</a>
+      <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> Dokumentasi API</a>
+      <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> Repositori Snippet</a>
+      <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> Streaming Anime</a>
+      <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> Streaming Donghua</a>
+      <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> Baca Manga</a>
+      <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> Baca Manhwa</a>
+      <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> Bioskop Film</a>
+      <a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+      <a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+      <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+      <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> Claim Panel</a>
+      <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> Aplikasi Mod</a>
+      <a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> Host Media</a>
+    </div>
+    <div class="nav-card-footer">
+      <div class="nav-footer-avatar"><img src="https://files.catbox.moe/9y8310.jpg" alt="Saurus"></div>
+      <div class="nav-footer-info">
+        <span class="nav-footer-name">API Saurus</span>
+        <span class="nav-footer-desc">Infrastruktur REST API terpadu</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="system-toast" class="toast-notification"><i class="ph-fill ph-info toast-icon"></i><span id="toast-message-content"></span></div>
+
+<script>
+  function initializeColorTheme() {
+    if (localStorage.getItem('Saurus_theme') === 'dark') {
+      document.body.classList.add('dark-theme');
+      document.getElementById('btn-theme-toggle').classList.add('is-active-state');
+      document.getElementById('theme-icon').className = 'ph-bold ph-sun';
+    }
+  }
+  initializeColorTheme();
+
+  document.getElementById('btn-theme-toggle').addEventListener('click', (e) => {
+    const isDark = document.body.classList.toggle('dark-theme');
+    
+    localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+    e.currentTarget.classList.toggle('is-active-state', isDark);
+  });
+
+  function triggerSystemToast(msg) {
+    document.getElementById('toast-message-content').textContent = msg;
+    const toast = document.getElementById('system-toast');
+    toast.classList.add('show-toast');
+    setTimeout(() => toast.classList.remove('show-toast'), 3500);
+  }
+
+  const btnMenu = document.getElementById('trigger-menu');
+  const navOverlay = document.getElementById('navigation-overlay');
+  const navMenuCard = document.getElementById('navigation-menu-card');
+  const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+
+  function openSidebar() { navOverlay.classList.add('is-active'); document.body.classList.add('sidebar-open'); }
+  function closeSidebar() { navOverlay.classList.remove('is-active'); document.body.classList.remove('sidebar-open'); navMenuCard.style.transform = ''; }
+  btnMenu.addEventListener('click', openSidebar);
+  btnCloseSidebar.addEventListener('click', closeSidebar);
+  navOverlay.addEventListener('click', (e) => { if (e.target === navOverlay) closeSidebar(); });
+
+  let sbStartX = 0, sbCurrentX = 0, isDragging = false;
+  navMenuCard.addEventListener('touchstart', (e) => {
+    if(e.target.closest('a, button, input')) return;
+    sbStartX = e.touches[0].clientX; isDragging = true; navMenuCard.style.transition = 'none';
+  }, { passive: true });
+  navMenuCard.addEventListener('touchmove', (e) => {
+    if(!isDragging) return;
+    sbCurrentX = e.touches[0].clientX;
+    const diff = sbCurrentX - sbStartX;
+    if(diff < 0) navMenuCard.style.transform = `translateX(${diff}px)`;
+  }, { passive: true });
+  navMenuCard.addEventListener('touchend', () => {
+    if(!isDragging) return;
+    isDragging = false; navMenuCard.style.transition = 'transform 0.6s cubic-bezier(0.19, 1, 0.22, 1)';
+    if((sbCurrentX - sbStartX) < -90) closeSidebar(); else navMenuCard.style.transform = 'translateX(0)';
+  });
+
+  /* TOPUP SYSTEM LOGIC */
+  let globalServices = [];
+  let uniqueGamesList = [];
+  let selectedGame = null;
+  let selectedItem = null;
+  let verifiedPlayer = '';
+
+  const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  const getInitials = (str) => {
+    const w = str.split(' ').filter(Boolean);
+    if(w.length >= 2) return (w[0][0] + w[1][0]).toUpperCase();
+    return w[0].substring(0,2).toUpperCase();
+  };
+
+  async function fetchAllVIPServices() {
+    const gridContainer = document.getElementById('dynamic-game-list');
+    try {
+      // Tarik API Backend yang mengeksekusi VIP[span_5](start_span)[span_5](end_span)
+      const res = await fetch('/api/vip/services');
+      const payload = await res.json();
+
+      // Handling kegagalan respons asli VIP Reseller
+      if (payload.ok && payload.result === true && Array.isArray(payload.data)) {
+        globalServices = payload.data;
+        const gameSet = new Set();
+        globalServices.forEach(item => { if(item.game) gameSet.add(item.game); });
+        uniqueGamesList = Array.from(gameSet).sort();
+        renderGameGrid(uniqueGamesList);
+      } else {
+        // Jika IP tidak terdaftar atau kredensial VIP salah, pesan API asli akan muncul disini.
+        const errorMsg = payload.message || "VIP API tidak merespons valid.";
+        gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px 0; color: var(--color-danger-base); font-weight: 800;">ERROR: ${errorMsg}<br><span style="font-size: 0.8rem; font-weight: 500; color: var(--color-text-muted);">Pastikan API Key & IP Vercel Anda di-whitelist di VIPayment.</span></div>`;
+      }
+    } catch (err) {
+      gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px 0; color: var(--color-danger-base); font-weight: 800;">Gagal melakukan request HTTP ke endpoint lokal.</div>`;
+    }
+  }
+
+  function renderGameGrid(games) {
+    const container = document.getElementById('dynamic-game-list');
+    container.innerHTML = '';
+    if(games.length === 0) {
+      container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--color-text-muted); padding: 20px;">Game tidak ada dalam katalog VIP.</div>';
+      return;
+    }
+    games.forEach(gameName => {
+      const card = document.createElement('div');
+      card.className = `game-card-item ${selectedGame === gameName ? 'selected' : ''}`;
+      card.innerHTML = `<div class="game-card-icon">${getInitials(gameName)}</div><div class="game-card-title">${gameName}</div>`;
+      card.onclick = () => selectGame(gameName, card);
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById('game-search-input').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    renderGameGrid(uniqueGamesList.filter(g => g.toLowerCase().includes(query)));
+  });
+
+  function selectGame(gameName, cardEl) {
+    document.querySelectorAll('.game-card-item').forEach(el => el.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    selectedGame = gameName; selectedItem = null; verifiedPlayer = '';
+    
+    document.getElementById('player-id-input').value = '';
+    document.getElementById('player-zone-input').value = '';
+    document.getElementById('nickname-verification-result').style.display = 'none';
+    document.getElementById('summary-game-name').textContent = gameName;
+    document.getElementById('summary-player-nick').textContent = '-';
+    
+    document.getElementById('player-data-container').classList.remove('hidden-state');
+    
+    const items = globalServices.filter(i => i.game === gameName);
+    const itemGrid = document.getElementById('service-items-grid');
+    itemGrid.innerHTML = '';
+    
+    if(items.length === 0) {
+      itemGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--color-text-muted);">Layanan kosong.</div>';
+    } else {
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'service-card';
+        card.innerHTML = `<span class="service-status ${item.status==='available'?'':'empty'}">${item.status==='available'?'Tersedia':'Kosong'}</span>
+                          <div class="service-name">${item.name}</div>
+                          <div class="service-price">${formatIDR(item.price.basic)}</div>`;
+        card.onclick = () => {
+          if(item.status !== 'available') return triggerSystemToast('Item kosong/gangguan dari server VIP.');
+          document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedItem = item;
+          document.getElementById('summary-item-name').textContent = item.name;
+          document.getElementById('summary-total-price').textContent = formatIDR(item.price.basic);
+          checkOrderReady();
+        };
+        itemGrid.appendChild(card);
+      });
+    }
+    
+    document.getElementById('items-catalog-container').classList.remove('hidden-state');
+    document.getElementById('payment-method-container').classList.add('hidden-state');
+    document.getElementById('order-execution-container').classList.add('hidden-state');
+  }
+
+  document.getElementById('btn-verify-nickname').addEventListener('click', async () => {
+    if(!selectedGame) return triggerSystemToast('Pilih game di Langkah 1!');
+    const id = document.getElementById('player-id-input').value.trim();
+    const zone = document.getElementById('player-zone-input').value.trim();
+    if(!id) return triggerSystemToast('ID Player wajib diisi!');
+
+    const btn = document.getElementById('btn-verify-nickname');
+    const resBox = document.getElementById('nickname-verification-result');
+    btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Mengecek ke VIP...';
+    resBox.style.display = 'none';
+
+    try {
+      // Cek nickname via index.js API[span_6](start_span)[span_6](end_span)
+      const url = `/api/vip/nickname?code=${encodeURIComponent(selectedGame)}&target=${encodeURIComponent(id)}${zone ? `&zone=${encodeURIComponent(zone)}` : ''}`;
+      const res = await fetch(url);
+      const payload = await res.json();
+
+      if(payload.ok && payload.result === true) {
+        verifiedPlayer = payload.data;
+        resBox.innerHTML = `<span style="color: var(--color-success-base);"><i class="ph-bold ph-check-circle"></i> Berhasil! Nick: <b>${verifiedPlayer}</b></span>`;
+        document.getElementById('summary-player-nick').textContent = verifiedPlayer;
+        document.getElementById('summary-target-id').textContent = zone ? `${id} (${zone})` : id;
+        checkOrderReady();
+      } else {
+        verifiedPlayer = '';
+        resBox.innerHTML = `<span style="color: var(--color-danger-base);"><i class="ph-bold ph-warning-circle"></i> Gagal: ${payload.message || 'ID Salah/Game tidak mensupport Auto-Check.'}</span>`;
+        hideOrderContainers();
+      }
+    } catch(err) {
+      resBox.innerHTML = `<span style="color: var(--color-danger-base);"><i class="ph-bold ph-warning-circle"></i> Jaringan bermasalah.</span>`;
+      hideOrderContainers();
+    }
+    resBox.style.display = 'block';
+    btn.disabled = false; btn.innerHTML = '<i class="ph-bold ph-magnifying-glass"></i> Cek Nickname Otomatis';
+  });
+
+  document.querySelectorAll('.payment-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    });
+  });
+
+  function checkOrderReady() {
+    if(verifiedPlayer && selectedItem) {
+      document.getElementById('payment-method-container').classList.remove('hidden-state');
+      document.getElementById('order-execution-container').classList.remove('hidden-state');
+      document.getElementById('order-execution-result').style.display = 'none';
+    }
+  }
+
+  function hideOrderContainers() {
+    document.getElementById('payment-method-container').classList.add('hidden-state');
+    document.getElementById('order-execution-container').classList.add('hidden-state');
+  }
+
+  document.getElementById('btn-execute-order').addEventListener('click', async () => {
+    if(!selectedItem || !verifiedPlayer) return;
+    const btn = document.getElementById('btn-execute-order');
+    const resBox = document.getElementById('order-execution-result');
+    btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Mengeksekusi Order...';
+    resBox.style.display = 'none';
+
+    try {
+      // Eksekusi pesanan ke /api/vip/order[span_7](start_span)[span_7](end_span)
+      const res = await fetch('/api/vip/order', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service: selectedItem.code,
+          data_no: document.getElementById('player-id-input').value.trim(),
+          data_zone: document.getElementById('player-zone-input').value.trim()
+        })
+      });
+      const payload = await res.json();
+
+      if(payload.ok && payload.result === true) {
+        resBox.innerHTML = `
+          <div style="color: var(--color-success-base); font-size: 1.1rem; margin-bottom: 12px;"><i class="ph-fill ph-check-circle"></i> Transaksi VIP Diterima!</div>
+          <div style="margin-bottom: 6px;">ID Trx: <strong style="color: var(--color-primary-base);">${payload.data.trxid}</strong></div>
+          <div class="status-badge status-pending" style="margin-top: 12px;">STATUS: PENDING</div>
+        `;
+        document.getElementById('tracking-trx-id').value = payload.data.trxid;
+        triggerSystemToast('Pesanan dikirim ke sistem.');
+      } else {
+        resBox.innerHTML = `<div style="color: var(--color-danger-base);"><i class="ph-bold ph-warning-circle"></i> Error API VIP: ${payload.message || 'Respons tidak valid.'}</div>`;
+      }
+    } catch(err) {
+      resBox.innerHTML = `<div style="color: var(--color-danger-base);"><i class="ph-bold ph-warning-circle"></i> Koneksi ke VIP gagal.</div>`;
+    }
+    resBox.style.display = 'block';
+    btn.disabled = false; btn.innerHTML = '<i class="ph-bold ph-paper-plane-right"></i> Proses Order';
+  });
+
+  document.getElementById('btn-track-status').addEventListener('click', async () => {
+    const trxid = document.getElementById('tracking-trx-id').value.trim();
+    if(!trxid) return triggerSystemToast('TrxID Kosong!');
+    
+    const btn = document.getElementById('btn-track-status');
+    const resBox = document.getElementById('tracking-result-box');
+    btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Cek Server VIP...';
+    resBox.style.display = 'none';
+
+    try {
+      // Cek riwayat dari VIPayment via TrxID[span_8](start_span)[span_8](end_span)
+      const res = await fetch(`/api/vip/status?trxid=${encodeURIComponent(trxid)}`);
+      const payload = await res.json();
+
+      if(payload.ok && payload.result === true && payload.data.length > 0) {
+        const trx = payload.data[0];
+        let badge = 'status-pending';
+        if(trx.status === 'success') badge = 'status-success';
+        if(trx.status === 'error') badge = 'status-error';
+
+        resBox.innerHTML = `
+          <div style="border-bottom: 1px solid var(--color-surface-interactive); padding-bottom: 12px; margin-bottom: 12px; font-weight: 800; color: var(--color-primary-base);">ID: ${trx.trxid}</div>
+          <div style="font-size: 0.9rem; margin-bottom: 6px;">Layanan: <b>${trx.service}</b></div>
+          <div style="font-size: 0.9rem; margin-bottom: 12px;">Target: <b>${trx.target}</b></div>
+          <span class="status-badge ${badge}">${trx.status.toUpperCase()}</span>
+          ${trx.note ? `<div style="margin-top: 10px; font-size: 0.85rem; color: var(--color-danger-base);">Note: ${trx.note}</div>` : ''}
+        `;
+      } else {
+        resBox.innerHTML = `<div style="color: var(--color-warning-base);"><i class="ph-bold ph-warning-circle"></i> ID Trx tidak ditemukan di VIP.</div>`;
+      }
+    } catch(err) {
+      resBox.innerHTML = `<div style="color: var(--color-danger-base);"><i class="ph-bold ph-warning-circle"></i> Gangguan server.</div>`;
+    }
+    resBox.style.display = 'block';
+    btn.disabled = false; btn.innerHTML = '<i class="ph-bold ph-magnifying-glass"></i> Cek Server VIP';
+  });
+
+  window.addEventListener('load', fetchAllVIPServices);
+</script>
+</body>
+</html>

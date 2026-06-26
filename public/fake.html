@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Saurus</title>
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+    <meta property="og:site_name" content="Saurus API">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  background:#000;
+  font-family:'Share Tech Mono',monospace;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+
+/* TV color glitch overlay */
+#tv-glitch {
+  position:fixed;
+  inset:0;
+  z-index:20;
+  pointer-events:none;
+  opacity:0;
+  animation: tvburst 0.12s steps(1) infinite;
+}
+
+@keyframes tvburst {
+  0%   { opacity:0; background: transparent; }
+  10%  { opacity:1; background: repeating-linear-gradient(90deg,#ff0000 0px,#ff0000 4px,#00ff00 4px,#00ff00 8px,#0000ff 8px,#0000ff 12px,#ffff00 12px,#ffff00 16px,#ff00ff 16px,#ff00ff 20px,#00ffff 20px,#00ffff 24px); }
+  20%  { opacity:0; }
+  30%  { opacity:0.8; background: repeating-linear-gradient(0deg,#ff00ff 0px,#ff00ff 3px,#00ffff 3px,#00ffff 6px,#ffff00 6px,#ffff00 9px,transparent 9px,transparent 12px); }
+  40%  { opacity:0; }
+  55%  { opacity:0.6; background: repeating-linear-gradient(45deg,#ff0000 0px,#00ff00 2px,#0000ff 4px,#ffff00 6px,#ff00ff 8px); }
+  65%  { opacity:0; }
+  80%  { opacity:0.9; background: repeating-linear-gradient(90deg,#00ffff 0px,#00ffff 6px,#ff00ff 6px,#ff00ff 12px,#ffff00 12px,#ffff00 18px,#ff0000 18px,#ff0000 24px); }
+  90%  { opacity:0; }
+  100% { opacity:0; }
+}
+
+/* scanlines */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);
+  pointer-events:none;
+  z-index:15;
+}
+
+/* screen shake */
+.container {
+  text-align:center;
+  position:relative;
+  z-index:5;
+  padding:2rem;
+  animation: shake 0.4s infinite;
+  color:#00ff99;
+}
+
+@keyframes shake {
+  0%,100%{ transform:translate(0,0) skewX(0deg); }
+  10%    { transform:translate(-3px,1px) skewX(-1deg); }
+  20%    { transform:translate(3px,-2px) skewX(1deg); }
+  30%    { transform:translate(-2px,2px) skewX(0.5deg); }
+  40%    { transform:translate(4px,-1px) skewX(-0.5deg); }
+  50%    { transform:translate(-1px,3px) skewX(1deg); }
+  60%    { transform:translate(2px,1px) skewX(-1deg); }
+  70%    { transform:translate(-3px,-2px) skewX(0deg); }
+  80%    { transform:translate(1px,2px) skewX(0.5deg); }
+  90%    { transform:translate(-2px,-1px) skewX(-0.5deg); }
+}
+
+.skull { font-size:5rem; display:block; margin-bottom:1rem; animation:flicker 1.2s infinite; }
+
+.glitch {
+  font-size:1.3rem;
+  font-weight:bold;
+  position:relative;
+  color:#00ff99;
+  text-shadow:0 0 10px #00ff99, 0 0 20px #00ff99;
+  animation:glitch 1.5s infinite;
+  margin-bottom:0.8rem;
+  line-height:1.9;
+}
+.glitch::before {
+  content:attr(data-text);
+  position:absolute;
+  left:0;right:0;top:0;
+  color:#ff00cc;
+  clip-path:polygon(0 25%,100% 25%,100% 45%,0 45%);
+  transform:translateX(-4px);
+  animation:glitch-b 1.6s infinite;
+}
+.glitch::after {
+  content:attr(data-text);
+  position:absolute;
+  left:0;right:0;top:0;
+  color:#00eeff;
+  clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);
+  transform:translateX(4px);
+  animation:glitch-a 2s infinite;
+}
+
+.warning {
+  font-size:0.85rem;
+  color:#ff4444;
+  border:1px solid #ff4444;
+  padding:0.5rem 1.2rem;
+  margin:1rem auto;
+  display:inline-block;
+  animation:borderflash 0.6s infinite;
+  text-shadow:0 0 6px #ff4444;
+}
+
+.subtext {
+  font-size:0.9rem;
+  color:#ff4466;
+  margin-top:1rem;
+  animation:flicker 2s infinite;
+}
+
+.code-line {
+  font-size:0.7rem;
+  color:#333;
+  margin-top:2rem;
+  letter-spacing:2px;
+}
+
+.bar { width:260px;height:6px;background:#111;border:1px solid #00ff9944;border-radius:3px;margin:1.2rem auto 0;overflow:hidden; }
+.bar-fill { height:100%;width:0%;background:linear-gradient(90deg,#ff0000,#ff00ff,#00ffff,#00ff99);animation:load 2s ease-in-out infinite;border-radius:3px; }
+
+/* random RGB pixel noise */
+#noise {
+  position:fixed;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  opacity:0.04;
+}
+
+.particles span {
+  position:fixed;
+  display:block;
+  width:3px;height:3px;
+  border-radius:50%;
+  opacity:0;
+  animation:floatup linear infinite;
+}
+
+@keyframes glitch {
+  0%,88%,100%{ transform:none; }
+  90%{ transform:skewX(6deg) translateX(3px); color:#ff00cc; }
+  92%{ transform:skewX(-5deg) translateX(-3px); color:#00eeff; }
+  94%{ transform:none; color:#00ff99; }
+}
+@keyframes glitch-b {
+  0%,85%,100%{ opacity:0; }
+  87%{ opacity:1; transform:translateX(-5px); }
+  89%{ opacity:1; transform:translateX(4px); }
+  91%{ opacity:0; }
+}
+@keyframes glitch-a {
+  0%,82%,100%{ opacity:0; }
+  84%{ opacity:1; transform:translateX(5px); }
+  86%{ opacity:1; transform:translateX(-4px); }
+  88%{ opacity:0; }
+}
+@keyframes flicker {
+  0%,93%,100%{ opacity:1; }
+  94%{ opacity:0.1; }
+  95%{ opacity:1; }
+  97%{ opacity:0.4; }
+}
+@keyframes borderflash {
+  0%,100%{ border-color:#ff4444; box-shadow:0 0 6px #ff4444; }
+  50%{ border-color:#ff00cc; box-shadow:0 0 12px #ff00cc; }
+}
+@keyframes load {
+  0%{ width:0%; }
+  50%{ width:100%; }
+  100%{ width:0%; }
+}
+@keyframes floatup {
+  0%{ bottom:-10px; opacity:1; }
+  100%{ bottom:110vh; opacity:0; }
+}
+
+</style>
+
+<style id="pwa-install-style">
+#pwa-install-banner {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 99999;
+    padding: 14px 16px 18px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-top: 1.5px solid rgba(99,102,241,0.35);
+    box-shadow: 0 -6px 32px rgba(0,0,0,0.45);
+    animation: pwaSlideUp 0.38s cubic-bezier(.22,.68,0,1.2) both;
+}
+#pwa-install-banner.pwa-visible { display: flex; align-items: center; gap: 12px; }
+@keyframes pwaSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+.pwa-icon-wrap {
+    width: 46px; height: 46px; flex-shrink: 0;
+    background: linear-gradient(135deg,#4f46e5,#7c3aed);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+}
+.pwa-icon-wrap img { width: 28px; height: 28px; }
+.pwa-text-wrap { flex: 1; min-width: 0; }
+.pwa-text-title {
+    font-size: 13px; font-weight: 700;
+    color: #f8fafc; letter-spacing: 0.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pwa-text-sub {
+    font-size: 11px; color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pwa-btn-install {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: linear-gradient(135deg,#6366f1,#4f46e5);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; cursor: pointer;
+    transition: opacity .18s;
+    box-shadow: 0 3px 12px rgba(99,102,241,0.4);
+}
+.pwa-btn-install:active { opacity: .8; }
+.pwa-btn-close {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.07);
+    border: none; border-radius: 8px;
+    color: #94a3b8; font-size: 16px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: background .15s;
+}
+.pwa-btn-close:active { background: rgba(255,255,255,0.14); }
+</style>
+
+</head>
+<body>
+
+<div id="tv-glitch"></div>
+<canvas id="noise"></canvas>
+<div class="particles" id="particles"></div>
+
+<div class="container">
+  <span class="skull">💀</span>
+
+  <div class="glitch" data-text="kasian, ga dapet web nya wkwkwk">kasian, ga dapet web nya wkwkwk</div>
+  <div class="glitch" data-text="nyari apa sih bestie? 😭🙏" style="font-size:1.05rem">nyari apa sih bestie? 😭🙏</div>
+  <div class="glitch" data-text="capek scraping dapet zonk 💔" style="font-size:1rem">capek scraping dapet zonk 💔</div>
+
+  <div class="warning">⚠ SYSTEM MELTDOWN DETECTED ⚠</div>
+
+  <div class="bar"><div class="bar-fill"></div></div>
+  <p class="subtext">[ ACCESS DENIED — nice try though 🫶 ]</p>
+  <p class="code-line">ERR_HUMAN_NOT_DETECTED :: 0xDEADBEEF</p>
+</div>
+
+<script>
+// Noise canvas
+const canvas = document.getElementById('noise');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+function drawNoise() {
+  const img = ctx.createImageData(canvas.width, canvas.height);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = Math.random() > 0.5 ? 255 : 0;
+    img.data[i]   = Math.random()*255;
+    img.data[i+1] = Math.random()*255;
+    img.data[i+2] = Math.random()*255;
+    img.data[i+3] = Math.random() * 30;
+  }
+  ctx.putImageData(img, 0, 0);
+  requestAnimationFrame(drawNoise);
+}
+drawNoise();
+
+// Particles
+const pc = document.getElementById('particles');
+const colors = ['#ff0000','#00ff99','#ff00ff','#00ffff','#ffff00','#ff4466'];
+for (let i = 0; i < 40; i++) {
+  const s = document.createElement('span');
+  s.style.left = Math.random()*100+'vw';
+  s.style.background = colors[Math.floor(Math.random()*colors.length)];
+  s.style.animationDuration = (Math.random()*6+3)+'s';
+  s.style.animationDelay = (Math.random()*6)+'s';
+  s.style.width = s.style.height = (Math.random()*4+1)+'px';
+  pc.appendChild(s);
+}
+</script>
+
+<script id="pwa-install-script">
+(function() {
+    let deferredPrompt = null;
+    const banner = document.getElementById('pwa-install-banner');
+    const btnInstall = document.getElementById('pwa-btn-install');
+    const btnClose = document.getElementById('pwa-btn-close');
+    const DISMISSED_KEY = 'Saurus_pwa_dismissed';
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    if (localStorage.getItem(DISMISSED_KEY)) return;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        setTimeout(() => {
+            if (banner) banner.classList.add('pwa-visible');
+        }, 1800);
+    });
+
+    if (btnInstall) {
+        btnInstall.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (banner) banner.classList.remove('pwa-visible');
+            if (outcome === 'accepted') localStorage.setItem(DISMISSED_KEY, '1');
+        });
+    }
+
+    if (btnClose) {
+        btnClose.addEventListener('click', () => {
+            if (banner) banner.classList.remove('pwa-visible');
+            localStorage.setItem(DISMISSED_KEY, '1');
+        });
+    }
+
+    window.addEventListener('appinstalled', () => {
+        if (banner) banner.classList.remove('pwa-visible');
+        localStorage.setItem(DISMISSED_KEY, '1');
+    });
+})();
+</script>
+<script src="/shared.js"></script>
+</body>
+</html>

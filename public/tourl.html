@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Saurus Media Hoster - API Saurus</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root {
+    --bg-main: #F4F4F5;
+    --bg-card: #FFFFFF;
+    --border-dark: #000000;
+    --text-main: #000000;
+    --text-muted: #52525B;
+    --gray-light: #E4E4E7;
+    --gray-med: #D4D4D8;
+    --gray-dark: #A1A1AA;
+    --bg-inverse: #000000;
+    --text-inverse: #FFFFFF;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 999px;
+    --border-thick: 2.5px solid var(--border-dark);
+    --border-dashed: 2.5px dashed var(--border-dark);
+    --shadow-solid: 4px 4px 0px var(--border-dark);
+    --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+    --shadow-active: 0px 0px 0px transparent;
+}
+body.dark-theme {
+    --bg-main: #121212;
+    --bg-card: #1E1E1E;
+    --border-dark: #000000;
+    --text-main: #FFFFFF;
+    --text-muted: #A1A1AA;
+    --gray-light: #27272A;
+    --gray-med: #3F3F46;
+    --gray-dark: #52525B;
+    --bg-inverse: #FFFFFF;
+    --text-inverse: #000000;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
+}
+.moving-background-pattern {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+    background-size: 32px 32px;
+    opacity: 0.15;
+    animation: pan-background 40s linear infinite;
+    pointer-events: none;
+}
+@keyframes pan-background {
+    0% { background-position: 0 0; }
+    100% { background-position: 100vw 100vh; }
+}
+.fixed-bg-photo {
+    position: fixed;
+    inset: 0;
+    background-image: url('https://i.ibb.co/hR2yfJHd/Saurus28039813.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+body.dark-theme .fixed-bg-photo {
+    opacity: 0.15;
+}
+.app-viewport {
+    width: 100%;
+    max-width: 768px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    gap: 24px;
+}
+.top-navigation-cluster {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-main);
+    padding: 16px 20px;
+    border-bottom: var(--border-thick);
+}
+.kinetic-hamburger-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+}
+.kinetic-hamburger-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.kinetic-line {
+    width: 22px;
+    height: 3px;
+    background-color: var(--text-inverse);
+    border-radius: 2px;
+}
+.center-brand-group {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+}
+.cluster-actions {
+    display: flex;
+    gap: 10px;
+}
+.action-btn-circle {
+    width: 48px;
+    height: 48px;
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+}
+.action-btn-circle:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.action-btn-circle.is-active-state {
+    background-color: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.kinetic-overlay-navigation {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.kinetic-overlay-navigation.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.navigation-menu-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 85%;
+    max-width: 340px;
+    height: 100%;
+    background: var(--bg-main);
+    border-right: var(--border-thick);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 10px 0 0 rgba(0,0,0,0.3);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 2;
+    pointer-events: auto;
+}
+.kinetic-overlay-navigation.is-active .navigation-menu-card {
+    transform: translateX(0);
+}
+.nav-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: var(--border-thick);
+    background: var(--bg-card);
+    flex-shrink: 0;
+}
+.nav-card-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.btn-close-sidebar {
+    background: var(--bg-card);
+    border: 2px solid var(--border-dark);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text-main);
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    flex-shrink: 0;
+}
+.btn-close-sidebar:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.nav-links-stagger {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.nav-links-stagger::-webkit-scrollbar {
+    width: 0;
+}
+.navigation-route-link {
+    text-decoration: none;
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 14px 16px;
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: var(--shadow-solid-sm);
+    text-transform: uppercase;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.navigation-route-link i {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
+.navigation-route-link:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.navigation-route-link.route-active {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.hero-section {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    width: fit-content;
+    text-transform: uppercase;
+    border: var(--border-thick);
+}
+.hero-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.hero-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.main-content-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: var(--border-thick);
+    padding: 24px;
+    box-shadow: var(--shadow-solid);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 0 20px;
+}
+.panel-title-header {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: var(--border-thick);
+    padding-bottom: 16px;
+    text-transform: uppercase;
+}
+.panel-title-header i {
+    font-size: 1.6rem;
+}
+.drag-drop-zone {
+    width: 100%;
+    min-height: 200px;
+    border: var(--border-dashed);
+    border-radius: var(--radius-md);
+    background: var(--gray-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.drag-drop-zone.drag-active {
+    background: var(--gray-med);
+    transform: scale(0.98);
+}
+.drag-drop-zone i {
+    font-size: 3rem;
+    color: var(--text-main);
+    transition: transform 0.2s ease;
+}
+.drag-drop-zone:hover i {
+    transform: translateY(-5px);
+}
+.drag-drop-text {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.drag-drop-subtext {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+.hidden-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+.file-preview-container {
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-main);
+    border-radius: var(--radius-md);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-solid-sm);
+}
+.file-preview-visual {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    border: var(--border-thick);
+}
+.file-preview-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+}
+.file-preview-name {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--text-main);
+    word-break: break-all;
+    text-transform: uppercase;
+}
+.file-preview-size {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+.provider-selector-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.provider-selector-label {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.provider-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.provider-btn {
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-align: center;
+    box-shadow: var(--shadow-solid-sm);
+}
+.provider-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.provider-btn.is-selected {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.provider-btn i {
+    font-size: 1.8rem;
+    color: var(--text-main);
+}
+.provider-btn.is-selected i {
+    color: var(--text-inverse);
+}
+.provider-btn-title {
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.provider-btn-desc {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.provider-btn.is-selected .provider-btn-title,
+.provider-btn.is-selected .provider-btn-desc {
+    color: var(--text-inverse);
+}
+.btn-action-highlight {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    padding: 18px;
+    border-radius: var(--radius-md);
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-transform: uppercase;
+    width: 100%;
+    box-shadow: var(--shadow-solid-sm);
+}
+.btn-action-highlight:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.btn-action-highlight:disabled {
+    background: var(--gray-light);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    border-color: var(--text-muted);
+}
+.btn-action-secondary {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    text-transform: uppercase;
+    width: 100%;
+    box-shadow: var(--shadow-solid-sm);
+}
+.btn-action-secondary:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.result-container {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-solid-sm);
+}
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.result-input-wrapper {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+.result-input {
+    flex: 1;
+    background: var(--bg-card);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-main);
+    outline: none;
+}
+.btn-copy-result {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    padding: 0 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 900;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-solid-sm);
+}
+.btn-copy-result:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-main);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease;
+}
+.loading-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+}
+.Saurus-svg-spinner {
+    width: 90px;
+    height: 90px;
+    animation: rotate-out 2s linear infinite;
+    margin-bottom: 24px;
+}
+.Saurus-svg-track { fill: none; stroke: var(--gray-med); stroke-width: 4; }
+.Saurus-svg-arc {
+    fill: none; stroke: var(--border-dark); stroke-width: 6;
+    stroke-linecap: square;
+    animation: dash-arc 1.5s ease-in-out infinite;
+}
+.Saurus-svg-inner {
+    fill: none; stroke: var(--text-main); stroke-width: 2;
+    stroke-dasharray: 4 8;
+    animation: rotate-in 4s linear infinite;
+    transform-origin: center;
+}
+.progress-container {
+    width: 200px;
+    height: 10px;
+    background: var(--gray-light);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-top: 10px;
+}
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--text-main);
+    transition: width 0.3s ease;
+}
+.progress-text-indicator {
+    color: var(--text-main);
+    font-size: 0.8rem;
+    font-weight: 900;
+    margin-top: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.toast-notification-float {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(50px);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 900;
+    box-shadow: var(--shadow-solid);
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+.toast-notification-float.is-shown {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+.application-footer-block {
+    text-align: center;
+    padding: 20px 20px 60px 20px;
+    width: 100%;
+}
+.footer-primary-text {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.footer-secondary-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-top: 8px;
+    background: var(--gray-light);
+    display: inline-block;
+    padding: 6px 12px;
+    border: var(--border-thick);
+}
+@keyframes dash-arc {
+    0% { stroke-dasharray: 1, 300; stroke-dashoffset: 0; }
+    50% { stroke-dasharray: 150, 300; stroke-dashoffset: -40; }
+    100% { stroke-dasharray: 150, 300; stroke-dashoffset: -280; }
+}
+@keyframes rotate-out { 100% { transform: rotate(360deg); } }
+@keyframes rotate-in { 100% { transform: rotate(-360deg); } }
+</style>
+
+<script>
+(function(){
+    var t = localStorage.getItem('Saurus-theme') || localStorage.getItem('Saurus_theme');
+    var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: #121212 !important; }
+</style>
+</head>
+<body>
+
+<div class="fixed-bg-photo"></div>
+<div class="moving-background-pattern"></div>
+<div id="toast-notify" class="toast-notification-float"></div>
+
+<audio id="audio-background-engine" loop preload="auto">
+    <source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg">
+</audio>
+
+<div class="loading-overlay" id="loading-overlay">
+    <svg class="Saurus-svg-spinner" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" class="Saurus-svg-track"></circle>
+        <path d="M50 5 A 45 45 0 0 1 95 50" class="Saurus-svg-arc"></path>
+        <circle cx="50" cy="50" r="30" class="Saurus-svg-inner"></circle>
+    </svg>
+    <div class="progress-container">
+        <div class="progress-bar-fill" id="upload-progress-fill"></div>
+    </div>
+    <div class="progress-text-indicator" id="upload-progress-text">0% DARI 100%</div>
+</div>
+
+<div class="app-viewport">
+    <div class="top-navigation-cluster">
+        <button class="kinetic-hamburger-btn" id="btn-trigger-menu">
+            <span class="kinetic-line line-top"></span>
+            <span class="kinetic-line line-mid"></span>
+            <span class="kinetic-line line-bot"></span>
+        </button>
+        <div class="center-brand-group">API Saurus</div>
+        <div class="cluster-actions">
+            <button class="action-btn-circle" id="btn-theme-toggle">
+                <i id="theme-icon" class="ph-bold ph-moon"></i>
+            </button>
+            <button class="action-btn-circle" id="btn-trigger-audio">
+                <i id="audio-state-icon" class="ph-bold ph-speaker-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="kinetic-overlay-navigation" id="navigation-overlay-layer">
+        <div class="navigation-menu-card">
+            <div class="nav-card-header">
+                <span class="nav-card-title">Menu Utama</span>
+                <button class="btn-close-sidebar" id="btn-close-sidebar"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="nav-links-stagger">
+                <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> Dasbor Utama</a>
+                <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> Akun & ApiKey</a>
+                <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> Dokumentasi API</a>
+                <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> Repositori Snippet</a>
+                <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> Streaming Anime</a>
+                <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> Streaming Donghua</a>
+                <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> Baca Manga</a>
+                <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> Baca Manhwa</a>
+                <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> Bioskop Film</a>
+                <a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+                <a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+                <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+                <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> Claim Panel</a>
+                <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> Aplikasi Mod</a>
+                <a href="/tourl" class="navigation-route-link route-active"><i class="ph-bold ph-cloud-arrow-up"></i> Host Media</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-badge">
+            <i class="ph-bold ph-cloud-arrow-up"></i> CLOUD HOSTER
+        </div>
+        <h1 class="hero-title">
+            Media To URL
+        </h1>
+        <p class="hero-sub">UNGGAH BERKAS APAPUN DAN DAPATKAN TAUTAN PERMANEN SECARA INSTAN. MENDUKUNG SELURUH FORMAT MEDIA.</p>
+    </div>
+
+    <div class="main-content-panel" id="upload-panel-container">
+        <div class="panel-title-header"><i class="ph-fill ph-upload-simple"></i> AREA UNGGAHAN</div>
+        
+        <div class="drag-drop-zone" id="file-drop-zone">
+            <i class="ph-bold ph-file-arrow-up"></i>
+            <div class="drag-drop-text">PILIH ATAU TARIK BERKAS KESINI</div>
+            <div class="drag-drop-subtext">MAKSIMAL UKURAN BERKAS 100MB</div>
+            <input type="file" id="core-file-input" class="hidden-file-input">
+        </div>
+
+        <div class="file-preview-container" id="file-preview-box">
+            <img class="file-preview-visual" id="preview-image-element" src="" style="display:none;">
+            <div class="file-preview-details">
+                <div class="file-preview-name" id="preview-filename-text">...</div>
+                <div class="file-preview-size" id="preview-filesize-text">...</div>
+            </div>
+            <button class="btn-action-secondary" id="btn-cancel-file">
+                <i class="ph-bold ph-trash"></i> BATALKAN BERKAS
+            </button>
+        </div>
+
+        <div class="provider-selector-container">
+            <div class="provider-selector-label">PILIH PENYIMPANAN</div>
+            <div class="provider-options-grid">
+                <div class="provider-btn is-selected" data-provider="imgbb">
+                    <i class="ph-fill ph-image-square"></i>
+                    <div class="provider-btn-title">IMGBB</div>
+                    <div class="provider-btn-desc">GAMBAR &middot; PERMANEN</div>
+                </div>
+                <div class="provider-btn" data-provider="catbox">
+                    <i class="ph-fill ph-hard-drives"></i>
+                    <div class="provider-btn-title">CATBOX</div>
+                    <div class="provider-btn-desc">SEMUA TIPE &middot; PERMANEN</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-action-highlight" id="btn-execute-upload" disabled>
+            <i class="ph-bold ph-cloud-arrow-up"></i> UNGGAH BERKAS
+        </button>
+
+        <div class="result-container" id="upload-result-box">
+            <div class="result-header"><i class="ph-fill ph-check-circle"></i> BERHASIL DIUNGGAH</div>
+            <div class="result-input-wrapper">
+                <input type="text" class="result-input" id="result-url-input" readonly>
+                <button class="btn-copy-result" id="btn-copy-url"><i class="ph-bold ph-copy"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="application-footer-block">
+        <div class="footer-primary-text">API BY Saurus</div>
+        <div class="footer-secondary-text">YANG DDOS HAMA</div>
+    </div>
+</div>
+
+<script>
+function initTheme() {
+    const isDark = localStorage.getItem('Saurus-theme') === 'dark' || localStorage.getItem('Saurus_theme') === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+        document.getElementById('btn-theme-toggle').classList.add('is-active-state');
+    }
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+}
+initTheme();
+
+document.getElementById('btn-theme-toggle').onclick = (e) => {
+    const btn = e.currentTarget;
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+    btn.classList.toggle('is-active-state', isDark);
+};
+
+const triggerMenuBtn = document.getElementById('btn-trigger-menu');
+const navOverlayLayer = document.getElementById('navigation-overlay-layer');
+const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+
+triggerMenuBtn.addEventListener('click', () => {
+    navOverlayLayer.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+});
+
+btnCloseSidebar.addEventListener('click', () => {
+    navOverlayLayer.classList.remove('is-active');
+    document.body.style.overflow = '';
+});
+
+navOverlayLayer.addEventListener('click', (ev) => {
+    if (ev.target === navOverlayLayer) {
+        navOverlayLayer.classList.remove('is-active');
+        document.body.style.overflow = '';
+    }
+});
+
+const BGM_STORE_KEY = 'Saurus_bgm_playing';
+const audioCore = document.getElementById('audio-background-engine');
+const btnAudioTog = document.getElementById('btn-trigger-audio');
+const iconAudioState = document.getElementById('audio-state-icon');
+
+function syncAudioVisualState(isPlaying) {
+    if (isPlaying) {
+        btnAudioTog.classList.add('is-active-state');
+        iconAudioState.className = 'ph-bold ph-speaker-high';
+    } else {
+        btnAudioTog.classList.remove('is-active-state');
+        iconAudioState.className = 'ph-bold ph-speaker-slash';
+    }
+}
+
+if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+    audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {
+        document.addEventListener('click', function resumePlayEvent() {
+            if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+                audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {});
+            }
+            document.removeEventListener('click', resumePlayEvent);
+        }, { once: true });
+    });
+}
+
+btnAudioTog.addEventListener('click', () => {
+    if (audioCore.paused) {
+        audioCore.play().then(() => {
+            localStorage.setItem(BGM_STORE_KEY, '1');
+            syncAudioVisualState(true);
+        }).catch(() => {});
+    } else {
+        audioCore.pause();
+        localStorage.setItem(BGM_STORE_KEY, '0');
+        syncAudioVisualState(false);
+    }
+});
+
+const toastRef = document.getElementById('toast-notify');
+let toastTimer = null;
+function showToast(msg) {
+    toastRef.innerHTML = `<i class="ph-bold ph-bell-ringing"></i> ${msg}`;
+    toastRef.className = 'toast-notification-float is-shown';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastRef.className = 'toast-notification-float', 3500);
+}
+
+let currentSelectedFile = null;
+let currentSelectedProvider = 'imgbb';
+
+const dropZoneElement = document.getElementById('file-drop-zone');
+const coreFileInputElement = document.getElementById('core-file-input');
+const filePreviewBoxElement = document.getElementById('file-preview-box');
+const previewImageElement = document.getElementById('preview-image-element');
+const previewFilenameTextElement = document.getElementById('preview-filename-text');
+const previewFilesizeTextElement = document.getElementById('preview-filesize-text');
+const btnCancelFileElement = document.getElementById('btn-cancel-file');
+const providerBtnElements = document.querySelectorAll('.provider-btn');
+const btnExecuteUploadElement = document.getElementById('btn-execute-upload');
+const uploadResultBoxElement = document.getElementById('upload-result-box');
+const resultUrlInputElement = document.getElementById('result-url-input');
+const btnCopyUrlElement = document.getElementById('btn-copy-url');
+const loadingOverlayElement = document.getElementById('loading-overlay');
+const uploadProgressFillElement = document.getElementById('upload-progress-fill');
+const uploadProgressTextElement = document.getElementById('upload-progress-text');
+
+function formatBytesSize(bytes) {
+    if (!+bytes) return '0 BYTES';
+    const k = 1024;
+    const sizes = ['BYTES', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+}
+
+function processFileSelectionState(fileInstance) {
+    if (!fileInstance) return;
+    if (fileInstance.size > 100 * 1024 * 1024) {
+        showToast('MAKSIMAL UKURAN BERKAS ADALAH 100MB');
+        return;
+    }
+    currentSelectedFile = fileInstance;
+    dropZoneElement.style.display = 'none';
+    filePreviewBoxElement.style.display = 'flex';
+    uploadResultBoxElement.style.display = 'none';
+    btnExecuteUploadElement.disabled = false;
+    previewFilenameTextElement.textContent = fileInstance.name.toUpperCase();
+    previewFilesizeTextElement.textContent = formatBytesSize(fileInstance.size);
+    if (fileInstance.type.startsWith('image/')) {
+        const fileReaderInstance = new FileReader();
+        fileReaderInstance.onload = (e) => {
+            previewImageElement.src = e.target.result;
+            previewImageElement.style.display = 'block';
+        };
+        fileReaderInstance.readAsDataURL(fileInstance);
+    } else {
+        previewImageElement.src = '';
+        previewImageElement.style.display = 'none';
+    }
+}
+
+function resetFileSelectionState() {
+    currentSelectedFile = null;
+    coreFileInputElement.value = '';
+    dropZoneElement.style.display = 'flex';
+    filePreviewBoxElement.style.display = 'none';
+    uploadResultBoxElement.style.display = 'none';
+    btnExecuteUploadElement.disabled = true;
+    previewImageElement.src = '';
+}
+
+dropZoneElement.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZoneElement.classList.add('drag-active');
+});
+
+dropZoneElement.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropZoneElement.classList.remove('drag-active');
+});
+
+dropZoneElement.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZoneElement.classList.remove('drag-active');
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processFileSelectionState(e.dataTransfer.files[0]);
+    }
+});
+
+coreFileInputElement.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+        processFileSelectionState(e.target.files[0]);
+    }
+});
+
+btnCancelFileElement.addEventListener('click', resetFileSelectionState);
+
+providerBtnElements.forEach(btn => {
+    btn.addEventListener('click', () => {
+        providerBtnElements.forEach(b => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        currentSelectedProvider = btn.getAttribute('data-provider') || 'imgbb';
+    });
+});
+
+btnCopyUrlElement.addEventListener('click', () => {
+    resultUrlInputElement.select();
+    resultUrlInputElement.setSelectionRange(0, 99999);
+    try {
+        document.execCommand('copy');
+        showToast('TAUTAN BERHASIL DISALIN');
+    } catch (err) {
+        showToast('GAGAL MENYALIN TAUTAN');
+    }
+    window.getSelection().removeAllRanges();
+});
+
+btnExecuteUploadElement.addEventListener('click', () => {
+    if (!currentSelectedFile) return;
+    loadingOverlayElement.classList.add('is-active');
+    uploadProgressFillElement.style.width = '0%';
+    uploadProgressTextElement.textContent = '0% DARI 100%';
+    const formDataConstructor = new FormData();
+    formDataConstructor.append('file', currentSelectedFile);
+    formDataConstructor.append('provider', currentSelectedProvider);
+    formDataConstructor.append('apikey', 'Saurus');
+    const xmlHttpRequestInstance = new XMLHttpRequest();
+    xmlHttpRequestInstance.open('POST', '/api/tourl/upload', true);
+    xmlHttpRequestInstance.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+            const currentPercentageComplete = Math.round((e.loaded / e.total) * 100);
+            uploadProgressFillElement.style.width = currentPercentageComplete + '%';
+            uploadProgressTextElement.textContent = currentPercentageComplete + '% DARI 100%';
+        }
+    };
+    xmlHttpRequestInstance.onload = () => {
+        loadingOverlayElement.classList.remove('is-active');
+        if (xmlHttpRequestInstance.status >= 200 && xmlHttpRequestInstance.status < 300) {
+            try {
+                const responseParsedJson = JSON.parse(xmlHttpRequestInstance.responseText);
+                if (responseParsedJson.ok && responseParsedJson.data && responseParsedJson.data.url) {
+                    resultUrlInputElement.value = responseParsedJson.data.url;
+                    uploadResultBoxElement.style.display = 'flex';
+                    btnExecuteUploadElement.style.display = 'none';
+                    showToast('UNGGAHAN BERHASIL DISELESAIKAN');
+                } else {
+                    showToast('GAGAL MENDAPATKAN RESPON VALID');
+                }
+            } catch (parsingError) {
+                showToast('GAGAL MEMPROSES RESPON PELADEN');
+            }
+        } else {
+            showToast('KEGAGALAN TRANSAKSI JARINGAN');
+        }
+    };
+    xmlHttpRequestInstance.onerror = () => {
+        loadingOverlayElement.classList.remove('is-active');
+        showToast('KONEKSI TERPUTUS');
+    };
+    xmlHttpRequestInstance.send(formDataConstructor);
+});
+</script>
+</body>
+</html>

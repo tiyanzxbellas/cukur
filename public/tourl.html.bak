@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ElynnAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>Elynn Media Hoster - API ELYNN</title>
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://api.elynn.my.id/favicon.svg">
+    <meta property="og:site_name" content="Elynn API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root {
+    --color-bg-base: #f4f7fc;
+    --color-text-main: #1e293b;
+    --color-text-muted: #64748b;
+    --color-text-subtle: #94a3b8;
+    --color-surface: #ffffff;
+    --color-primary-light: #bfdbfe;
+    --color-primary-base: #60a5fa;
+    --color-primary-dark: #3b82f6;
+    --color-accent-indigo: #6366f1;
+    --color-success-base: #10b981;
+    --color-danger-base: #ef4444;
+    --color-warning-base: #f59e0b;
+    --shadow-float: 0 10px 40px -10px rgba(99, 102, 241, 0.2);
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --radius-round: 50%;
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 32px;
+}
+body.dark-theme {
+    --color-bg-base: #0f172a;
+    --color-text-main: #f8fafc;
+    --color-text-muted: #94a3b8;
+    --color-text-subtle: #475569;
+    --color-surface: #1e293b;
+    --color-primary-light: #1e3a8a;
+    --color-primary-base: #3b82f6;
+    --color-primary-dark: #60a5fa;
+    --shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-main);
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.animated-gradient-text {
+    background: linear-gradient(270deg, #3b82f6, #8b5cf6, #06b6d4, #f43f5e, #3b82f6);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    font-weight: 900;
+    text-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+    letter-spacing: 1px;
+}
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.app-viewport {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    gap: 24px;
+}
+.global-background-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                      radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
+    z-index: -1;
+    pointer-events: none;
+}
+.top-navigation-cluster {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+.kinetic-hamburger-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+.kinetic-hamburger-btn:active { transform: scale(0.92); }
+.kinetic-line {
+    width: 22px;
+    height: 2.5px;
+    background-color: var(--color-text-main);
+    border-radius: 4px;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease, background 0.3s ease;
+    transform-origin: left center;
+}
+.kinetic-hamburger-btn.is-active .line-top { transform: rotate(45deg) translate(1px, -2px); }
+.kinetic-hamburger-btn.is-active .line-mid { opacity: 0; transform: translateX(10px); }
+.kinetic-hamburger-btn.is-active .line-bot { transform: rotate(-45deg) translate(1px, 2px); }
+.brand-logotype-header {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--color-text-main);
+    letter-spacing: -0.5px;
+}
+.cluster-actions {
+    display: flex;
+    gap: 10px;
+}
+.audio-control-interactive {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--color-accent-indigo);
+    color: #ffffff;
+    position: relative;
+}
+.audio-control-interactive.is-muted {
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+}
+.audio-control-interactive:active { transform: scale(0.92); }
+.kinetic-overlay-navigation {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.kinetic-overlay-navigation.is-active {
+    opacity: 1;
+    visibility: visible;
+}
+.navigation-menu-card {
+    background: var(--color-surface);
+    width: 85%;
+    max-width: 340px;
+    border-radius: var(--radius-lg);
+    padding: 30px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, background 0.3s ease;
+}
+.kinetic-overlay-navigation.is-active .navigation-menu-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+.navigation-menu-header {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--color-text-main);
+    text-align: center;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+.navigation-route-link {
+    text-decoration: none;
+    background: var(--color-bg-base);
+    color: var(--color-text-main);
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+.navigation-route-link:active {
+    transform: scale(0.96);
+}
+.navigation-route-link.route-active {
+    background: var(--color-accent-indigo);
+    color: #ffffff;
+}
+.hero-section {
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    border-radius: var(--radius-round);
+    width: fit-content;
+    text-transform: uppercase;
+}
+.hero-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--color-text-main);
+}
+.hero-sub {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.main-content-panel {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.panel-title-header {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--color-text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--color-bg-base);
+    padding-bottom: 16px;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+.panel-title-header i {
+    color: var(--color-primary-dark);
+    font-size: 1.6rem;
+}
+.drag-drop-zone {
+    width: 100%;
+    min-height: 200px;
+    border: 3px dashed var(--color-text-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-base);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.drag-drop-zone.drag-active {
+    border-color: var(--color-primary-base);
+    background: rgba(59, 130, 246, 0.1);
+    transform: scale(0.98);
+}
+.drag-drop-zone i {
+    font-size: 3rem;
+    color: var(--color-primary-dark);
+    transition: transform 0.3s ease;
+}
+.drag-drop-zone:hover i {
+    transform: translateY(-5px);
+}
+.drag-drop-text {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+}
+.drag-drop-subtext {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+.hidden-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+.file-preview-container {
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    background: var(--color-bg-base);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-text-subtle);
+}
+.file-preview-visual {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+.file-preview-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+}
+.file-preview-name {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--color-text-main);
+    word-break: break-all;
+}
+.file-preview-size {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+.provider-selector-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.provider-selector-label {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--color-text-main);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.provider-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.provider-btn {
+    background: var(--color-bg-base);
+    border: 2px solid transparent;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.provider-btn.is-selected {
+    background: var(--color-surface);
+    border-color: var(--color-primary-base);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+}
+.provider-btn i {
+    font-size: 1.8rem;
+    color: var(--color-text-muted);
+    transition: color 0.3s ease;
+}
+.provider-btn.is-selected i {
+    color: var(--color-primary-dark);
+}
+.provider-btn-title {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--color-text-main);
+}
+.provider-btn-desc {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+.btn-action-highlight {
+    background: var(--color-accent-indigo);
+    color: #ffffff;
+    border: none;
+    padding: 18px;
+    border-radius: var(--radius-sm);
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-transform: uppercase;
+    width: 100%;
+}
+.btn-action-highlight:active { transform: scale(0.97); }
+.btn-action-highlight:disabled {
+    background: var(--color-text-subtle);
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+}
+.btn-action-secondary {
+    background: var(--color-bg-base);
+    color: var(--color-danger-base);
+    border: 1px solid var(--color-danger-base);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    text-transform: uppercase;
+    width: 100%;
+}
+.btn-action-secondary:active { transform: scale(0.97); }
+.result-container {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 2px solid var(--color-success-base);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-success-base);
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+.result-input-wrapper {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+.result-input {
+    flex: 1;
+    background: var(--color-surface);
+    border: 1px solid var(--color-text-subtle);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+    outline: none;
+}
+.btn-copy-result {
+    background: var(--color-success-base);
+    color: #ffffff;
+    border: none;
+    padding: 0 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 900;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-copy-result:active { transform: scale(0.92); }
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+.loading-overlay.is-active { opacity: 1; visibility: visible; }
+.elynn-svg-spinner {
+    width: 90px;
+    height: 90px;
+    animation: rotate-out 2s linear infinite;
+    margin-bottom: 24px;
+}
+.elynn-svg-track { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 4; }
+.elynn-svg-arc {
+    fill: none; stroke: var(--color-primary-base); stroke-width: 6;
+    stroke-linecap: round;
+    animation: dash-arc 1.5s ease-in-out infinite;
+}
+.elynn-svg-inner {
+    fill: none; stroke: var(--color-accent-indigo); stroke-width: 2;
+    stroke-dasharray: 4 8;
+    animation: rotate-in 4s linear infinite;
+    transform-origin: center;
+}
+.progress-container {
+    width: 200px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--color-primary-base);
+    transition: width 0.3s ease;
+}
+.progress-text-indicator {
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 900;
+    margin-top: 8px;
+    letter-spacing: 1px;
+}
+.toast-notification-float {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(50px);
+    background: var(--color-text-main); color: var(--color-surface); padding: 12px 24px; border-radius: 30px;
+    font-size: 0.85rem; font-weight: 800; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 99999;
+    opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+    display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.toast-notification-float.is-shown { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
+.toast-success-style { background: var(--color-success-base); color: #fff;}
+.toast-err-style { background: var(--color-danger-base); color: #fff;}
+.application-footer-block { text-align: center; margin-top: auto; padding-top: 10px; }
+.footer-primary-text { font-size: 0.8rem; color: var(--color-text-muted); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+.footer-secondary-text { font-size: 0.65rem; color: var(--color-text-subtle); font-weight: 800; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
+.ph-spin { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+</style>
+
+<style id="pwa-install-style">
+#pwa-install-banner {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 99999;
+    padding: 14px 16px 18px;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-top: 1.5px solid rgba(99,102,241,0.35);
+    box-shadow: 0 -6px 32px rgba(0,0,0,0.45);
+    animation: pwaSlideUp 0.38s cubic-bezier(.22,.68,0,1.2) both;
+}
+#pwa-install-banner.pwa-visible { display: flex; align-items: center; gap: 12px; }
+@keyframes pwaSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+.pwa-icon-wrap {
+    width: 46px; height: 46px; flex-shrink: 0;
+    background: linear-gradient(135deg,#4f46e5,#7c3aed);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+}
+.pwa-icon-wrap img { width: 28px; height: 28px; }
+.pwa-text-wrap { flex: 1; min-width: 0; }
+.pwa-text-title {
+    font-size: 13px; font-weight: 700;
+    color: #f8fafc; letter-spacing: 0.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pwa-text-sub {
+    font-size: 11px; color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pwa-btn-install {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: linear-gradient(135deg,#6366f1,#4f46e5);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; cursor: pointer;
+    transition: opacity .18s;
+    box-shadow: 0 3px 12px rgba(99,102,241,0.4);
+}
+.pwa-btn-install:active { opacity: .8; }
+.pwa-btn-close {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    background: rgba(255,255,255,0.07);
+    border: none; border-radius: 8px;
+    color: #94a3b8; font-size: 16px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: background .15s;
+}
+.pwa-btn-close:active { background: rgba(255,255,255,0.14); }
+</style>
+
+<script>
+/* elynn dark-sync: respect body.dark-theme system */
+(function(){
+    var t = localStorage.getItem('elynn-theme');
+    var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: var(--bg-main, #1A1C23) !important; }
+</style>
+</head>
+<body>
+
+<div class="global-background-layer"></div>
+<div id="toast-notify" class="toast-notification-float"></div>
+
+<audio id="audio-background-engine" loop preload="auto">
+    <source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg">
+</audio>
+
+<div class="loading-overlay" id="loading-overlay">
+    <svg class="elynn-svg-spinner" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" class="elynn-svg-track"></circle>
+        <path d="M50 5 A 45 45 0 0 1 95 50" class="elynn-svg-arc"></path>
+        <circle cx="50" cy="50" r="30" class="elynn-svg-inner"></circle>
+    </svg>
+    <div class="progress-container">
+        <div class="progress-bar-fill" id="upload-progress-fill"></div>
+    </div>
+    <div class="progress-text-indicator" id="upload-progress-text">0% DARI 100%</div>
+</div>
+
+<div class="app-viewport">
+    <div class="top-navigation-cluster">
+        <button class="kinetic-hamburger-btn" id="btn-trigger-menu">
+            <span class="kinetic-line line-top"></span>
+            <span class="kinetic-line line-mid"></span>
+            <span class="kinetic-line line-bot"></span>
+        </button>
+        <div class="brand-logotype-header">API <span class="animated-gradient-text">ELYNN</span></div>
+        <div class="cluster-actions">
+            <button class="audio-control-interactive is-muted" id="btn-theme-toggle" style="background:var(--color-bg-base); color:var(--color-text-main);">
+                <i id="theme-icon" class="ph-bold ph-moon"></i>
+            </button>
+            <button class="audio-control-interactive is-muted" id="btn-trigger-audio">
+                <i id="audio-state-icon" class="ph-bold ph-speaker-slash"></i>
+            </button>
+            <a href="https://trakteer.id/zexxo_store/tip" target="_blank" rel="noopener" title="Dukung Elynn via Trakteer" style="display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:linear-gradient(135deg,#e8484a,#c0392b);color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:0.5px;border:none;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="ph-bold ph-heart"></i> Trakteer</a>
+        </div>
+    </div>
+
+    <div class="kinetic-overlay-navigation" id="navigation-overlay-layer">
+        <div class="navigation-menu-card">
+            <div class="navigation-menu-header">MENU NAVIGASI</div>
+            <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> BERANDA</a>
+            <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> PROFIL & API KEY</a>
+            <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> DAFTAR ENDPOINT</a>
+            <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> KELOLA SNIPPET</a>
+            <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-television"></i> NONTON ANIME</a>
+            <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> NONTON DONGHUA</a>
+            <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> BACA MANGA</a>
+                <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> BACA MANHWA</a>
+            <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> NONTON FILM</a>
+            <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> ELYNN MUSIC</a>
+            <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> CLAIM PANEL</a>
+            <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-android-logo"></i> ELYNN MOD</a>
+            <a href="/tourl" class="navigation-route-link route-active"><i class="ph-bold ph-cloud-arrow-up"></i> MEDIA HOSTER</a>
+            <a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> ELYNN AI</a>
+        </div>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-badge">
+            <i class="ph-bold ph-cloud-arrow-up"></i> CLOUD HOSTER
+        </div>
+        <h1 class="hero-title">
+            Media <span class="animated-gradient-text">To URL.</span>
+        </h1>
+        <p class="hero-sub">UNGGAH BERKAS APAPUN DAN DAPATKAN TAUTAN PERMANEN SECARA INSTAN. MENDUKUNG SELURUH FORMAT MEDIA.</p>
+    </div>
+
+    <div class="main-content-panel" id="upload-panel-container">
+        <div class="panel-title-header"><i class="ph-fill ph-upload-simple"></i> AREA UNGGAHAN</div>
+        
+        <div class="drag-drop-zone" id="file-drop-zone">
+            <i class="ph-bold ph-file-arrow-up"></i>
+            <div class="drag-drop-text">PILIH ATAU TARIK BERKAS KESINI</div>
+            <div class="drag-drop-subtext">MAKSIMAL UKURAN BERKAS 100MB</div>
+            <input type="file" id="core-file-input" class="hidden-file-input">
+        </div>
+
+        <div class="file-preview-container" id="file-preview-box">
+            <img class="file-preview-visual" id="preview-image-element" src="" style="display:none;">
+            <div class="file-preview-details">
+                <div class="file-preview-name" id="preview-filename-text">...</div>
+                <div class="file-preview-size" id="preview-filesize-text">...</div>
+            </div>
+            <button class="btn-action-secondary" id="btn-cancel-file">
+                <i class="ph-bold ph-trash"></i> BATALKAN BERKAS
+            </button>
+        </div>
+
+        <div class="provider-selector-container">
+            <div class="provider-selector-label">PILIH PENYIMPANAN</div>
+            <div class="provider-options-grid">
+                <div class="provider-btn is-selected" data-provider="imgbb">
+                    <i class="ph-fill ph-image-square"></i>
+                    <div class="provider-btn-title">IMGBB</div>
+                    <div class="provider-btn-desc">IMAGE ONLY &middot; PERMANEN</div>
+                </div>
+                <div class="provider-btn" data-provider="catbox">
+                    <i class="ph-fill ph-hard-drives"></i>
+                    <div class="provider-btn-title">CATBOX</div>
+                    <div class="provider-btn-desc">SEMUA TIPE &middot; PERMANEN</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-action-highlight" id="btn-execute-upload" disabled>
+            <i class="ph-bold ph-cloud-arrow-up"></i> UNGGAH BERKAS SEKARANG
+        </button>
+
+        <div class="result-container" id="upload-result-box">
+            <div class="result-header"><i class="ph-fill ph-check-circle"></i> BERKAS BERHASIL DIUNGGAH</div>
+            <div class="result-input-wrapper">
+                <input type="text" class="result-input" id="result-url-input" readonly>
+                <button class="btn-copy-result" id="btn-copy-url"><i class="ph-bold ph-copy"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="application-footer-block">
+        <div class="footer-primary-text">ELYNN REST API V2.0</div>
+        <div class="footer-secondary-text">SERVERLESS ENGINE ARCHITECTURE</div>
+    </div>
+</div>
+
+<script>
+function initTheme() {
+    const isDark = localStorage.getItem('elynn_theme') === 'dark';
+    if (isDark) document.body.classList.add('dark-theme');
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+}
+initTheme();
+
+document.getElementById('btn-theme-toggle').onclick = () => {
+    const isDark = document.body.classList.toggle('dark-theme');
+    
+    localStorage.setItem('elynn-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+localStorage.setItem('elynn_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+};
+
+const triggerMenuBtn = document.getElementById('btn-trigger-menu');
+const navOverlayLayer = document.getElementById('navigation-overlay-layer');
+
+triggerMenuBtn.addEventListener('click', () => {
+    const isAct = triggerMenuBtn.classList.contains('is-active');
+    if (isAct) {
+        triggerMenuBtn.classList.remove('is-active');
+        navOverlayLayer.classList.remove('is-active');
+    } else {
+        triggerMenuBtn.classList.add('is-active');
+        navOverlayLayer.classList.add('is-active');
+    }
+});
+
+navOverlayLayer.addEventListener('click', (ev) => {
+    if (ev.target === navOverlayLayer) {
+        triggerMenuBtn.classList.remove('is-active');
+        navOverlayLayer.classList.remove('is-active');
+    }
+});
+
+const BGM_STORE_KEY = 'elynn_bgm_playing';
+const audioCore = document.getElementById('audio-background-engine');
+const btnAudioTog = document.getElementById('btn-trigger-audio');
+const iconAudioState = document.getElementById('audio-state-icon');
+
+function syncAudioVisualState(isPlaying) {
+    if (isPlaying) {
+        btnAudioTog.classList.remove('is-muted');
+        iconAudioState.className = 'ph-bold ph-speaker-high';
+    } else {
+        btnAudioTog.classList.add('is-muted');
+        iconAudioState.className = 'ph-bold ph-speaker-slash';
+    }
+}
+
+if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+    audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {
+        document.addEventListener('click', function resumePlayEvent() {
+            if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+                audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {});
+            }
+            document.removeEventListener('click', resumePlayEvent);
+        }, { once: true });
+    });
+}
+
+btnAudioTog.addEventListener('click', () => {
+    if (audioCore.paused) {
+        audioCore.play().then(() => {
+            localStorage.setItem(BGM_STORE_KEY, '1');
+            syncAudioVisualState(true);
+        }).catch(() => {});
+    } else {
+        audioCore.pause();
+        localStorage.setItem(BGM_STORE_KEY, '0');
+        syncAudioVisualState(false);
+    }
+});
+
+const toastRef = document.getElementById('toast-notify');
+let toastTimer = null;
+function showToast(msg, type = 'err') {
+    toastRef.innerHTML = type === 'success' ? `<i class="ph-bold ph-check-circle"></i> ${msg}` : `<i class="ph-bold ph-warning-octagon"></i> ${msg}`;
+    toastRef.className = 'toast-notification-float is-shown ' + (type === 'success' ? 'toast-success-style' : 'toast-err-style');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastRef.className = 'toast-notification-float', 3500);
+}
+
+let currentSelectedFile = null;
+let currentSelectedProvider = 'imgbb';
+
+const dropZoneElement = document.getElementById('file-drop-zone');
+const coreFileInputElement = document.getElementById('core-file-input');
+const filePreviewBoxElement = document.getElementById('file-preview-box');
+const previewImageElement = document.getElementById('preview-image-element');
+const previewFilenameTextElement = document.getElementById('preview-filename-text');
+const previewFilesizeTextElement = document.getElementById('preview-filesize-text');
+const btnCancelFileElement = document.getElementById('btn-cancel-file');
+const providerBtnElements = document.querySelectorAll('.provider-btn');
+const btnExecuteUploadElement = document.getElementById('btn-execute-upload');
+const uploadResultBoxElement = document.getElementById('upload-result-box');
+const resultUrlInputElement = document.getElementById('result-url-input');
+const btnCopyUrlElement = document.getElementById('btn-copy-url');
+const loadingOverlayElement = document.getElementById('loading-overlay');
+const uploadProgressFillElement = document.getElementById('upload-progress-fill');
+const uploadProgressTextElement = document.getElementById('upload-progress-text');
+
+function formatBytesSize(bytes, decimals = 2) {
+    if (!+bytes) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+function processFileSelectionState(fileInstance) {
+    if (!fileInstance) return;
+    if (fileInstance.size > 100 * 1024 * 1024) {
+        showToast('UKURAN BERKAS MELEBIHI BATAS MAKSIMAL 100MB.', 'err');
+        return;
+    }
+    
+    currentSelectedFile = fileInstance;
+    dropZoneElement.style.display = 'none';
+    filePreviewBoxElement.style.display = 'flex';
+    uploadResultBoxElement.style.display = 'none';
+    btnExecuteUploadElement.disabled = false;
+    
+    previewFilenameTextElement.textContent = fileInstance.name.toUpperCase();
+    previewFilesizeTextElement.textContent = formatBytesSize(fileInstance.size).toUpperCase();
+    
+    if (fileInstance.type.startsWith('image/')) {
+        const fileReaderInstance = new FileReader();
+        fileReaderInstance.onload = (e) => {
+            previewImageElement.src = e.target.result;
+            previewImageElement.style.display = 'block';
+        };
+        fileReaderInstance.readAsDataURL(fileInstance);
+    } else {
+        previewImageElement.src = '';
+        previewImageElement.style.display = 'none';
+    }
+}
+
+function resetFileSelectionState() {
+    currentSelectedFile = null;
+    coreFileInputElement.value = '';
+    dropZoneElement.style.display = 'flex';
+    filePreviewBoxElement.style.display = 'none';
+    uploadResultBoxElement.style.display = 'none';
+    btnExecuteUploadElement.disabled = true;
+    previewImageElement.src = '';
+}
+
+dropZoneElement.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZoneElement.classList.add('drag-active');
+});
+
+dropZoneElement.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropZoneElement.classList.remove('drag-active');
+});
+
+dropZoneElement.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZoneElement.classList.remove('drag-active');
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processFileSelectionState(e.dataTransfer.files[0]);
+    }
+});
+
+coreFileInputElement.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+        processFileSelectionState(e.target.files[0]);
+    }
+});
+
+btnCancelFileElement.addEventListener('click', resetFileSelectionState);
+
+providerBtnElements.forEach(btn => {
+    btn.addEventListener('click', () => {
+        providerBtnElements.forEach(b => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        currentSelectedProvider = btn.getAttribute('data-provider') || 'imgbb';
+    });
+});
+
+btnCopyUrlElement.addEventListener('click', () => {
+    resultUrlInputElement.select();
+    resultUrlInputElement.setSelectionRange(0, 99999);
+    try {
+        document.execCommand('copy');
+        showToast('TAUTAN BERHASIL DISALIN KE PAPAN KLIP.', 'success');
+    } catch (err) {
+        showToast('GAGAL MENYALIN TAUTAN.', 'err');
+    }
+    window.getSelection().removeAllRanges();
+});
+
+btnExecuteUploadElement.addEventListener('click', () => {
+    if (!currentSelectedFile) return;
+    
+    loadingOverlayElement.classList.add('is-active');
+    uploadProgressFillElement.style.width = '0%';
+    uploadProgressTextElement.textContent = '0% DARI 100%';
+    
+    const formDataConstructor = new FormData();
+    formDataConstructor.append('file', currentSelectedFile);
+    formDataConstructor.append('provider', currentSelectedProvider);
+    formDataConstructor.append('apikey', 'elynn');
+    
+    const xmlHttpRequestInstance = new XMLHttpRequest();
+    xmlHttpRequestInstance.open('POST', '/api/tourl/upload', true);
+    
+    xmlHttpRequestInstance.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+            const currentPercentageComplete = Math.round((e.loaded / e.total) * 100);
+            uploadProgressFillElement.style.width = currentPercentageComplete + '%';
+            uploadProgressTextElement.textContent = currentPercentageComplete + '% DARI 100%';
+        }
+    };
+    
+    xmlHttpRequestInstance.onload = () => {
+        loadingOverlayElement.classList.remove('is-active');
+        if (xmlHttpRequestInstance.status >= 200 && xmlHttpRequestInstance.status < 300) {
+            try {
+                const responseParsedJson = JSON.parse(xmlHttpRequestInstance.responseText);
+                if (responseParsedJson.ok && responseParsedJson.data && responseParsedJson.data.url) {
+                    resultUrlInputElement.value = responseParsedJson.data.url;
+                    uploadResultBoxElement.style.display = 'flex';
+                    btnExecuteUploadElement.style.display = 'none';
+                    showToast('PROSES UNGGAHAN BERHASIL DISELESAIKAN.', 'success');
+                } else {
+                    showToast(responseParsedJson.message || 'GAGAL MENDAPATKAN RESPON VALID DARI PELADEN.', 'err');
+                }
+            } catch (parsingError) {
+                showToast('GAGAL MEMPROSES FORMAT RESPON PELADEN.', 'err');
+            }
+        } else {
+            try {
+                const errorResponseJson = JSON.parse(xmlHttpRequestInstance.responseText);
+                showToast(errorResponseJson.message || 'KEGAGALAN TRANSAKSI JARINGAN.', 'err');
+            } catch (e) {
+                showToast('KEGAGALAN TRANSAKSI JARINGAN PADA PELADEN.', 'err');
+            }
+        }
+    };
+    
+    xmlHttpRequestInstance.onerror = () => {
+        loadingOverlayElement.classList.remove('is-active');
+        showToast('KONEKSI TERPUTUS SEBELUM PROSES SELESAI.', 'err');
+    };
+    
+    xmlHttpRequestInstance.send(formDataConstructor);
+});
+</script>
+
+<script id="pwa-install-script">
+(function() {
+    let deferredPrompt = null;
+    const banner = document.getElementById('pwa-install-banner');
+    const btnInstall = document.getElementById('pwa-btn-install');
+    const btnClose = document.getElementById('pwa-btn-close');
+    const DISMISSED_KEY = 'elynn_pwa_dismissed';
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    if (localStorage.getItem(DISMISSED_KEY)) return;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        setTimeout(() => {
+            if (banner) banner.classList.add('pwa-visible');
+        }, 1800);
+    });
+
+    if (btnInstall) {
+        btnInstall.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (banner) banner.classList.remove('pwa-visible');
+            if (outcome === 'accepted') localStorage.setItem(DISMISSED_KEY, '1');
+        });
+    }
+
+    if (btnClose) {
+        btnClose.addEventListener('click', () => {
+            if (banner) banner.classList.remove('pwa-visible');
+            localStorage.setItem(DISMISSED_KEY, '1');
+        });
+    }
+
+    window.addEventListener('appinstalled', () => {
+        if (banner) banner.classList.remove('pwa-visible');
+        localStorage.setItem(DISMISSED_KEY, '1');
+    });
+})();
+</script>
+<script src="/shared.js"></script>
+</body>
+</html>

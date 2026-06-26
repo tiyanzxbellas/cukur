@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Snippets - API Saurus Monochrome</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<style>
+:root {
+    --bg-main: #F4F4F5;
+    --bg-card: #FFFFFF;
+    --border-dark: #000000;
+    --text-main: #000000;
+    --text-muted: #52525B;
+    --gray-light: #E4E4E7;
+    --gray-med: #D4D4D8;
+    --gray-dark: #A1A1AA;
+    --bg-inverse: #000000;
+    --text-inverse: #FFFFFF;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 999px;
+    --border-thick: 2.5px solid var(--border-dark);
+    --border-dashed: 2.5px dashed var(--border-dark);
+    --shadow-solid: 4px 4px 0px var(--border-dark);
+    --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+    --shadow-active: 0px 0px 0px transparent;
+}
+body.dark-theme {
+    --bg-main: #121212;
+    --bg-card: #1E1E1E;
+    --border-dark: #000000;
+    --text-main: #FFFFFF;
+    --text-muted: #A1A1AA;
+    --gray-light: #27272A;
+    --gray-med: #3F3F46;
+    --gray-dark: #52525B;
+    --bg-inverse: #FFFFFF;
+    --text-inverse: #000000;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+html, body {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s;
+    position: relative;
+}
+.moving-background-pattern {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+    background-size: 32px 32px;
+    opacity: 0.15;
+    animation: pan-background 40s linear infinite;
+    pointer-events: none;
+}
+@keyframes pan-background {
+    0% { background-position: 0 0; }
+    100% { background-position: 100vw 100vh; }
+}
+.fixed-bg-photo {
+    position: fixed;
+    inset: 0;
+    background-image: url('https://i.ibb.co/hR2yfJHd/Saurus28039813.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+body.dark-theme .fixed-bg-photo {
+    opacity: 0.15;
+}
+.app-viewport {
+    width: 100%;
+    max-width: 768px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 0 0 100px 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    gap: 20px;
+}
+.top-navigation-cluster {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-main);
+    padding: 16px 20px;
+    border-bottom: var(--border-thick);
+}
+.kinetic-hamburger-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+}
+.kinetic-hamburger-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.kinetic-line {
+    width: 22px;
+    height: 3px;
+    background-color: var(--text-inverse);
+    border-radius: 2px;
+}
+.center-brand-group {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+}
+.cluster-actions {
+    display: flex;
+    gap: 10px;
+}
+.action-btn-circle {
+    width: 48px;
+    height: 48px;
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    touch-action: manipulation;
+}
+.action-btn-circle:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.action-btn-circle.is-active-state {
+    background-color: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.kinetic-overlay-navigation {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.kinetic-overlay-navigation.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.navigation-menu-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 85%;
+    max-width: 340px;
+    height: 100%;
+    background: var(--bg-main);
+    border-right: var(--border-thick);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 10px 0 0 rgba(0,0,0,0.3);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 2;
+    pointer-events: auto;
+}
+.kinetic-overlay-navigation.is-active .navigation-menu-card {
+    transform: translateX(0);
+}
+.nav-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: var(--border-thick);
+    background: var(--bg-card);
+    flex-shrink: 0;
+}
+.nav-card-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.btn-close-sidebar {
+    background: var(--bg-card);
+    border: 2px solid var(--border-dark);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text-main);
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    flex-shrink: 0;
+}
+.btn-close-sidebar:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.nav-links-stagger {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.nav-links-stagger::-webkit-scrollbar {
+    width: 0;
+}
+.navigation-route-link {
+    text-decoration: none;
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 14px 16px;
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: var(--shadow-solid-sm);
+    text-transform: uppercase;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.navigation-route-link i {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
+.navigation-route-link:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.navigation-route-link.route-active {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.horizontal-tabs-container {
+    display: flex;
+    padding: 0 20px;
+    gap: 12px;
+    width: 100%;
+}
+.h-tab-btn {
+    flex: 1;
+    background: var(--bg-card);
+    border: var(--border-thick);
+    padding: 14px 10px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--text-main);
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s, background 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+.h-tab-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.h-tab-btn.is-active {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.main-content-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: var(--border-thick);
+    padding: 24px;
+    box-shadow: var(--shadow-solid);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 0 20px;
+}
+.panel-title-header {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: var(--border-thick);
+    padding-bottom: 16px;
+    text-transform: uppercase;
+}
+.search-wrapper {
+    position: relative;
+    width: 100%;
+}
+.search-input-field {
+    width: 100%;
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 14px 14px 14px 44px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+}
+.search-input-field:focus {
+    background: var(--bg-card);
+    box-shadow: var(--shadow-solid-sm);
+    transform: translate(-2px, -2px);
+}
+.search-icon-absolute {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-main);
+    font-size: 1.4rem;
+    z-index: 2;
+}
+.snippet-grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0 20px;
+}
+.snippet-card-item {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: var(--border-thick);
+    padding: 20px;
+    box-shadow: var(--shadow-solid);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.snippet-card-item:active {
+    transform: translate(4px, 4px);
+    box-shadow: var(--shadow-active);
+}
+.snippet-creator-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: var(--border-dashed);
+}
+.snippet-creator-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    border: 2px solid var(--border-dark);
+}
+.snippet-creator-name {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--text-main);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+.snippet-card-lang {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: 2px solid var(--border-dark);
+}
+.snippet-card-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+.snippet-card-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.empty-data-notice {
+    padding: 20px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-align: center;
+    background: var(--bg-card);
+    border: var(--border-dashed);
+    border-radius: var(--radius-md);
+    text-transform: uppercase;
+}
+.locked-create-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 16px;
+    padding: 40px 20px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-solid);
+    border: var(--border-thick);
+    margin: 0 20px;
+}
+.locked-icon-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-md);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border: var(--border-thick);
+}
+.locked-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.locked-desc {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+.btn-action-primary {
+    width: 100%;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+.btn-action-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.modern-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.modern-input-label {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.modern-input-field {
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+}
+.modern-input-field:focus {
+    background: var(--bg-card);
+    box-shadow: var(--shadow-solid-sm);
+    transform: translate(-2px, -2px);
+}
+.modern-textarea-field {
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+    min-height: 200px;
+    resize: vertical;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    white-space: pre;
+    width: 100%;
+}
+.modern-textarea-field:focus {
+    background: var(--bg-card);
+    box-shadow: var(--shadow-solid-sm);
+    transform: translate(-2px, -2px);
+}
+.custom-dropdown-container {
+    position: relative;
+    width: 100%;
+}
+.custom-dropdown-trigger {
+    background: var(--gray-light);
+    border: var(--border-thick);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.custom-dropdown-trigger:focus, .custom-dropdown-container.is-active .custom-dropdown-trigger {
+    background: var(--bg-card);
+    box-shadow: var(--shadow-solid-sm);
+    transform: translate(-2px, -2px);
+}
+.custom-dropdown-options {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    background: var(--bg-card);
+    border: var(--border-thick);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-solid);
+    z-index: 50;
+    max-height: 200px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s;
+}
+.custom-dropdown-container.is-active .custom-dropdown-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.custom-dropdown-options::-webkit-scrollbar { width: 0; }
+.custom-option-item {
+    padding: 14px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-main);
+    cursor: pointer;
+    border-bottom: 2px solid var(--gray-light);
+    transition: background 0.2s;
+    text-transform: uppercase;
+}
+.custom-option-item:last-child {
+    border-bottom: none;
+}
+.custom-option-item:active {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.full-viewport-section {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-main);
+    z-index: 500;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.full-viewport-section.is-active {
+    display: flex;
+}
+.full-view-header {
+    background: var(--bg-main);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 510;
+    border-bottom: var(--border-thick);
+}
+.full-view-content {
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 768px;
+    margin: 0 auto;
+    width: 100%;
+}
+.full-view-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.full-view-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text-main);
+    word-break: break-word;
+    text-transform: uppercase;
+}
+.full-view-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+.meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-dark);
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-solid-sm);
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+}
+.meta-chip img {
+    width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-dark);
+}
+.fv-visibility-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: 2px solid var(--border-dark);
+    box-shadow: var(--shadow-solid-sm);
+}
+.fv-visibility-badge.public {
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+.fv-visibility-badge.private {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.fv-action-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.btn-fv-action {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 10px;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: var(--border-thick);
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+.btn-fv-action:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.btn-fv-copy {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+}
+.code-presentation-container {
+    background: #121212;
+    border: var(--border-thick);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-solid);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    max-height: 400px;
+    transition: max-height 0.4s ease;
+}
+.code-presentation-container.is-expanded {
+    max-height: 20000px;
+}
+.code-presentation-header {
+    background: #000000;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333333;
+}
+.code-file-name {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: #FFFFFF;
+    font-weight: 700;
+}
+.code-body-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    background: #121212;
+    padding: 20px 0;
+}
+.code-line-numbers {
+    padding: 0 16px;
+    text-align: right;
+    color: #555555;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    user-select: none;
+    border-right: 2px solid #333333;
+    font-weight: 600;
+}
+.code-line-numbers span {
+    display: block;
+}
+.code-content-block {
+    margin: 0;
+    padding: 0 20px;
+    color: #E0E0E0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    white-space: pre;
+    tab-size: 4;
+    font-weight: 500;
+}
+.code-syntax-keyword { color: #FF7B72; font-weight: 700; }
+.code-syntax-string { color: #A5D6FF; }
+.code-syntax-function { color: #D2A8FF; font-weight: 700; }
+.code-syntax-number { color: #79C0FF; }
+.code-syntax-comment { color: #8B949E; font-style: italic; }
+.code-syntax-operator { color: #FF7B72; }
+.code-syntax-boolean { color: #79C0FF; font-weight: 700; }
+
+.code-blur-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(to bottom, rgba(18, 18, 18, 0) 0%, rgba(18, 18, 18, 0.95) 70%, #121212 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 24px;
+    z-index: 20;
+    transition: opacity 0.3s;
+}
+.code-presentation-container.is-expanded .code-blur-overlay {
+    opacity: 0;
+    pointer-events: none;
+}
+.btn-reveal-code {
+    background: #FFFFFF;
+    color: #000000;
+    border: 2px solid #000000;
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+}
+.btn-reveal-code:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px transparent;
+}
+.share-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 9000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+}
+.share-modal-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+.share-modal-sheet {
+    background: var(--bg-main);
+    border-top: var(--border-thick);
+    border-left: var(--border-thick);
+    border-right: var(--border-thick);
+    border-radius: 32px 32px 0 0;
+    padding: 24px 24px 40px;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.share-modal-backdrop.is-open .share-modal-sheet {
+    transform: translateY(0);
+}
+.share-modal-handle {
+    width: 60px;
+    height: 6px;
+    background: var(--border-dark);
+    border-radius: 4px;
+    align-self: center;
+    margin-bottom: 8px;
+}
+.share-modal-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-transform: uppercase;
+    text-align: center;
+}
+.share-url-box {
+    background: var(--bg-card);
+    border: var(--border-thick);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    word-break: break-all;
+    box-shadow: var(--shadow-solid-sm);
+}
+.share-btn-row {
+    display: flex;
+    gap: 12px;
+}
+.btn-share-copy {
+    flex: 1;
+    padding: 14px;
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-transform: uppercase;
+}
+.btn-share-copy:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.share-divider {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-main);
+    font-weight: 900;
+    text-transform: uppercase;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.share-divider::before, .share-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--border-dark);
+}
+.share-options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.share-option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 8px;
+    background: var(--bg-card);
+    border: var(--border-thick);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    box-shadow: var(--shadow-solid-sm);
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: var(--text-main);
+}
+.share-option-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-active);
+}
+.share-option-btn i { font-size: 1.8rem; }
+.share-option-btn span {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.toast-notification-float {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(50px);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    padding: 14px 24px;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 900;
+    box-shadow: var(--shadow-solid);
+    border: var(--border-thick);
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+}
+.toast-notification-float.is-shown {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+.application-footer-block {
+    text-align: center;
+    padding: 20px 20px 60px 20px;
+    width: 100%;
+}
+.footer-primary-text {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.footer-secondary-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-top: 8px;
+    background: var(--gray-light);
+    display: inline-block;
+    padding: 6px 12px;
+    border: 2px solid var(--border-dark);
+}
+</style>
+<script>
+(function(){
+    var t = localStorage.getItem('Saurus-theme') || localStorage.getItem('Saurus_theme');
+    var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: #121212 !important; }
+</style>
+</head>
+<body>
+
+<div class="fixed-bg-photo"></div>
+<div class="moving-background-pattern"></div>
+<div id="toast-notify" class="toast-notification-float"></div>
+
+<audio id="audio-bgm" loop preload="auto">
+    <source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg">
+</audio>
+
+<div class="app-viewport" id="main-dashboard-view">
+    <div class="top-navigation-cluster">
+        <button class="kinetic-hamburger-btn" id="btn-menu">
+            <span class="kinetic-line line-top"></span>
+            <span class="kinetic-line line-mid"></span>
+            <span class="kinetic-line line-bot"></span>
+        </button>
+        <div class="center-brand-group">API Saurus</div>
+        <div class="cluster-actions">
+            <button class="action-btn-circle" id="btn-theme-toggle">
+                <i id="theme-icon" class="ph-bold ph-moon"></i>
+            </button>
+            <button class="action-btn-circle" id="btn-audio">
+                <i id="audio-icon" class="ph-bold ph-speaker-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="kinetic-overlay-navigation" id="nav-overlay">
+        <div class="navigation-menu-card">
+            <div class="nav-card-header">
+                <span class="nav-card-title">Menu Utama</span>
+                <button class="btn-close-sidebar" id="btn-close-sidebar"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="nav-links-stagger">
+                <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> Dasbor Utama</a>
+                <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> Akun & ApiKey</a>
+                <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> Dokumentasi API</a>
+                <a href="/snippet" class="navigation-route-link route-active"><i class="ph-bold ph-code-block"></i> Repositori Snippet</a>
+                <a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+                <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> Streaming Anime</a>
+                <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> Streaming Donghua</a>
+                <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> Baca Manga</a>
+                <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> Baca Manhwa</a>
+                <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> Bioskop Film</a>
+                <a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+                <a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+                <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+                <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> Claim Panel</a>
+                <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> Aplikasi Mod</a>
+                <a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> Host Media</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="horizontal-tabs-container">
+        <button class="h-tab-btn is-active" data-target="explore"><i class="ph-bold ph-magnifying-glass"></i> REPOSITORI</button>
+        <button class="h-tab-btn" data-target="create"><i class="ph-bold ph-plus-circle"></i> BUAT BARU</button>
+    </div>
+
+    <div id="view-explore" style="display:flex; flex-direction:column; gap:20px;">
+        <div class="main-content-panel">
+            <div class="panel-title-header"><i class="ph-fill ph-magnifying-glass"></i> EKSPLORASI KODE</div>
+            <div class="search-wrapper">
+                <i class="ph-bold ph-magnifying-glass search-icon-absolute"></i>
+                <input type="text" id="inp-search" class="search-input-field" placeholder="Cari snippet komunitas...">
+            </div>
+        </div>
+        <div class="snippet-grid-container" id="grid-snippets">
+            <div class="empty-data-notice">Memuat repositori kode...</div>
+        </div>
+    </div>
+
+    <div id="view-create" style="display:none; flex-direction:column; gap:20px;">
+        <div class="locked-create-overlay" id="locked-create" style="display:flex;">
+            <div class="locked-icon-wrap"><i class="ph-bold ph-lock-key"></i></div>
+            <div class="locked-title">OTENTIKASI DIPERLUKAN</div>
+            <div class="locked-desc">Hanya kontributor terdaftar yang memiliki izin untuk mempublikasikan blok kode ke dalam repositori pusat.</div>
+            <a href="/profile" class="btn-action-primary" style="text-decoration:none; width:auto; padding:14px 30px;"><i class="ph-bold ph-user"></i> MENUJU PROFIL</a>
+        </div>
+
+        <div class="main-content-panel" id="form-create" style="display:none;">
+            <div class="panel-title-header"><i class="ph-fill ph-code-block"></i> TULIS SNIPPET</div>
+            
+            <div class="modern-input-group">
+                <label class="modern-input-label">NAMA SNIPPET</label>
+                <input type="text" id="inp-name" class="modern-input-field" placeholder="Contoh: Koneksi Database API">
+            </div>
+
+            <div class="modern-input-group">
+                <label class="modern-input-label">BAHASA PEMROGRAMAN</label>
+                <div class="custom-dropdown-container" id="dropdown-lang">
+                    <div class="custom-dropdown-trigger">
+                        <span id="label-lang">JavaScript</span>
+                        <i class="ph-bold ph-caret-down"></i>
+                    </div>
+                    <div class="custom-dropdown-options">
+                        <div class="custom-option-item" data-val="JavaScript">JavaScript</div>
+                        <div class="custom-option-item" data-val="TypeScript">TypeScript</div>
+                        <div class="custom-option-item" data-val="Python">Python</div>
+                        <div class="custom-option-item" data-val="PHP">PHP</div>
+                        <div class="custom-option-item" data-val="Shell/Curl">Shell / Curl</div>
+                        <div class="custom-option-item" data-val="HTML">HTML</div>
+                        <div class="custom-option-item" data-val="CSS">CSS</div>
+                        <div class="custom-option-item" data-val="JSON">JSON</div>
+                    </div>
+                    <input type="hidden" id="inp-lang" value="JavaScript">
+                </div>
+            </div>
+
+            <div class="modern-input-group">
+                <label class="modern-input-label">VISIBILITAS PUBLIK</label>
+                <div class="custom-dropdown-container" id="dropdown-vis">
+                    <div class="custom-dropdown-trigger">
+                        <span id="label-vis">Public (Terlihat di Explore)</span>
+                        <i class="ph-bold ph-caret-down"></i>
+                    </div>
+                    <div class="custom-dropdown-options">
+                        <div class="custom-option-item" data-val="public">Public (Terlihat di Explore)</div>
+                        <div class="custom-option-item" data-val="private">Private (Hanya Link + Sandi)</div>
+                    </div>
+                    <input type="hidden" id="inp-vis" value="public">
+                </div>
+            </div>
+
+            <div class="modern-input-group" id="wrap-pass" style="display:none;">
+                <label class="modern-input-label">KATA SANDI AKSES</label>
+                <input type="password" id="inp-pass" class="modern-input-field" placeholder="Masukkan sandi enkripsi rahasia">
+            </div>
+
+            <div class="modern-input-group">
+                <label class="modern-input-label">KODE MENTAH (RAW)</label>
+                <textarea id="inp-code" class="modern-textarea-field" placeholder="Tempel injeksi baris kode di sini..."></textarea>
+            </div>
+
+            <button class="btn-action-primary" id="btn-save-snippet">
+                <i class="ph-bold ph-cloud-arrow-up"></i> SIMPAN & PUBLIKASIKAN
+            </button>
+        </div>
+    </div>
+
+    <div class="application-footer-block">
+        <div class="footer-primary-text">API BY Saurus</div>
+        <div class="footer-secondary-text">YANG DDOS HAMA</div>
+    </div>
+</div>
+
+<div class="full-viewport-section" id="full-viewport-view">
+    <div class="full-view-header">
+        <button class="action-btn-circle" id="btn-close-full">
+            <i class="ph-bold ph-arrow-left"></i>
+        </button>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span class="fv-visibility-badge public" id="fv-vis-badge"><i class="ph-fill ph-globe"></i> PUBLIC</span>
+        </div>
+    </div>
+    
+    <div class="full-view-content">
+        <div class="full-view-title-block">
+            <div class="full-view-title" id="fv-title">JUDUL SNIPPET</div>
+            <div class="full-view-meta-row">
+                <div class="meta-chip"><img src="https://files.catbox.moe/9y8310.jpg" id="fv-author-img"> <span id="fv-author">ANON</span></div>
+                <div class="meta-chip"><i class="ph-fill ph-code"></i> <span id="fv-lang">JS</span></div>
+                <div class="meta-chip"><i class="ph-fill ph-clock"></i> <span id="fv-time">WAKTU</span></div>
+            </div>
+        </div>
+
+        <div class="fv-action-row">
+            <button class="btn-fv-action btn-fv-copy" id="btn-action-copy">
+                <i class="ph-bold ph-copy"></i> SALIN
+            </button>
+            <button class="btn-fv-action" id="btn-action-share">
+                <i class="ph-bold ph-share-network"></i> BAGIKAN
+            </button>
+            <button class="btn-fv-action" id="btn-action-download">
+                <i class="ph-bold ph-download-simple"></i> UNDUH
+            </button>
+        </div>
+
+        <div class="code-presentation-container" id="code-container">
+            <div class="code-presentation-header">
+                <div class="code-file-name" id="fv-filename">file.ext</div>
+                <div class="code-file-name" id="fv-lines-count">0 BARIS</div>
+            </div>
+            <div class="code-body-wrapper">
+                <div class="code-line-numbers" id="fv-lines"></div>
+                <pre class="code-content-block" id="fv-code"></pre>
+            </div>
+            <div class="code-blur-overlay" id="code-overlay">
+                <button class="btn-reveal-code" id="btn-expand-code">
+                    <i class="ph-bold ph-eye"></i> BUKA KODE
+                </button>
+            </div>
+        </div>
+        
+        <button class="btn-action-primary" id="btn-action-delete" style="background:var(--bg-card); color:var(--text-main); display:none;">
+            <i class="ph-bold ph-trash"></i> HAPUS PERMANEN
+        </button>
+    </div>
+</div>
+
+<div class="share-modal-backdrop" id="share-modal">
+    <div class="share-modal-sheet">
+        <div class="share-modal-handle"></div>
+        <div class="share-modal-title">BAGIKAN SNIPPET</div>
+        <div class="share-url-box" id="share-url-display">https://...</div>
+        <div class="share-btn-row">
+            <button class="btn-share-copy" id="btn-share-copy-link">
+                <i class="ph-bold ph-link"></i> SALIN LINK
+            </button>
+        </div>
+        <div class="share-divider">ATAU MELALUI</div>
+        <div class="share-options-grid">
+            <button class="share-option-btn" id="share-wa">
+                <i class="ph-fill ph-whatsapp-logo"></i>
+                <span>WHATSAPP</span>
+            </button>
+            <button class="share-option-btn" id="share-tg">
+                <i class="ph-fill ph-telegram-logo"></i>
+                <span>TELEGRAM</span>
+            </button>
+            <button class="share-option-btn" id="share-x">
+                <i class="ph-fill ph-x-logo"></i>
+                <span>TWITTER</span>
+            </button>
+        </div>
+        <button class="btn-action-primary" id="btn-share-close" style="background:var(--bg-card); color:var(--text-main); margin-top:0;">
+            TUTUP
+        </button>
+    </div>
+</div>
+
+<script>
+function initTheme() {
+    const isDark = localStorage.getItem('Saurus_theme') === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+        document.getElementById('btn-theme-toggle').classList.add('is-active-state');
+    }
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+}
+initTheme();
+
+document.getElementById('btn-theme-toggle').onclick = (e) => {
+    const btn = e.currentTarget;
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+    btn.classList.toggle('is-active-state', isDark);
+};
+
+let auth, globalUser = null;
+
+const FB = {
+    async _token() {
+        try {
+            const u = firebase.auth().currentUser;
+            return u ? await u.getIdToken() : null;
+        } catch { return null; }
+    },
+    async _authHeaders() {
+        const t = await this._token();
+        return t ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` } : { 'Content-Type': 'application/json' };
+    },
+    async getUserProfile(uid) {
+        const h = await this._authHeaders();
+        const r = await fetch(`/api/fb/user-profile?uid=${encodeURIComponent(uid)}`, { headers: h });
+        return r.json();
+    }
+};
+
+// Auth setup moved to _initFirebase() to avoid race condition with async Firebase init
+
+const btnMenu = document.getElementById('btn-menu');
+const navOverlay = document.getElementById('nav-overlay');
+const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+
+function openSidebar() {
+    navOverlay.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    navOverlay.classList.remove('is-active');
+    document.body.style.overflow = '';
+}
+
+btnMenu.addEventListener('click', openSidebar);
+btnCloseSidebar.addEventListener('click', closeSidebar);
+navOverlay.addEventListener('click', (ev) => {
+    if (ev.target === navOverlay) closeSidebar();
+});
+
+document.querySelectorAll('.h-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.h-tab-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        const tg = btn.getAttribute('data-target');
+        
+        document.getElementById('view-explore').style.display = 'none';
+        document.getElementById('view-create').style.display = 'none';
+        
+        if (tg === 'explore') {
+            document.getElementById('view-explore').style.display = 'flex';
+        } else {
+            document.getElementById('view-create').style.display = 'flex';
+        }
+    });
+});
+
+const BGM_KEY = 'Saurus_bgm_playing';
+const audioEl = document.getElementById('audio-bgm');
+const btnAudio = document.getElementById('btn-audio');
+const iconAudio = document.getElementById('audio-icon');
+
+function setBgmUI(p) {
+    if (p) {
+        btnAudio.classList.add('is-active-state');
+        iconAudio.className = 'ph-bold ph-speaker-high';
+    } else {
+        btnAudio.classList.remove('is-active-state');
+        iconAudio.className = 'ph-bold ph-speaker-slash';
+    }
+}
+
+if (localStorage.getItem(BGM_KEY) === '1') {
+    audioEl.play().then(() => setBgmUI(true)).catch(() => {
+        document.addEventListener('click', function r() {
+            if (localStorage.getItem(BGM_KEY) === '1') audioEl.play().then(() => setBgmUI(true)).catch(() => {});
+            document.removeEventListener('click', r);
+        }, { once: true });
+    });
+}
+
+btnAudio.addEventListener('click', () => {
+    if (audioEl.paused) {
+        audioEl.play().then(() => {
+            localStorage.setItem(BGM_KEY, '1');
+            setBgmUI(true);
+        }).catch(() => {});
+    } else {
+        audioEl.pause();
+        localStorage.setItem(BGM_KEY, '0');
+        setBgmUI(false);
+    }
+});
+
+const toastRef = document.getElementById('toast-notify');
+let toastTimer = null;
+function showToast(msg) {
+    toastRef.innerHTML = `<i class="ph-bold ph-bell-ringing"></i> ${msg}`;
+    toastRef.className = 'toast-notification-float is-shown';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastRef.className = 'toast-notification-float', 2500);
+}
+
+function initCustomDropdown(containerId, labelId, inputId, onChangeCallback) {
+    const container = document.getElementById(containerId);
+    const trigger = container.querySelector('.custom-dropdown-trigger');
+    const label = document.getElementById(labelId);
+    const input = document.getElementById(inputId);
+    const options = container.querySelectorAll('.custom-option-item');
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.custom-dropdown-container').forEach(c => {
+            if (c !== container) c.classList.remove('is-active');
+        });
+        container.classList.toggle('is-active');
+    });
+
+    options.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const val = opt.getAttribute('data-val');
+            const txt = opt.textContent;
+            label.textContent = txt;
+            input.value = val;
+            container.classList.remove('is-active');
+            if (onChangeCallback) onChangeCallback(val);
+        });
+    });
+}
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-dropdown-container').forEach(c => c.classList.remove('is-active'));
+});
+
+initCustomDropdown('dropdown-lang', 'label-lang', 'inp-lang');
+initCustomDropdown('dropdown-vis', 'label-vis', 'inp-vis', (val) => {
+    const wrapPass = document.getElementById('wrap-pass');
+    wrapPass.style.display = val === 'private' ? 'flex' : 'none';
+});
+
+let cacheSnippets = [];
+let currentActiveSnippetId = null;
+let currentRawCode = '';
+
+function highlightSyntax(code, lang) {
+    if (!code) return '';
+    if (code.length > 100000) return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const l = (lang || '').toLowerCase();
+
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function highlightLine(line) {
+        const kwJS = /^(const|let|var|function|return|if|else|for|while|class|import|export|from|new|await|async|try|catch|switch|case|break|typeof|instanceof|delete|void|in|of|do|throw|finally|yield)$/;
+        const kwPY = /^(def|class|return|if|elif|else|for|while|import|from|as|try|except|with|pass|break|continue|and|or|not|in|is|lambda|yield|raise|finally|global|nonlocal|del|assert)$/;
+        const kwPHP = /^(function|return|if|else|elseif|for|foreach|while|class|public|private|protected|echo|require|include|namespace|use|new|try|catch|throw|finally|static|abstract|interface|extends|implements)$/;
+        const booleans = /^(true|false|null|undefined|None|True|False|TRUE|FALSE|NULL)$/;
+        let out = '';
+        let i = 0;
+        const n = line.length;
+        while (i < n) {
+            // Single-line comments
+            if ((l === 'javascript' || l === 'typescript' || l === 'php') && line[i] === '/' && line[i+1] === '/') {
+                out += '<span class="code-syntax-comment">' + escHtml(line.slice(i)) + '</span>';
+                break;
+            }
+            if ((l === 'python' || l === 'shell/curl') && line[i] === '#') {
+                out += '<span class="code-syntax-comment">' + escHtml(line.slice(i)) + '</span>';
+                break;
+            }
+            // Strings (single-line only)
+            if (line[i] === '"' || line[i] === "'" || line[i] === '`') {
+                const q = line[i];
+                let j = i + 1;
+                while (j < n) {
+                    if (line[j] === '\\') { j += 2; continue; }
+                    if (line[j] === q) { j++; break; }
+                    j++;
+                }
+                out += '<span class="code-syntax-string">' + escHtml(line.slice(i, j)) + '</span>';
+                i = j;
+                continue;
+            }
+            // PHP variables
+            if (l === 'php' && line[i] === '$') {
+                let j = i + 1;
+                while (j < n && /[a-zA-Z0-9_]/.test(line[j])) j++;
+                out += '<span class="code-syntax-operator">' + escHtml(line.slice(i, j)) + '</span>';
+                i = j;
+                continue;
+            }
+            // Words
+            if (/[a-zA-Z_$]/.test(line[i])) {
+                let j = i;
+                while (j < n && /[a-zA-Z0-9_$]/.test(line[j])) j++;
+                const word = line.slice(i, j);
+                const isFunc = line[j] === '(';
+                if (booleans.test(word)) {
+                    out += '<span class="code-syntax-boolean">' + escHtml(word) + '</span>';
+                } else if ((l === 'javascript' || l === 'typescript') && kwJS.test(word)) {
+                    out += '<span class="code-syntax-keyword">' + escHtml(word) + '</span>';
+                } else if (l === 'python' && kwPY.test(word)) {
+                    out += '<span class="code-syntax-keyword">' + escHtml(word) + '</span>';
+                } else if (l === 'php' && kwPHP.test(word)) {
+                    out += '<span class="code-syntax-keyword">' + escHtml(word) + '</span>';
+                } else if (isFunc) {
+                    out += '<span class="code-syntax-function">' + escHtml(word) + '</span>';
+                } else {
+                    out += escHtml(word);
+                }
+                i = j;
+                continue;
+            }
+            // Numbers
+            if (/[0-9]/.test(line[i])) {
+                let j = i;
+                while (j < n && /[0-9.]/.test(line[j])) j++;
+                out += '<span class="code-syntax-number">' + escHtml(line.slice(i, j)) + '</span>';
+                i = j;
+                continue;
+            }
+            out += escHtml(line[i]);
+            i++;
+        }
+        return out;
+    }
+
+    if (l === 'html') {
+        let esc = escHtml(code);
+        esc = esc.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="code-syntax-comment">$1</span>');
+        esc = esc.replace(/(&lt;\/?)([\w\-]+)/g, (m, p1, p2) => p1 + '<span class="code-syntax-keyword">' + p2 + '</span>');
+        esc = esc.replace(/([\w\-]+)=(&quot;[^&]*&quot;)/g, '<span class="code-syntax-function">$1</span>=<span class="code-syntax-string">$2</span>');
+        return esc;
+    }
+    if (l === 'css') {
+        let esc = escHtml(code);
+        esc = esc.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="code-syntax-comment">$1</span>');
+        esc = esc.replace(/([\w\-]+)\s*(?=\s*:(?!:))/g, '<span class="code-syntax-keyword">$1</span>');
+        esc = esc.replace(/((?:\.|#)[\w\-]+)/g, '<span class="code-syntax-function">$1</span>');
+        esc = esc.replace(/('|")([^'"]*)\1/g, '<span class="code-syntax-string">$1$2$1</span>');
+        return esc;
+    }
+
+    return code.split('\n').map(highlightLine).join('\n');
+}
+
+async function renderSnippetsGrid(query = '') {
+    const grid = document.getElementById('grid-snippets');
+    grid.innerHTML = '';
+    const filtered = cacheSnippets.filter(s => (s.name || '').toLowerCase().includes(query.toLowerCase()));
+    if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-data-notice">KOSONG</div>';
+        return;
+    }
+    filtered.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'snippet-card-item';
+        const d = s.createdAt ? new Date(s.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'UNKNOWN';
+        const pic = s.authorPhoto || 'https://files.catbox.moe/9y8310.jpg';
+        const lang = s.language || 'UNKNOWN';
+        card.innerHTML = `
+            <div class="snippet-creator-row">
+                <img src="${pic}" class="snippet-creator-avatar" onerror="this.src='https://files.catbox.moe/9y8310.jpg'">
+                <div class="snippet-creator-name">${s.author || 'ANONIM'}</div>
+                <div class="snippet-card-lang">${lang}</div>
+            </div>
+            <div class="snippet-card-title">${s.name || 'TANPA JUDUL'}</div>
+            <div class="snippet-card-meta">
+                <span style="font-family:monospace;"><i class="ph-bold ph-file-code"></i> ${s.filename || 'snippet.txt'}</span>
+                <span>${d}</span>
+            </div>
+        `;
+        card.onclick = () => launchFullViewMode(s.id, false, false);
+        grid.appendChild(card);
+    });
+}
+
+async function fetchSnippetsNetwork() {
+    try {
+        const r = await fetch('/api/snippet');
+        if (!r.ok) {
+            document.getElementById('grid-snippets').innerHTML = '<div class="empty-data-notice">GAGAL MENDAPATKAN RESPON</div>';
+            return;
+        }
+        const j = await r.json();
+        if (j.ok && j.data) {
+            cacheSnippets = Array.isArray(j.data) ? j.data : [];
+            renderSnippetsGrid();
+        } else {
+            document.getElementById('grid-snippets').innerHTML = `<div class="empty-data-notice">${j.message || 'GAGAL MEMUAT'}</div>`;
+        }
+    } catch (e) {
+        document.getElementById('grid-snippets').innerHTML = '<div class="empty-data-notice">ERROR JARINGAN</div>';
+    }
+}
+
+let searchTimeout;
+document.getElementById('inp-search').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        renderSnippetsGrid(e.target.value);
+    }, 300);
+});
+
+document.getElementById('btn-save-snippet').addEventListener('click', async () => {
+    if (!globalUser) { showToast('AKSES DITOLAK'); return; }
+    const name = document.getElementById('inp-name').value.trim();
+    const lang = document.getElementById('inp-lang').value;
+    const vis = document.getElementById('inp-vis').value;
+    const pass = document.getElementById('inp-pass').value;
+    const code = document.getElementById('inp-code').value.trim();
+    if (!name || !code) { showToast('LENGKAPI DATA'); return; }
+    const payload = { 
+        name, language: lang, visibility: vis, code, 
+        author: globalUser.displayName || 'ANONIM',
+        authorPhoto: globalUser.photoURL || 'https://files.catbox.moe/9y8310.jpg',
+        authorUid: globalUser.uid
+    };
+    if (vis === 'private') payload.password = pass;
+    document.getElementById('btn-save-snippet').innerHTML = '<i class="ph-bold ph-spinner ph-spin" style="animation: spin 1s linear infinite;"></i> MENYIMPAN...';
+    try {
+        const r = await fetch('/api/snippet', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const j = await r.json();
+        if (j.ok) {
+            showToast('SNIPPET TERSIMPAN');
+            const savedId = j.id;
+            const savedPass = vis === 'private' ? pass : '';
+            document.getElementById('inp-name').value = '';
+            document.getElementById('inp-code').value = '';
+            document.getElementById('inp-pass').value = '';
+            if (vis === 'private' && savedId) {
+                await launchFullViewModeWithPass(savedId, savedPass, false);
+            } else {
+                // Optimistic update: add to cache immediately so grid shows it right away
+                const extMap = { javascript:'.js', typescript:'.ts', python:'.py', php:'.php', 'shell/curl':'.sh', html:'.html', css:'.css', json:'.json' };
+                const ext = extMap[(lang||'').toLowerCase()] || '.txt';
+                const filename = name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'') + ext;
+                cacheSnippets.unshift({
+                    id: savedId,
+                    name, language: lang, visibility: vis, code,
+                    filename,
+                    author: globalUser.displayName || 'ANONIM',
+                    authorPhoto: globalUser.photoURL || 'https://files.catbox.moe/9y8310.jpg',
+                    authorUid: globalUser.uid,
+                    createdAt: new Date().toISOString()
+                });
+                renderSnippetsGrid();
+                document.querySelector('.h-tab-btn[data-target="explore"]').click();
+                // Then also refresh from server to get accurate data
+                fetchSnippetsNetwork();
+            }
+        } else {
+            showToast('GAGAL MENYIMPAN');
+        }
+    } catch (e) {
+        showToast('ERROR JARINGAN');
+    }
+    document.getElementById('btn-save-snippet').innerHTML = '<i class="ph-bold ph-cloud-arrow-up"></i> SIMPAN & PUBLIKASIKAN';
+});
+
+async function launchFullViewModeWithPass(targetId, password, fromUrl = false) {
+    try {
+        const url = `/api/snippet/${targetId}?password=${encodeURIComponent(password || '')}`;
+        const r = await fetch(url);
+        const j = await r.json();
+        if (!j.ok || !j.data) { showToast('GAGAL MEMBUKA SNIPPET'); return; }
+        const d = j.data;
+        currentActiveSnippetId = d.id;
+        currentRawCode = d.code || '';
+        if (!fromUrl) window.history.pushState({ view: 'snippet', id: targetId }, '', `?id=${targetId}`);
+        document.getElementById('main-dashboard-view').style.display = 'none';
+        const fView = document.getElementById('full-viewport-view');
+        fView.classList.add('is-active');
+        document.getElementById('fv-title').textContent = d.name || 'TANPA JUDUL';
+        const visBadge = document.getElementById('fv-vis-badge');
+        visBadge.className = 'fv-visibility-badge private';
+        visBadge.innerHTML = '<i class="ph-fill ph-lock"></i> PRIVATE';
+        document.getElementById('fv-lang').textContent = d.language || 'UNKNOWN';
+        document.getElementById('fv-author').textContent = d.author || 'ANONIM';
+        document.getElementById('fv-author-img').src = d.authorPhoto || 'https://files.catbox.moe/9y8310.jpg';
+        document.getElementById('fv-time').textContent = d.createdAt ? new Date(d.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'UNKNOWN';
+        document.getElementById('fv-filename').textContent = d.filename || 'snippet.txt';
+        const lines = currentRawCode.split('\n');
+        document.getElementById('fv-lines-count').textContent = `${lines.length} BARIS`;
+        let numHtml = '';
+        for (let i = 1; i <= lines.length; i++) numHtml += `<span>${i}</span>`;
+        document.getElementById('fv-lines').innerHTML = numHtml;
+        document.getElementById('fv-code').innerHTML = highlightSyntax(currentRawCode, d.language);
+        const cContainer = document.getElementById('code-container');
+        const cOverlay = document.getElementById('code-overlay');
+        cContainer.classList.remove('is-expanded');
+        setTimeout(() => {
+            if (cContainer.scrollHeight > 400) { cOverlay.style.display = 'flex'; }
+            else { cOverlay.style.display = 'none'; cContainer.classList.add('is-expanded'); }
+        }, 100);
+        const btnDel = document.getElementById('btn-action-delete');
+        if (d.visibility === 'private' || (globalUser && d.authorUid === globalUser.uid)) {
+            btnDel.style.display = 'flex';
+            btnDel.onclick = () => deleteSnippetSeq(d.id, password);
+        } else {
+            btnDel.style.display = 'none';
+        }
+        window.scrollTo(0, 0);
+    } catch(e) { showToast('GAGAL MEMBUKA SNIPPET'); }
+}
+
+async function launchFullViewMode(targetId, needPass = false, fromUrl = false) {
+    let url = `/api/snippet/${targetId}`;
+    let passVal = '';
+    if (needPass) {
+        passVal = prompt('Otorisasi Diperlukan. Masukkan sandi akses:');
+        if (!passVal) return;
+        url += `?password=${encodeURIComponent(passVal)}`;
+    }
+    try {
+        const r = await fetch(url);
+        if (r.status === 403) {
+            if (!needPass) { launchFullViewMode(targetId, true, fromUrl); }
+            else { showToast('Sandi Salah'); }
+            return;
+        }
+        const j = await r.json();
+        if (!j.ok || !j.data) { showToast('GAGAL MENARIK DATA'); return; }
+        const d = j.data;
+        currentActiveSnippetId = d.id;
+        currentRawCode = d.code || '';
+        if (!fromUrl) window.history.pushState({ view: 'snippet', id: targetId }, '', `?id=${targetId}`);
+        document.getElementById('main-dashboard-view').style.display = 'none';
+        const fView = document.getElementById('full-viewport-view');
+        fView.classList.add('is-active');
+        document.getElementById('fv-title').textContent = d.name || 'TANPA JUDUL';
+        const visBadge = document.getElementById('fv-vis-badge');
+        if (d.visibility === 'private') {
+            visBadge.className = 'fv-visibility-badge private';
+            visBadge.innerHTML = '<i class="ph-fill ph-lock"></i> PRIVATE';
+        } else {
+            visBadge.className = 'fv-visibility-badge public';
+            visBadge.innerHTML = '<i class="ph-fill ph-globe"></i> PUBLIC';
+        }
+        document.getElementById('fv-lang').textContent = d.language || 'UNKNOWN';
+        document.getElementById('fv-author').textContent = d.author || 'ANONIM';
+        document.getElementById('fv-author-img').src = d.authorPhoto || 'https://files.catbox.moe/9y8310.jpg';
+        document.getElementById('fv-time').textContent = d.createdAt ? new Date(d.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'UNKNOWN';
+        document.getElementById('fv-filename').textContent = d.filename || 'snippet.txt';
+        const lines = currentRawCode.split('\n');
+        document.getElementById('fv-lines-count').textContent = `${lines.length} BARIS`;
+        let numHtml = '';
+        for (let i = 1; i <= lines.length; i++) { numHtml += `<span>${i}</span>`; }
+        document.getElementById('fv-lines').innerHTML = numHtml;
+        document.getElementById('fv-code').innerHTML = highlightSyntax(currentRawCode, d.language);
+        const cContainer = document.getElementById('code-container');
+        const cOverlay = document.getElementById('code-overlay');
+        cContainer.classList.remove('is-expanded');
+        setTimeout(() => {
+            if (cContainer.scrollHeight > 400) { cOverlay.style.display = 'flex'; }
+            else { cOverlay.style.display = 'none'; cContainer.classList.add('is-expanded'); }
+        }, 100);
+        const btnDel = document.getElementById('btn-action-delete');
+        if (d.visibility === 'private' || (globalUser && d.authorUid === globalUser.uid)) {
+            btnDel.style.display = 'flex';
+            btnDel.onclick = () => deleteSnippetSeq(d.id, passVal);
+        } else {
+            btnDel.style.display = 'none';
+        }
+        window.scrollTo(0, 0);
+    } catch (e) { showToast('ERROR SERVER'); }
+}
+
+document.getElementById('btn-expand-code').addEventListener('click', () => {
+    document.getElementById('code-container').classList.add('is-expanded');
+    document.getElementById('code-overlay').style.display = 'none';
+});
+
+document.getElementById('btn-close-full').addEventListener('click', () => {
+    if (window.history.state && window.history.state.view === 'snippet') {
+        window.history.back();
+    } else {
+        document.getElementById('full-viewport-view').classList.remove('is-active');
+        document.getElementById('main-dashboard-view').style.display = 'flex';
+        currentActiveSnippetId = null;
+        currentRawCode = '';
+        const uParams = new URLSearchParams(window.location.search);
+        if (uParams.has('id')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+});
+
+window.addEventListener('popstate', (e) => {
+    const fView = document.getElementById('full-viewport-view');
+    if (fView.classList.contains('is-active')) {
+        fView.classList.remove('is-active');
+        document.getElementById('main-dashboard-view').style.display = 'flex';
+        currentActiveSnippetId = null;
+        currentRawCode = '';
+        const uParams = new URLSearchParams(window.location.search);
+        if (uParams.has('id')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+});
+
+document.getElementById('btn-action-copy').addEventListener('click', () => {
+    if (!currentRawCode) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentRawCode).then(() => {
+            showToast('KODE DISALIN');
+        });
+    } else {
+        const ta = document.createElement('textarea');
+        ta.value = currentRawCode;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('KODE DISALIN');
+    }
+});
+
+document.getElementById('btn-action-share').addEventListener('click', () => {
+    if (!currentActiveSnippetId) return;
+    const shareUrl = `${window.location.origin}/snippet?id=${currentActiveSnippetId}`;
+    document.getElementById('share-url-display').textContent = shareUrl;
+    document.getElementById('share-modal').classList.add('is-open');
+});
+
+document.getElementById('btn-share-close').addEventListener('click', () => {
+    document.getElementById('share-modal').classList.remove('is-open');
+});
+
+document.getElementById('share-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('share-modal')) {
+        document.getElementById('share-modal').classList.remove('is-open');
+    }
+});
+
+document.getElementById('btn-share-copy-link').addEventListener('click', () => {
+    const url = document.getElementById('share-url-display').textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url);
+    } else { 
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta); 
+    }
+    showToast('LINK DISALIN');
+});
+
+document.getElementById('share-wa').addEventListener('click', () => {
+    const url = document.getElementById('share-url-display').textContent;
+    window.open(`https://wa.me/?text=${encodeURIComponent('Cek snippet kode ini: ' + url)}`, '_blank');
+});
+
+document.getElementById('share-tg').addEventListener('click', () => {
+    const url = document.getElementById('share-url-display').textContent;
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Cek snippet ini!')}`, '_blank');
+});
+
+document.getElementById('share-x').addEventListener('click', () => {
+    const url = document.getElementById('share-url-display').textContent;
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Snippet kode keren:')}`, '_blank');
+});
+
+document.getElementById('btn-action-download').addEventListener('click', () => {
+    if (!currentRawCode || !currentActiveSnippetId) return;
+    const filename = document.getElementById('fv-filename').textContent || 'snippet.txt';
+    const blob = new Blob([currentRawCode], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('FILE DIUNDUH');
+});
+
+async function deleteSnippetSeq(id, pass) {
+    if (!confirm('HAPUS SNIPPET PERMANEN?')) return;
+    try {
+        const r = await fetch(`/api/snippet/${id}?password=${encodeURIComponent(pass || '')}`, { method: 'DELETE' });
+        const j = await r.json();
+        if (j.ok) {
+            showToast('DATA DIHAPUS');
+            // Close view first, then refresh grid
+            document.getElementById('full-viewport-view').classList.remove('is-active');
+            document.getElementById('main-dashboard-view').style.display = 'flex';
+            currentActiveSnippetId = null;
+            currentRawCode = '';
+            const uParams = new URLSearchParams(window.location.search);
+            if (uParams.has('id')) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            await fetchSnippetsNetwork();
+        } else {
+            showToast(j.message || 'GAGAL MENGHAPUS');
+        }
+    } catch (e) {
+        showToast('ERROR JARINGAN');
+    }
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const injectId = urlParams.get('id');
+
+fetchSnippetsNetwork().then(() => {
+    if (injectId) {
+        launchFullViewMode(injectId, false, true);
+    }
+});
+</script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) return;
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+
+    // Setup auth AFTER Firebase is initialized (fix race condition)
+    try {
+        auth = firebase.auth();
+    } catch (e) { return; }
+
+    if (auth) {
+        auth.onAuthStateChanged(u => {
+            if (u) {
+                globalUser = u;
+                FB.getUserProfile(u.uid).then(res => {
+                    if (res.ok && res.data) {
+                        if (res.data.name) globalUser.displayName = res.data.name;
+                        if (res.data.photoURL) globalUser.photoURL = res.data.photoURL;
+                    }
+                }).catch(() => {});
+                document.getElementById('locked-create').style.display = 'none';
+                document.getElementById('form-create').style.display = 'flex';
+            } else {
+                globalUser = null;
+                document.getElementById('locked-create').style.display = 'flex';
+                document.getElementById('form-create').style.display = 'none';
+            }
+            // Re-evaluate delete button if a snippet is currently open
+            if (currentActiveSnippetId) {
+                const btnDel = document.getElementById('btn-action-delete');
+                const fView = document.getElementById('full-viewport-view');
+                if (fView.classList.contains('is-active') && btnDel) {
+                    // Re-fetch to get fresh authorUid data and update button
+                    fetch(`/api/snippet/${currentActiveSnippetId}`).then(r => r.json()).then(j => {
+                        if (j.ok && j.data) {
+                            const d = j.data;
+                            if (d.visibility === 'private' || (globalUser && d.authorUid === globalUser.uid)) {
+                                btnDel.style.display = 'flex';
+                            } else {
+                                btnDel.style.display = 'none';
+                            }
+                        }
+                    }).catch(() => {});
+                }
+            }
+        });
+    }
+}
+_initFirebase();
+</script>
+</body>
+</html>

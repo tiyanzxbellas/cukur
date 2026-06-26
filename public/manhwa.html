@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>Baca Manhwa - API Saurus Advanced</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+:root {
+--color-bg-base: #F4F4F5;
+--color-surface: #FFFFFF;
+--color-text-main: #000000;
+--color-text-muted: #52525B;
+--color-text-subtle: #A1A1AA;
+--color-border: #000000;
+--color-inverse-bg: #000000;
+--color-inverse-text: #FFFFFF;
+--gray-light: #E4E4E7;
+--gray-med: #D4D4D8;
+--radius-sm: 8px;
+--radius-md: 16px;
+--radius-lg: 24px;
+--radius-pill: 999px;
+--border-thick: 2.5px solid var(--color-border);
+--shadow-solid: 4px 4px 0px var(--color-border);
+--shadow-solid-sm: 2px 2px 0px var(--color-border);
+--shadow-active: 0px 0px 0px transparent;
+}
+body.dark-theme {
+--color-bg-base: #121212;
+--color-surface: #1E1E1E;
+--color-text-main: #FFFFFF;
+--color-text-muted: #A1A1AA;
+--color-text-subtle: #52525B;
+--color-border: #000000;
+--color-inverse-bg: #FFFFFF;
+--color-inverse-text: #000000;
+--gray-light: #27272A;
+--gray-med: #3F3F46;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; min-height: 100vh; background-color: var(--color-bg-base); color: var(--color-text-main); overflow-x: hidden; display: flex; justify-content: center; transition: background-color 0.3s ease, color 0.3s ease; }
+.animated-gradient-text { background: var(--color-inverse-bg); color: var(--color-inverse-text); padding: 4px 12px; border-radius: var(--radius-pill); border: 2px solid var(--color-border); font-weight: 900; box-shadow: var(--shadow-solid-sm); text-transform: uppercase; display: inline-block; }
+.app-viewport { width: 100%; max-width: 768px; min-height: 100vh; padding: 24px 20px 40px; display: flex; flex-direction: column; position: relative; gap: 24px; z-index: 10; }
+.global-background-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(var(--color-text-subtle) 2px, transparent 2px); background-size: 32px 32px; opacity: 0.1; z-index: -1; pointer-events: none; animation: pan-background 40s linear infinite; }
+@keyframes pan-background { 0% { background-position: 0 0; } 100% { background-position: 100vw 100vh; } }
+.top-navigation-cluster { display: flex; justify-content: space-between; align-items: center; width: 100%; position: sticky; top: 0; z-index: 100; background: var(--color-bg-base); padding: 10px 0; border-bottom: var(--border-thick); margin-bottom: -10px; }
+.kinetic-hamburger-btn { width: 48px; height: 48px; border-radius: var(--radius-md); background-color: var(--color-surface); border: var(--border-thick); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); }
+.kinetic-hamburger-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.kinetic-line { width: 22px; height: 3px; background-color: var(--color-text-main); border-radius: 4px; transition: transform 0.4s, opacity 0.3s; }
+.brand-logotype-header { font-size: 1.3rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.cluster-actions { display: flex; gap: 10px; }
+.audio-control-interactive { width: 48px; height: 48px; border-radius: var(--radius-md); border: var(--border-thick); display: flex; justify-content: center; align-items: center; font-size: 22px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; background-color: var(--color-surface); color: var(--color-text-main); box-shadow: var(--shadow-solid-sm); position: relative; }
+.audio-control-interactive:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background-color: var(--gray-light); }
+.notif-badge-dot { position: absolute; top: -2px; right: -2px; width: 14px; height: 14px; background: var(--color-text-main); border-radius: 50%; border: 2px solid var(--color-surface); display: none; }
+.kinetic-overlay-navigation { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 1000; display: flex; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.kinetic-overlay-navigation.is-active { opacity: 1; visibility: visible; }
+.navigation-menu-card { background: var(--color-surface); width: 85%; max-width: 340px; height: 100vh; border-right: var(--border-thick); display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); overflow-y: auto; overflow-x: hidden; }
+.kinetic-overlay-navigation.is-active .navigation-menu-card { transform: translateX(0); }
+.navigation-menu-card::-webkit-scrollbar { display: none; }
+.nav-header-box { padding: 24px; border-bottom: var(--border-thick); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); flex-shrink: 0; }
+.nav-header-title { font-size: 1.2rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; }
+.btn-close-sidebar { background: var(--color-inverse-bg); border: var(--border-thick); width: 44px; height: 44px; border-radius: var(--radius-pill); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--color-inverse-text); cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); flex-shrink: 0; }
+.btn-close-sidebar:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.sidebar-promo-banner { background: var(--gray-light); border: var(--border-thick); border-radius: var(--radius-md); padding: 20px; color: var(--color-text-main); text-align: left; margin: 24px 24px 0 24px; box-shadow: var(--shadow-solid-sm); flex-shrink: 0; }
+.sidebar-promo-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 8px; text-transform: uppercase; }
+.sidebar-promo-desc { font-size: 0.85rem; font-weight: 700; line-height: 1.5; color: var(--color-text-muted); text-transform: uppercase; }
+.navigation-menu-header { font-size: 0.8rem; font-weight: 900; color: var(--color-text-main); letter-spacing: 1px; margin: 24px 24px 8px 24px; text-transform: uppercase; }
+.nav-links-stagger { display: flex; flex-direction: column; gap: 12px; padding: 0 24px 24px; overflow-y: auto; flex: 1; }
+.nav-links-stagger::-webkit-scrollbar { display: none; }
+.navigation-route-link { text-decoration: none; background: var(--color-bg-base); color: var(--color-text-main); padding: 16px 20px; border: var(--border-thick); border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 900; display: flex; align-items: center; gap: 16px; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); text-transform: uppercase; }
+.navigation-route-link i { font-size: 1.4rem; flex-shrink: 0; color: var(--color-text-main); }
+.navigation-route-link:active { transform: translate(2px, 2px) !important; box-shadow: var(--shadow-active) !important; }
+.navigation-route-link.route-active { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.navigation-route-link.route-active i { color: var(--color-inverse-text); }
+.horizontal-tabs-container { display: flex; gap: 12px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; margin-top: 10px; }
+.horizontal-tabs-container::-webkit-scrollbar { display: none; }
+.h-tab-btn { flex-shrink: 0; padding: 14px 24px; border-radius: var(--radius-pill); border: var(--border-thick); font-size: 0.85rem; font-weight: 900; text-transform: uppercase; background: var(--color-surface); color: var(--color-text-main); box-shadow: var(--shadow-solid-sm); cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; gap: 8px; }
+.h-tab-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.h-tab-btn.is-active { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.main-content-panel { background: var(--color-surface); border: var(--border-thick); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-solid); display: flex; flex-direction: column; gap: 20px; transition: background 0.3s ease; }
+.panel-title-header { display: flex; align-items: center; gap: 12px; font-size: 1.1rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; border-bottom: var(--border-thick); padding-bottom: 16px; }
+.panel-title-header i { font-size: 1.6rem; color: var(--color-inverse-text); background: var(--color-inverse-bg); padding: 6px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); }
+.search-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+.search-icon-absolute { position: absolute; left: 16px; font-size: 20px; color: var(--color-text-main); font-weight: 900; pointer-events: none; }
+.search-input-field { width: 100%; padding: 16px 20px 16px 48px; border-radius: var(--radius-pill); border: var(--border-thick); background: var(--color-bg-base); color: var(--color-text-main); font-size: 0.95rem; font-weight: 800; outline: none; box-shadow: var(--shadow-solid-sm); text-transform: uppercase; }
+.search-input-field::placeholder { color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; }
+.genre-chips-row { display: flex; gap: 12px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
+.genre-chips-row::-webkit-scrollbar { display: none; }
+.genre-chip { flex-shrink: 0; padding: 10px 20px; border-radius: var(--radius-pill); border: var(--border-thick); font-size: 0.85rem; font-weight: 900; background: var(--color-surface); color: var(--color-text-main); cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); text-transform: uppercase; }
+.genre-chip:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.genre-chip.is-active { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.manhwa-list-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (min-width: 550px) { .manhwa-list-grid { grid-template-columns: repeat(3, 1fr); } }
+.manhwa-card { background: var(--color-surface); border-radius: var(--radius-md); border: var(--border-thick); overflow: hidden; box-shadow: var(--shadow-solid-sm); cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; flex-direction: column; position: relative; }
+.manhwa-card:active { transform: translate(4px, 4px); box-shadow: var(--shadow-active); }
+.manhwa-cover { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: var(--gray-light); border-bottom: var(--border-thick); }
+.manhwa-info { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.manhwa-title { font-size: 0.9rem; font-weight: 900; color: var(--color-text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; text-transform: uppercase; }
+.manhwa-meta { font-size: 0.75rem; color: var(--color-text-main); display: flex; justify-content: space-between; font-weight: 900; margin-top: auto; text-transform: uppercase; align-items: center; }
+.manhwa-badge-floating { position: absolute; top: 10px; left: 10px; background: var(--color-inverse-bg); color: var(--color-inverse-text); font-size: 0.7rem; font-weight: 900; padding: 6px 12px; border-radius: var(--radius-pill); z-index: 2; border: 2px solid var(--color-border); text-transform: uppercase; }
+.action-bar-row { display: flex; gap: 12px; align-items: center; width: 100%; flex-wrap: wrap; }
+.btn-action-secondary { background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); padding: 16px 20px; border-radius: var(--radius-pill); font-weight: 900; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center; text-transform: uppercase; box-shadow: var(--shadow-solid-sm); }
+.btn-action-secondary:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--gray-light); }
+.btn-action-highlight { background: var(--color-inverse-bg); color: var(--color-inverse-text); border: var(--border-thick); padding: 16px 20px; border-radius: var(--radius-pill); font-weight: 900; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; gap: 10px; flex: 1; justify-content: center; text-transform: uppercase; box-shadow: var(--shadow-solid-sm); }
+.btn-action-highlight:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.detail-banner-hero { position: relative; width: 100%; height: 360px; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-solid); border: var(--border-thick); background: var(--color-bg-base); }
+.detail-banner-bg { width: 100%; height: 100%; object-fit: cover; filter: blur(10px) grayscale(100%); transform: scale(1.1); opacity: 0.8; }
+.detail-banner-content { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 30px; background: linear-gradient(to top, var(--color-inverse-bg) 0%, transparent 100%); gap: 20px; }
+.detail-banner-cover { width: 120px; height: 180px; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-solid); border: var(--border-thick); background: var(--gray-light); }
+.detail-banner-text { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.detail-banner-title { font-size: 1.4rem; font-weight: 900; color: var(--color-inverse-text); line-height: 1.2; text-transform: uppercase; }
+.detail-banner-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail-tag { background: var(--color-inverse-text); color: var(--color-inverse-bg); padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 900; border: 2px solid var(--color-border); text-transform: uppercase; }
+.synopsis-box { font-size: 0.85rem; color: var(--color-text-main); line-height: 1.7; background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); max-height: 250px; overflow-y: auto; border: var(--border-thick); text-transform: uppercase; font-weight: 700; }
+.manhwa-chapter-grid-ui { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 6px; }
+.manhwa-chapter-grid-ui::-webkit-scrollbar { display: none; }
+.btn-manhwa-chapter { background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); padding: 16px 12px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.85rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 8px; box-shadow: var(--shadow-solid-sm); text-transform: uppercase; }
+.btn-manhwa-chapter:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--gray-light); }
+.comments-container { display: flex; flex-direction: column; gap: 20px; margin-top: 12px; }
+.comment-input-area { display: flex; flex-direction: column; gap: 12px; background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); border: var(--border-thick); }
+.comment-textarea { width: 100%; background: var(--color-surface); border: var(--border-thick); border-radius: var(--radius-sm); padding: 16px; font-size: 0.9rem; font-weight: 800; color: var(--color-text-main); resize: vertical; min-height: 120px; outline: none; text-transform: uppercase; }
+.comment-textarea::placeholder { color: var(--color-text-muted); font-weight: 700; }
+.comment-action-bar { display: flex; justify-content: space-between; align-items: center; }
+.replying-indicator { font-size: 0.8rem; font-weight: 900; color: var(--color-text-main); display: flex; align-items: center; gap: 8px; text-transform: uppercase; background: var(--color-surface); padding: 6px 12px; border-radius: var(--radius-pill); border: 2px solid var(--color-border); }
+.btn-cancel-reply { background: none; border: none; color: var(--color-text-main); cursor: pointer; padding: 0 4px; font-size: 1.2rem; display: flex; align-items: center; }
+.btn-send-comment { background: var(--color-inverse-bg); color: var(--color-inverse-text); border: var(--border-thick); padding: 14px 24px; border-radius: var(--radius-pill); font-size: 0.9rem; font-weight: 900; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; gap: 10px; margin-left: auto; text-transform: uppercase; box-shadow: var(--shadow-solid-sm); }
+.btn-send-comment:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.comment-thread-wrapper { display: flex; flex-direction: column; gap: 16px; }
+.comment-item { display: flex; gap: 16px; padding-bottom: 24px; border-bottom: var(--border-thick); }
+.comment-item:last-child { border-bottom: none; padding-bottom: 0; }
+.comment-avatar { width: 56px; height: 56px; border-radius: var(--radius-md); object-fit: cover; flex-shrink: 0; border: var(--border-thick); background: var(--gray-light); box-shadow: var(--shadow-solid-sm); }
+.comment-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.comment-header { display: flex; justify-content: space-between; align-items: baseline; }
+.comment-author { font-size: 1rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; }
+.comment-time { font-size: 0.8rem; font-weight: 800; color: var(--color-text-muted); text-transform: uppercase; }
+.comment-text { font-size: 0.9rem; font-weight: 700; color: var(--color-text-main); line-height: 1.6; word-wrap: break-word; text-transform: uppercase; background: var(--gray-light); padding: 16px; border-radius: var(--radius-sm); border: var(--border-thick); }
+.comment-actions { display: flex; gap: 16px; margin-top: 8px; }
+.btn-c-action { background: var(--color-surface); border: 2px solid var(--color-border); padding: 6px 12px; border-radius: var(--radius-pill); color: var(--color-text-main); font-size: 0.8rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.1s; text-transform: uppercase; }
+.btn-c-action:active { transform: scale(0.95); }
+.btn-c-action.liked { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.replies-container { display: flex; flex-direction: column; gap: 16px; margin-left: 72px; margin-top: -10px; border-left: var(--border-thick); padding-left: 20px; }
+.replies-container .comment-item { border-bottom: none; padding-bottom: 8px; }
+.replies-container .comment-avatar { width: 44px; height: 44px; }
+.empty-data-notice { padding: 32px; color: var(--color-text-main); font-size: 0.95rem; font-weight: 900; text-align: center; text-transform: uppercase; border: var(--border-thick); border-radius: var(--radius-md); background: var(--color-surface); display: flex; flex-direction: column; align-items: center; gap: 16px; box-shadow: var(--shadow-solid-sm); }
+.modal-notifications { display: none; flex-direction: column; background: var(--color-surface); width: 90%; max-width: 480px; border-radius: var(--radius-lg); padding: 32px 24px; box-shadow: var(--shadow-solid); z-index: 10000; position: relative; max-height: 75vh; border: var(--border-thick); }
+.kinetic-overlay-navigation.is-notif .modal-notifications { display: flex; }
+.notif-list-container { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; margin-top: 16px; padding-right: 6px; }
+.notif-list-container::-webkit-scrollbar { display: none; }
+.notif-item { display: flex; gap: 16px; padding: 20px; background: var(--gray-light); border: var(--border-thick); border-radius: var(--radius-md); }
+.notif-icon { width: 48px; height: 48px; border-radius: var(--radius-md); background: var(--color-surface); border: 2px solid var(--color-border); color: var(--color-text-main); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; box-shadow: var(--shadow-solid-sm); }
+.notif-text { font-size: 0.9rem; font-weight: 800; color: var(--color-text-main); line-height: 1.5; text-transform: uppercase; }
+.notif-time { font-size: 0.75rem; font-weight: 900; color: var(--color-text-muted); margin-top: 8px; text-transform: uppercase; }
+.application-footer-block { text-align: center; margin-top: auto; padding: 32px 0 20px; }
+.footer-primary-text { font-size: 1rem; color: var(--color-text-main); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+.footer-secondary-text { font-size: 0.8rem; color: var(--color-text-muted); font-weight: 900; margin-top: 8px; text-transform: uppercase; background: var(--color-surface); display: inline-block; padding: 6px 14px; border-radius: var(--radius-pill); border: 2px solid var(--color-border); box-shadow: var(--shadow-solid-sm); }
+.toast-notification-float { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(50px); background: var(--color-inverse-bg); color: var(--color-inverse-text); padding: 16px 28px; border-radius: var(--radius-pill); font-size: 0.95rem; font-weight: 900; border: var(--border-thick); box-shadow: var(--shadow-solid); z-index: 999999; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1); display: flex; align-items: center; gap: 12px; white-space: nowrap; text-transform: uppercase; }
+.toast-notification-float.is-shown { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
+.toast-success-style { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.toast-err-style { background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); }
+audio { display: none; }
+.manga-reader-panel { background: var(--color-surface); border-radius: var(--radius-lg); border: var(--border-thick); box-shadow: var(--shadow-solid); display: flex; flex-direction: column; overflow: hidden; }
+.reader-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: var(--gray-light); border-bottom: var(--border-thick); }
+.reader-title-text { font-size: 1.2rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; }
+.reader-btn-nav { background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); padding: 12px 20px; border-radius: var(--radius-pill); font-weight: 900; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; gap: 8px; text-transform: uppercase; box-shadow: var(--shadow-solid-sm); }
+.reader-btn-nav:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+.reader-btn-nav:not(:disabled):active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.image-canvas-container { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 400px; background: var(--color-bg-base); border-bottom: var(--border-thick); }
+.manhwa-page-img { width: 100%; max-width: 768px; display: block; object-fit: contain; background: var(--color-bg-base); border-bottom: 2px solid var(--color-border); }
+.reader-bottom-nav { display: flex; justify-content: space-between; padding: 24px; background: var(--gray-light); }
+.loader-centric { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 40px; color: var(--color-text-main); font-size: 1rem; font-weight: 900; text-transform: uppercase; text-align: center; }
+.loader-centric i { font-size: 3.5rem; }
+.pagination-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 24px; flex-wrap: wrap; width: 100%; }
+.page-btn { background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); }
+.page-btn.active { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.page-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.page-btn.next-prev { width: auto; padding: 0 20px; text-transform: uppercase; }
+</style>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>
+window._SaurusAuth = null;
+</script>
+<style id="Saurus-auth-gate-style">
+#Saurus-auth-gate { position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--color-bg-base); gap: 24px; padding: 40px 24px; text-align: center; }
+#Saurus-auth-gate .gate-icon { font-size: 5rem; color: var(--color-text-main); animation: gate-bounce 1.2s ease-in-out infinite alternate; }
+@keyframes gate-bounce { from { transform: translateY(0) rotate(-5deg); } to { transform: translateY(-16px) rotate(5deg); } }
+#Saurus-auth-gate .gate-title { font-size: 1.6rem; font-weight: 900; color: var(--color-inverse-text); text-transform: uppercase; background: var(--color-inverse-bg); padding: 16px 28px; border-radius: var(--radius-pill); border: var(--border-thick); box-shadow: var(--shadow-solid-sm); }
+#Saurus-auth-gate .gate-sindiran { font-size: 0.95rem; color: var(--color-text-main); font-weight: 900; max-width: 320px; line-height: 1.6; text-transform: uppercase; background: var(--color-surface); padding: 20px; border-radius: var(--radius-md); border: var(--border-thick); box-shadow: var(--shadow-solid-sm); }
+#Saurus-auth-gate .gate-btn { margin-top: 12px; padding: 18px 36px; border-radius: var(--radius-pill); border: var(--border-thick); background: var(--color-surface); color: var(--color-text-main); font-size: 1rem; font-weight: 900; cursor: pointer; box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; gap: 12px; text-transform: uppercase; }
+#Saurus-auth-gate .gate-btn:active { transform: translate(4px, 4px); box-shadow: var(--shadow-active); background: var(--gray-light); }
+#Saurus-auth-gate .gate-sub { font-size: 0.8rem; color: var(--color-text-main); font-weight: 900; text-transform: uppercase; margin-top: 8px; background: var(--color-surface); border: 2px solid var(--color-border); padding: 6px 16px; border-radius: var(--radius-pill); }
+</style>
+<style id="pwa-install-style">
+#pwa-install-banner { display: none; position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 99999; padding: 24px; background: var(--color-surface); border: var(--border-thick); border-radius: var(--radius-lg); box-shadow: var(--shadow-solid); animation: pwaSlideUp 0.4s ease; }
+#pwa-install-banner.pwa-visible { display: flex; align-items: center; gap: 16px; }
+@media (min-width: 600px) { #pwa-install-banner { max-width: 552px; left: 50%; transform: translateX(-50%); } }
+@keyframes pwaSlideUp { from { transform: translateX(-50%) translateY(100%); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+.pwa-icon-wrap { width: 56px; height: 56px; flex-shrink: 0; background: var(--color-inverse-bg); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; border: var(--border-thick); box-shadow: var(--shadow-solid-sm); }
+.pwa-icon-wrap i { font-size: 32px; color: var(--color-inverse-text); }
+.pwa-text-wrap { flex: 1; min-width: 0; }
+.pwa-text-title { font-size: 1.1rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pwa-text-sub { font-size: 0.85rem; color: var(--color-text-muted); font-weight: 800; margin-top: 4px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pwa-btn-install { flex-shrink: 0; padding: 14px 24px; background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); border-radius: var(--radius-pill); font-size: 0.9rem; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); }
+.pwa-btn-install:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.pwa-btn-close { flex-shrink: 0; width: 48px; height: 48px; background: var(--gray-light); border: var(--border-thick); border-radius: 50%; color: var(--color-text-main); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s, box-shadow 0.1s; box-shadow: var(--shadow-solid-sm); }
+.pwa-btn-close:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+</style>
+<script>
+(function(){
+var t = localStorage.getItem('Saurus-theme');
+var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: var(--color-bg-base, #121212) !important; }
+</style>
+</head>
+<body>
+<div id="Saurus-auth-gate" style="display:none;">
+<div class="gate-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 256 256" fill="currentColor"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM112,56a32,32,0,0,1,64,0V80H112Zm96,152H48V96H208V208Zm-48-56a16,16,0,1,1-16-16A16,16,0,0,1,160,152Z"></path></svg>
+</div>
+<div class="gate-title">HARUS LOGIN</div>
+<div class="gate-sindiran" id="gate-sindiran-text">MEMUAT SISTEM...</div>
+<button class="gate-btn" onclick="window.location.href='/profile'">
+<i class="ph-bold ph-sign-in"></i> LOGIN / DAFTAR
+</button>
+<div class="gate-sub">GRATIS, GA RIBET</div>
+</div>
+<script>
+(function() {
+var msgs = ["Baca manhwa butuh akun.", "Login dulu bro.", "Belum login nih.", "Masuk dulu.", "Akun dibutuhin buat baca."];
+document.getElementById('gate-sindiran-text').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+})();
+</script>
+<div class="global-background-layer"></div>
+<div id="toast-notify" class="toast-notification-float"></div>
+<audio id="audio-background-engine" loop preload="auto">
+<source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg">
+</audio>
+<div class="app-viewport">
+<div class="top-navigation-cluster">
+<button class="kinetic-hamburger-btn" id="btn-trigger-menu">
+<span class="kinetic-line line-top"></span>
+<span class="kinetic-line line-mid"></span>
+<span class="kinetic-line line-bot"></span>
+</button>
+<div class="brand-logotype-header">API <span class="animated-gradient-text">Saurus</span></div>
+<div class="cluster-actions">
+<button class="audio-control-interactive" id="btn-theme-toggle">
+<i id="theme-icon" class="ph-bold ph-moon"></i>
+</button>
+<button class="audio-control-interactive" id="btn-notif-trigger">
+<i class="ph-bold ph-bell"></i>
+<div class="notif-badge-dot" id="notif-badge"></div>
+</button>
+<button class="audio-control-interactive" id="btn-trigger-audio">
+<i id="audio-state-icon" class="ph-bold ph-speaker-slash"></i>
+</button>
+</div>
+</div>
+<div class="kinetic-overlay-navigation" id="navigation-overlay-layer">
+<div class="navigation-menu-card">
+<div class="nav-header-box">
+<div class="nav-header-title">MENU UTAMA</div>
+<button class="btn-close-sidebar" id="btn-close-nav"><i class="ph-bold ph-x"></i></button>
+</div>
+<div class="sidebar-promo-banner">
+<div class="sidebar-promo-title">PERPUSTAKAAN KOMIK</div>
+<div class="sidebar-promo-desc">AKSES LITERASI VISUAL MANHWA KOREA TANPA DISTORSI KOMERSIAL.</div>
+</div>
+<div class="navigation-menu-header">NAVIGASI SISTEM</div>
+<div class="nav-links-stagger">
+<a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> BERANDA</a>
+<a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> PROFIL & KUNCI</a>
+<a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> DOKUMENTASI</a>
+<a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> REPO SNIPPET</a>
+<a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> NONTON ANIME</a>
+<a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> NONTON DONGHUA</a>
+<a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> BACA MANGA</a>
+<a href="/manhwa" class="navigation-route-link route-active"><i class="ph-bold ph-books"></i> BACA MANHWA</a>
+<a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> NONTON FILM</a>
+<a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+<a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+<a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+<a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> CLAIM PANEL</a>
+<a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> UNDUH APK</a>
+<a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> MEDIA HOSTER</a>
+<a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+</div>
+</div>
+</div>
+<div class="kinetic-overlay-navigation" id="notification-overlay">
+<div class="modal-notifications">
+<div class="panel-title-header" style="border:none; justify-content:center; padding-bottom:0;"><i class="ph-fill ph-bell-ringing"></i> NOTIFIKASI</div>
+<div class="notif-list-container" id="notif-list-container">
+<div class="empty-data-notice">MEMUAT PEMBERITAHUAN...</div>
+</div>
+<button class="btn-action-secondary" id="btn-close-notif" style="margin-top: 20px;">TUTUP</button>
+</div>
+</div>
+<div class="horizontal-tabs-container" id="main-tabs-nav">
+<button class="h-tab-btn is-active" data-target="explore"><i class="ph-bold ph-compass"></i> EKSPLOR</button>
+<button class="h-tab-btn" data-target="search"><i class="ph-bold ph-magnifying-glass"></i> CARI</button>
+<button class="h-tab-btn" data-target="favorites"><i class="ph-bold ph-heart"></i> FAVORIT</button>
+</div>
+<div id="main-explore-view" style="display:flex; flex-direction:column; gap:24px;">
+<div class="main-content-panel">
+<div class="panel-title-header"><i class="ph-fill ph-clock-counter-clockwise"></i> UPDATE TERBARU</div>
+<div class="manhwa-list-grid" id="grid-recent">
+<div class="empty-data-notice" style="grid-column: 1 / -1;"><i class="ph-bold ph-spinner ph-spin" style="font-size: 32px;"></i><br>MEMINDAI SINKRONISASI TERBARU...</div>
+</div>
+</div>
+<div class="main-content-panel">
+<div class="panel-title-header"><i class="ph-fill ph-fire"></i> KATALOG POPULER</div>
+<div class="genre-chips-row" id="genre-chips">
+<button class="genre-chip is-active" data-genre="">SEMUA</button>
+<button class="genre-chip" data-genre="Romance">ROMANCE</button>
+<button class="genre-chip" data-genre="Action">ACTION</button>
+<button class="genre-chip" data-genre="Fantasy">FANTASY</button>
+<button class="genre-chip" data-genre="Drama">DRAMA</button>
+<button class="genre-chip" data-genre="Comedy">COMEDY</button>
+<button class="genre-chip" data-genre="Thriller">THRILLER</button>
+<button class="genre-chip" data-genre="Slice of Life">SLICE OF LIFE</button>
+</div>
+<div class="manhwa-list-grid" id="grid-popular"></div>
+</div>
+</div>
+<div id="main-search-view" style="display:none; flex-direction:column; gap:24px;">
+<div class="main-content-panel">
+<div class="panel-title-header"><i class="ph-fill ph-magnifying-glass"></i> PENCARIAN MANHWA</div>
+<div class="search-wrapper">
+<i class="ph-bold ph-magnifying-glass search-icon-absolute"></i>
+<input type="text" id="input-mw-search" class="search-input-field" placeholder="KETIK JUDUL MANHWA..." autocomplete="off">
+</div>
+</div>
+<div id="search-results-panel" class="main-content-panel" style="display:none;">
+<div class="panel-title-header"><i class="ph-fill ph-list-bullets"></i> HASIL PENCARIAN</div>
+<div class="manhwa-list-grid" id="grid-search"></div>
+</div>
+</div>
+<div id="main-favorites-view" style="display:none; flex-direction:column; gap:24px;">
+<div class="main-content-panel">
+<div class="panel-title-header"><i class="ph-fill ph-heart"></i> KOLEKSI FAVORIT</div>
+<div class="manhwa-list-grid" id="grid-favorites">
+<div class="empty-data-notice" style="grid-column: 1 / -1;">KATALOG PRIVAT BELUM DIISI.</div>
+</div>
+</div>
+</div>
+<div id="manhwa-detail-view" style="display:none; flex-direction:column; gap:24px;">
+<div class="action-bar-row">
+<button id="btn-back-detail" class="btn-action-secondary">
+<i class="ph-bold ph-arrow-left"></i> KEMBALI
+</button>
+<button id="btn-toggle-favorite" class="btn-action-highlight">
+<i class="ph-bold ph-heart" id="icon-fav"></i> <span id="text-fav">SIMPAN KARYA</span>
+</button>
+</div>
+<div class="detail-banner-hero">
+<img id="detail-banner-bg" class="detail-banner-bg" src="">
+<div class="detail-banner-content">
+<img id="detail-banner-cover" class="detail-banner-cover" src="">
+<div class="detail-banner-text">
+<div id="detail-banner-title" class="detail-banner-title"></div>
+<div id="detail-banner-tags" class="detail-banner-tags"></div>
+<div id="detail-meta-extra" style="font-size:0.75rem; color:var(--color-text-main); font-weight:900; margin-top:4px; text-transform:uppercase; background:var(--color-surface); padding:4px 10px; border-radius:var(--radius-pill); border:2px solid var(--color-border); align-self:flex-start;"></div>
+</div>
+</div>
+</div>
+<div class="main-content-panel" style="padding: 24px;">
+<div class="panel-title-header" style="font-size: 1.1rem; border-bottom: none; padding-bottom: 0;">
+<i class="ph-fill ph-list-numbers"></i> NAVIGASI BAB (CHAPTER)
+</div>
+<div id="chapter-list-container" class="manhwa-chapter-grid-ui" style="margin-top: 16px;"></div>
+</div>
+<div class="main-content-panel">
+<div class="panel-title-header" style="font-size: 1.2rem;"><i class="ph-fill ph-scroll"></i> DESKRIPSI SINOPSIS</div>
+<div id="detail-synopsis" class="synopsis-box"></div>
+</div>
+<div class="main-content-panel">
+<div class="panel-title-header" style="font-size: 1.2rem;"><i class="ph-fill ph-chats"></i> DISKUSI TERPUSAT</div>
+<div class="comment-input-area">
+<div class="replying-indicator" id="reply-indicator" style="display:none;">
+MEMBALAS <span id="reply-target-name"></span>
+<button class="btn-cancel-reply" id="btn-cancel-reply"><i class="ph-bold ph-x"></i></button>
+</div>
+<textarea id="inp-comment" class="comment-textarea" placeholder="KONTRIBUSIKAN PEMIKIRAN ANDA..."></textarea>
+<div class="comment-action-bar">
+<button class="btn-send-comment" id="btn-post-comment">
+<i class="ph-bold ph-paper-plane-right"></i> PUBLIKASI
+</button>
+</div>
+</div>
+<div class="comments-container" id="comments-list">
+<div class="empty-data-notice">SINKRONISASI LOG PERCAKAPAN...</div>
+</div>
+</div>
+</div>
+<div id="manhwa-reader-view" style="display:none; flex-direction:column; gap:24px;">
+<div class="manhwa-reader-panel">
+<div class="reader-header">
+<button id="btn-close-reader" class="reader-btn-nav" style="border:none; padding:8px; background:transparent;"><i class="ph-bold ph-x" style="font-size:1.4rem;"></i></button>
+<div class="reader-title-text" id="reader-chapter-title">MEMUAT...</div>
+<div style="width: 32px;"></div>
+</div>
+<div id="reader-canvas" class="image-canvas-container">
+<div class="loader-centric"><i class="ph-bold ph-spinner ph-spin"></i><span>EKSTRAKSI RASTER HIERARKI GAMBAR...</span></div>
+</div>
+<div class="reader-bottom-nav">
+<button id="btn-prev-chapter" class="reader-btn-nav"><i class="ph-bold ph-caret-left"></i> SEBELUMNYA</button>
+<button id="btn-next-chapter" class="reader-btn-nav">SELANJUTNYA <i class="ph-bold ph-caret-right"></i></button>
+</div>
+</div>
+</div>
+<div class="application-footer-block">
+<div class="footer-primary-text">Saurus REST API V2.0</div>
+<div class="footer-secondary-text">SERVERLESS ENGINE ARCHITECTURE</div>
+</div>
+</div>
+<script>
+function unwrapProxyUrl(urlStr) {
+if (!urlStr) return urlStr;
+if (urlStr.includes('/api/image-proxy') || urlStr.includes('/api/manga-proxy')) {
+try {
+const p = new URLSearchParams(urlStr.split('?')[1]);
+const t = p.get('url');
+if (t) return t;
+} catch(e) {}
+}
+return urlStr;
+}
+
+function initTheme() {
+const isDark = localStorage.getItem('Saurus_theme') === 'dark';
+if (isDark) document.body.classList.add('dark-theme');
+const icon = document.getElementById('theme-icon');
+if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+}
+initTheme();
+document.getElementById('btn-theme-toggle').onclick = () => {
+const isDark = document.body.classList.toggle('dark-theme');
+localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+};
+function getManhwaTitle(item, fallback = 'TANPA JUDUL') {
+if (!item || typeof item !== 'object') return fallback;
+if (item.attributes && typeof item.attributes.title === 'object') {
+const t = item.attributes.title;
+if (t.en) return t.en;
+if (t.id) return t.id;
+if (t['ja-ro']) return t['ja-ro'];
+if (t.ko) return t.ko;
+if (t['ko-ro']) return t['ko-ro'];
+if (Object.values(t).length > 0) return Object.values(t)[0];
+}
+if (item.attributes && typeof item.attributes.title === 'string') {
+return item.attributes.title;
+}
+const candidates = [
+item.title, item.name, item.judul, item.original_title,
+item.displayTitle, item.animeTitle, item.mangaTitle,
+item.series_title, item.titles?.id, item.titles?.en, item.titles?.ko
+];
+for (const value of candidates) {
+if (typeof value === 'string' && value.trim()) return value.trim();
+}
+return fallback;
+}
+function processUrlThroughProxy(rawUrlString) {
+if (!rawUrlString || rawUrlString.includes('placehold.co') || rawUrlString.includes('catbox.moe') || rawUrlString.includes('mangadex.org') || rawUrlString.includes('/api/manga-proxy') || rawUrlString.includes('/api/image-proxy') || rawUrlString.includes('/Saurusn/')) return rawUrlString;
+return `/api/image-proxy?url=${encodeURIComponent(rawUrlString)}`;
+}
+function getManhwaCover(item) {
+if (item.relationships && Array.isArray(item.relationships)) {
+const coverRel = item.relationships.find(r => r.type === 'cover_art');
+if (coverRel && coverRel.attributes && coverRel.attributes.fileName) {
+return `https://uploads.mangadex.org/covers/${item.id}/${coverRel.attributes.fileName}.512.jpg`;
+}
+}
+let url = item.thumbnail || item.thumb || item.cover || item.image || item.attributes?.cover || item.attributes?.image;
+if (!url) return 'https://placehold.co/400x600/FFFFFF/000000?text=NO+POSTER&font=Poppins';
+url = unwrapProxyUrl(url);
+if (url.includes('mangadex.org')) return url;
+if (!url.includes('placehold.co') && !url.includes('catbox.moe') && !url.includes('/api/image-proxy')) {
+return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+}
+return url;
+}
+function escHtmlStr(s) {
+return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+const FB = {
+async _token() {
+try {
+const u = firebase.auth().currentUser;
+return u ? await u.getIdToken() : null;
+} catch { return null; }
+},
+async _authHeaders() {
+const t = await this._token();
+return t ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }
+: { 'Content-Type': 'application/json' };
+},
+async getComments(col, slug) {
+const r = await fetch(`/api/fb/comments?collection=${col}&slug=${encodeURIComponent(slug)}`);
+return r.json();
+},
+async postComment(col, slug, uid, name, photo, text, parentId, replyToName) {
+const r = await fetch('/api/fb/comment', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ collection: col, slug, uid, name, photo, text, parentId, replyToName })
+});
+const data = await r.json();
+if (!data.ok) throw new Error(data.message || 'GAGAL MENGIRIM KOMENTAR.');
+return data;
+},
+async toggleLike(col, slug, cid, uid, remove) {
+const r = await fetch('/api/fb/like', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ collection: col, slug, cid, remove, uid })
+});
+return r.json();
+},
+async deleteComment(col, slug, cid) {
+const r = await fetch('/api/fb/delete-comment', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ collection: col, slug, cid, uid: userIdent.uid })
+});
+return r.json();
+},
+async getNotifs(uid) {
+const h = await this._authHeaders();
+const r = await fetch(`/api/fb/notif?uid=${encodeURIComponent(uid)}`, { headers: h });
+return r.json();
+},
+async pushNotif(targetUid, msg, type) {
+await fetch('/api/fb/push-notif', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ targetUid, msg, type, uid: userIdent.uid })
+}).catch(() => {});
+},
+async getUserProfile(uid) {
+const h = await this._authHeaders();
+const r = await fetch(`/api/fb/user-profile?uid=${encodeURIComponent(uid)}`, { headers: h });
+return r.json();
+},
+async upsertUser(uid, data) {
+await fetch('/api/fb/user-upsert', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ uid, ...data })
+}).catch(() => {});
+}
+};
+let userIdent = {
+uid: localStorage.getItem('Saurus_anon_uid') || crypto.randomUUID(),
+name: 'PENGGUNA RAHASIA',
+photo: 'https://files.catbox.moe/9y8310.jpg'
+};
+if (!localStorage.getItem('Saurus_anon_uid')) localStorage.setItem('Saurus_anon_uid', userIdent.uid);
+let unsubNotif = null;
+function bindGlobalIdentity() {
+if (typeof auth !== 'undefined' && auth.currentUser) {
+FB.getUserProfile(auth.currentUser.uid).then(res => {
+if (res.ok && res.data) {
+if (res.data.name) userIdent.name = res.data.name;
+if (res.data.photoURL) userIdent.photo = res.data.photoURL;
+}
+}).catch(() => {});
+}
+if (unsubNotif) unsubNotif();
+async function fetchNotifications() {
+if (!userIdent?.uid) return;
+try {
+const res = await FB.getNotifs(userIdent.uid);
+if (!res.ok) return;
+const snap = { empty: res.data.length === 0, docs: res.data.map(d => ({ id: d.id, data: () => d })) };
+(function(snap) {
+const list = document.getElementById('notif-list-container');
+const badge = document.getElementById('notif-badge');
+let hasUnread = false;
+if (snap.empty) {
+list.innerHTML = '<div class="empty-data-notice">TIDAK ADA PEMBERITAHUAN BARU.</div>';
+badge.style.display = 'none';
+return;
+}
+list.innerHTML = '';
+snap.docs.forEach(doc => {
+const d = doc.data();
+if (!d.read) hasUnread = true;
+const tsStr = d.ts ? new Date(d.ts).toLocaleString('id-ID', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'BARU SAJA';
+const el = document.createElement('div');
+el.className = 'notif-item';
+el.innerHTML = `
+<div class="notif-icon"><i class="ph-bold ${d.type === 'like' ? 'ph-heart' : 'ph-chat-circle'}"></i></div>
+<div style="flex:1;">
+<div class="notif-text">${d.msg}</div>
+<div class="notif-time">${tsStr}</div>
+</div>
+`;
+list.appendChild(el);
+});
+badge.style.display = hasUnread ? 'block' : 'none';
+})(snap);
+} catch(e) {}
+}
+fetchNotifications();
+setInterval(fetchNotifications, 6000);
+}
+if (typeof auth !== 'undefined') {
+auth.onAuthStateChanged(u => {
+if (u) {
+userIdent.uid = u.uid;
+userIdent.name = u.displayName || 'PENGGUNA RAHASIA';
+userIdent.photo = u.photoURL || 'https://files.catbox.moe/9y8310.jpg';
+}
+bindGlobalIdentity();
+});
+} else {
+bindGlobalIdentity();
+}
+const notifOverlay = document.getElementById('notification-overlay');
+document.getElementById('btn-notif-trigger').onclick = () => {
+notifOverlay.classList.add('is-notif', 'is-active');
+document.getElementById('notif-badge').style.display = 'none';
+if (typeof db !== 'undefined') {
+FB.getNotifs(userIdent.uid).then(res => {
+if (res.ok) {
+const unread = res.data.filter(n => !n.read);
+if (unread.length > 0) document.getElementById('notif-badge').style.display = 'block';
+}
+}).catch(() => {});
+}
+};
+document.getElementById('btn-close-notif').onclick = () => notifOverlay.classList.remove('is-notif', 'is-active');
+notifOverlay.onclick = (e) => { if(e.target === notifOverlay) notifOverlay.classList.remove('is-notif', 'is-active'); };
+const toastRef = document.getElementById('toast-notify');
+let toastTimer = null;
+function showToast(msg, type = 'success') {
+toastRef.innerHTML = type === 'success' ? `<i class="ph-bold ph-check-circle"></i> ${msg}` : `<i class="ph-bold ph-warning"></i> ${msg}`;
+toastRef.className = 'toast-notification-float is-shown ' + (type === 'success' ? 'toast-success-style' : 'toast-err-style');
+if (toastTimer) clearTimeout(toastTimer);
+toastTimer = setTimeout(() => toastRef.className = 'toast-notification-float', 2500);
+}
+const triggerMenuBtn = document.getElementById('btn-trigger-menu');
+const navOverlayLayer = document.getElementById('navigation-overlay-layer');
+triggerMenuBtn.addEventListener('click', () => {
+const isAct = triggerMenuBtn.classList.contains('is-active');
+if (isAct) {
+triggerMenuBtn.classList.remove('is-active');
+navOverlayLayer.classList.remove('is-active');
+} else {
+triggerMenuBtn.classList.add('is-active');
+navOverlayLayer.classList.add('is-active');
+}
+});
+navOverlayLayer.addEventListener('click', (ev) => {
+if (ev.target === navOverlayLayer) {
+triggerMenuBtn.classList.remove('is-active');
+navOverlayLayer.classList.remove('is-active');
+}
+});
+document.getElementById('btn-close-nav').addEventListener('click', () => {
+triggerMenuBtn.classList.remove('is-active');
+navOverlayLayer.classList.remove('is-active');
+});
+const BGM_STORE_KEY = 'Saurus_bgm_playing';
+const audioCore = document.getElementById('audio-background-engine');
+const btnAudioTog = document.getElementById('btn-trigger-audio');
+const iconAudioState = document.getElementById('audio-state-icon');
+function syncAudioVisualState(isPlaying) {
+if (isPlaying) {
+btnAudioTog.classList.remove('is-muted');
+iconAudioState.className = 'ph-bold ph-speaker-high';
+} else {
+btnAudioTog.classList.add('is-muted');
+iconAudioState.className = 'ph-bold ph-speaker-slash';
+}
+}
+if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {
+document.addEventListener('click', function resumePlayEvent() {
+if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {});
+}
+document.removeEventListener('click', resumePlayEvent);
+}, { once: true });
+});
+}
+btnAudioTog.addEventListener('click', () => {
+if (audioCore.paused) {
+audioCore.play().then(() => {
+localStorage.setItem(BGM_STORE_KEY, '1');
+syncAudioVisualState(true);
+}).catch(() => {});
+} else {
+audioCore.pause();
+localStorage.setItem(BGM_STORE_KEY, '0');
+syncAudioVisualState(false);
+}
+});
+const VIEWS_MAP = { explore: 'main-explore-view', search: 'main-search-view', favorites: 'main-favorites-view' };
+let currentTabState = 'explore';
+document.querySelectorAll('.h-tab-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+if (currentTabState === btn.dataset.target) return;
+currentTabState = btn.dataset.target;
+document.querySelectorAll('.h-tab-btn').forEach(b => b.classList.remove('is-active'));
+btn.classList.add('is-active');
+Object.entries(VIEWS_MAP).forEach(([k, id]) => {
+document.getElementById(id).style.display = k === currentTabState ? 'flex' : 'none';
+});
+document.getElementById('manhwa-detail-view').style.display = 'none';
+if (currentTabState === 'favorites') renderFavoritesCatalog();
+});
+});
+function getFavs() { return JSON.parse(localStorage.getItem('Saurus_manhwa_favs') || '[]'); }
+function saveFavs(f) { localStorage.setItem('Saurus_manhwa_favs', JSON.stringify(f)); }
+function getHistory() { return JSON.parse(localStorage.getItem('Saurus_manhwa_history') || '[]'); }
+function saveToHistory(item) {
+let h = getHistory();
+h = h.filter(x => x.id !== item.id);
+h.unshift(item);
+if (h.length > 50) h.pop();
+localStorage.setItem('Saurus_manhwa_history', JSON.stringify(h));
+}
+function buildManhwaCardUI(item) {
+const titleText = getManhwaTitle(item);
+const coverSrc = getManhwaCover(item);
+const statusText = item.attributes?.status || item.status || 'ONGOING';
+const card = document.createElement('div');
+card.className = 'manhwa-card';
+card.innerHTML = `
+<div class="manhwa-badge-floating">${escHtmlStr(statusText.toUpperCase())}</div>
+<img class="manhwa-cover" src="${escHtmlStr(coverSrc)}" referrerpolicy="no-referrer">
+<div class="manhwa-info">
+<div class="manhwa-title">${escHtmlStr(titleText)}</div>
+<div class="manhwa-meta">
+<span><i class="ph-bold ph-book"></i> MANHWA</span>
+</div>
+</div>
+`;
+card.addEventListener('click', () => fetchManhwaDetailView(item.id || item.url, titleText, coverSrc, item));
+return card;
+}
+function renderFavoritesCatalog() {
+const favs = getFavs();
+const grid = document.getElementById('grid-favorites');
+grid.innerHTML = '';
+if (favs.length === 0) {
+grid.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;"><i class="ph-bold ph-folder-open" style="font-size:40px; margin-bottom:12px;"></i><br>KATALOG PRIVAT BELUM DIISI.</div>';
+return;
+}
+favs.forEach(item => {
+const card = document.createElement('div');
+card.className = 'manhwa-card';
+card.innerHTML = `
+<div class="manhwa-badge-floating" style="background:var(--color-inverse-bg); color:var(--color-inverse-text); border:2px solid var(--color-border);"><i class="ph-fill ph-heart"></i> KOLEKSI</div>
+<img class="manhwa-cover" src="${escHtmlStr(item.thumb)}" referrerpolicy="no-referrer">
+<div class="manhwa-info">
+<div class="manhwa-title">${escHtmlStr(getManhwaTitle(item))}</div>
+</div>
+`;
+card.addEventListener('click', () => fetchManhwaDetailView(item.id, getManhwaTitle(item), item.thumb, item));
+grid.appendChild(card);
+});
+}
+async function apiFetchCall(endpoint, params = {}) {
+const qs = new URLSearchParams(params).toString();
+const url = `/api/${endpoint}${qs ? '?' + qs : ''}`;
+const res = await fetch(url);
+const json = await res.json();
+if (!res.ok) throw new Error(json.message || `HTTP ${res.status}`);
+return json;
+}
+async function loadRecentManhwaUpdates() {
+const g = document.getElementById('grid-recent');
+g.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;"><i class="ph-bold ph-spinner ph-spin" style="font-size:32px;"></i><br>MELACAK ENTITAS...</div>';
+try {
+const data = await apiFetchCall('manhwa-recent');
+const items = data.data || [];
+g.innerHTML = '';
+if (!items.length) { g.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;">TIDAK ADA DATA TERBARU.</div>'; return; }
+items.slice(0, 16).forEach((item) => { g.appendChild(buildManhwaCardUI(item)); });
+} catch(e) {
+g.innerHTML = `<div class="empty-data-notice" style="grid-column: 1 / -1;">${e.message}</div>`;
+}
+}
+async function loadPopularManhwaUpdates(genre = '') {
+const g = document.getElementById('grid-popular');
+g.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;"><i class="ph-bold ph-spinner ph-spin" style="font-size:32px;"></i><br>MEMUAT ALGORITMA POPULER...</div>';
+try {
+const params = genre ? { genre } : {};
+const data = await apiFetchCall('manhwa-popular', params);
+const items = data.data || [];
+g.innerHTML = '';
+if (!items.length) { g.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;">TIDAK ADA MANHWA DITEMUKAN.</div>'; return; }
+items.forEach((item) => { g.appendChild(buildManhwaCardUI(item)); });
+} catch(e) {
+g.innerHTML = `<div class="empty-data-notice" style="grid-column: 1 / -1;">${e.message}</div>`;
+}
+}
+document.getElementById('genre-chips').addEventListener('click', e => {
+const chip = e.target.closest('.genre-chip');
+if (!chip) return;
+document.querySelectorAll('#genre-chips .genre-chip').forEach(c => c.classList.remove('is-active'));
+chip.classList.add('is-active');
+loadPopularManhwaUpdates(chip.dataset.genre);
+});
+let searchTimeoutTimer;
+document.getElementById('input-mw-search').addEventListener('input', e => {
+clearTimeout(searchTimeoutTimer);
+const q = e.target.value.trim();
+if (q.length < 2) { document.getElementById('search-results-panel').style.display = 'none'; return; }
+searchTimeoutTimer = setTimeout(() => executeManhwaSearchTransaction(q), 600);
+});
+async function executeManhwaSearchTransaction(q) {
+const panel = document.getElementById('search-results-panel');
+const grid = document.getElementById('grid-search');
+panel.style.display = 'flex';
+grid.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;"><i class="ph-bold ph-spinner ph-spin" style="font-size:32px;"></i><br>MENGEKSEKUSI MATRIKS ANALITIK...</div>';
+try {
+const data = await apiFetchCall('manhwa', { q });
+const items = data.data || [];
+grid.innerHTML = '';
+if (!items.length) {
+grid.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;">MANHWA TIDAK DIREKOGNISI OLEH PELADEN.</div>';
+return;
+}
+items.forEach((item) => { grid.appendChild(buildManhwaCardUI(item)); });
+} catch(e) {
+grid.innerHTML = `<div class="empty-data-notice" style="grid-column: 1 / -1;">${e.message}</div>`;
+}
+}
+let activeExtractionController = null;
+let currentManhwaPayloadObj = {};
+let currentManhwaSlugHash = '';
+let unsubCommentsManhwa = null;
+let replyContextManhwa = null;
+let currentChapterListArray = [];
+let currentActiveChapterIndex = -1;
+function checkManhwaFavStatus() {
+const f = getFavs();
+const idx = f.findIndex(x => x.id === currentManhwaPayloadObj.id);
+const iEl = document.getElementById('icon-fav');
+const tEl = document.getElementById('text-fav');
+const btnFav = document.getElementById('btn-toggle-favorite');
+if (idx > -1) {
+iEl.className = 'ph-fill ph-heart';
+tEl.textContent = 'TERARSIPKAN';
+btnFav.style.background = 'var(--color-surface)';
+btnFav.style.color = 'var(--color-text-main)';
+} else {
+iEl.className = 'ph-bold ph-heart';
+tEl.textContent = 'SIMPAN KARYA';
+btnFav.style.background = 'var(--color-inverse-bg)';
+btnFav.style.color = 'var(--color-inverse-text)';
+}
+}
+document.getElementById('btn-toggle-favorite').onclick = () => {
+let f = getFavs();
+const idx = f.findIndex(x => x.id === currentManhwaPayloadObj.id);
+if (idx > -1) {
+f.splice(idx, 1);
+showToast('TERMINASI DARI INDEKS FAVORIT BERHASIL.', 'success');
+} else {
+f.push(currentManhwaPayloadObj);
+showToast('INJEKSI KE DIREKTORI PERSISTENSI BERHASIL.', 'success');
+}
+saveFavs(f);
+checkManhwaFavStatus();
+};
+async function fetchManhwaDetailView(targetIdString, fallbackTitleText, fallbackImgSrc, rawItemData) {
+document.getElementById('main-explore-view').style.display = 'none';
+document.getElementById('main-search-view').style.display = 'none';
+document.getElementById('main-favorites-view').style.display = 'none';
+document.getElementById('manhwa-detail-view').style.display = 'flex';
+document.getElementById('main-tabs-nav').style.display = 'none';
+clearManhwaReplyContext();
+currentManhwaPayloadObj = { id: targetIdString, title: fallbackTitleText, thumb: fallbackImgSrc };
+currentManhwaSlugHash = String(targetIdString).replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+currentChapterListArray = [];
+currentActiveChapterIndex = -1;
+checkManhwaFavStatus();
+saveToHistory(currentManhwaPayloadObj);
+const refinedTitle = getManhwaTitle(rawItemData) || fallbackTitleText;
+const refinedCover = getManhwaCover(rawItemData) || fallbackImgSrc;
+document.getElementById('detail-banner-title').textContent = refinedTitle;
+document.getElementById('detail-banner-cover').src = refinedCover;
+document.getElementById('detail-banner-bg').src = refinedCover;
+const attrs = rawItemData?.attributes || {};
+const desc = attrs.description || {};
+const synopsisText = (desc.en || desc.id || desc.ko || Object.values(desc)[0] || 'MANIFESTASI PLOTLINE NARATIF TIDAK DIIMPLEMENTASIKAN OLEH DISTRIBUTOR PRIMER.').replace(/\[.*?\]/g, '').trim();
+document.getElementById('detail-synopsis').textContent = synopsisText;
+const metaParts = [];
+if (attrs.year) metaParts.push(attrs.year);
+if (attrs.status) metaParts.push(attrs.status.toUpperCase());
+if (attrs.lastChapter) metaParts.push(`CH.${attrs.lastChapter}`);
+document.getElementById('detail-meta-extra').textContent = metaParts.join(' • ');
+const tagsContainer = document.getElementById('detail-banner-tags');
+tagsContainer.innerHTML = '';
+if (attrs.tags) {
+attrs.tags.slice(0, 6).forEach(tag => {
+const tagName = tag.attributes?.name?.en;
+if(tagName) {
+const t = document.createElement('span');
+t.className = 'detail-tag';
+t.textContent = tagName;
+tagsContainer.appendChild(t);
+}
+});
+}
+const chGrid = document.getElementById('chapter-list-container');
+chGrid.innerHTML = '<div class="loader-centric" style="grid-column: 1 / -1; padding:10px;"><i class="ph-bold ph-spinner ph-spin"></i><span>SINKRONISASI ARSITEKTUR DIREKTORI BAB...</span></div>';
+initManhwaCommentsListener();
+await loadManhwaChaptersExtraction(targetIdString);
+window.scrollTo(0, 0);
+}
+async function loadManhwaChaptersExtraction(manhwaIdTarget) {
+const chGrid = document.getElementById('chapter-list-container');
+try {
+const data = await apiFetchCall('manhwa-chapters', { id: manhwaIdTarget });
+currentChapterListArray = data.data || [];
+chGrid.innerHTML = '';
+if (!currentChapterListArray.length) {
+chGrid.innerHTML = '<div class="loader-centric" style="grid-column: 1 / -1; padding:10px;"><i class="ph-bold ph-warning-circle" style="animation:none;"></i><span>SIRKUIT ARRAY BAB TERIDENTIFIKASI HAMPA.</span></div>';
+return;
+}
+currentChapterListArray.forEach((ch, idx) => {
+const btn = document.createElement('button');
+btn.className = 'btn-manhwa-chapter';
+const attrs = ch.attributes;
+let chNumberText = attrs.chapter ? `BAB ${attrs.chapter}` : `VOL ${attrs.volume || '?'}`;
+let chDateText = attrs.publishAt ? new Date(attrs.publishAt).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'2-digit' }) : '';
+btn.innerHTML = `<span style="font-size:0.95rem;"><i class="ph-bold ph-book-open" style="margin-bottom:4px; font-size:1.4rem; display:block;"></i> ${escHtmlStr(chNumberText)}</span> <span style="font-size:0.7rem; color:var(--color-text-muted);">${escHtmlStr(chDateText)}</span>`;
+btn.onclick = () => initManhwaReaderContext(idx);
+chGrid.appendChild(btn);
+});
+} catch(e) {
+chGrid.innerHTML = `<div class="loader-centric" style="grid-column: 1 / -1; padding:10px;"><i class="ph-bold ph-warning-circle" style="animation:none;"></i><span>GAGAL MERESOLUSI POHON ARRAY.</span></div>`;
+}
+}
+document.getElementById('btn-back-detail').addEventListener('click', () => {
+if (unsubCommentsManhwa) { unsubCommentsManhwa(); unsubCommentsManhwa = null; }
+document.getElementById('manhwa-detail-view').style.display = 'none';
+document.getElementById('main-tabs-nav').style.display = 'flex';
+if (currentTabState === 'favorites') {
+document.getElementById('main-favorites-view').style.display = 'flex';
+renderFavoritesCatalog();
+} else if (currentTabState === 'search') {
+document.getElementById('main-search-view').style.display = 'flex';
+} else {
+document.getElementById('main-explore-view').style.display = 'flex';
+}
+});
+async function initManhwaReaderContext(targetIndexParameter) {
+if (targetIndexParameter < 0 || targetIndexParameter >= currentChapterListArray.length) return;
+if (activeExtractionController) activeExtractionController.abort();
+activeExtractionController = new AbortController();
+currentActiveChapterIndex = targetIndexParameter;
+const targetChapterObject = currentChapterListArray[targetIndexParameter];
+document.getElementById('manhwa-detail-view').style.display = 'none';
+document.getElementById('manhwa-reader-view').style.display = 'flex';
+const canvasContainer = document.getElementById('reader-canvas');
+const titleText = document.getElementById('reader-chapter-title');
+const btnPrev = document.getElementById('btn-prev-chapter');
+const btnNext = document.getElementById('btn-next-chapter');
+titleText.textContent = targetChapterObject.attributes?.chapter ? `BAB ${targetChapterObject.attributes.chapter}` : 'MEMUAT KONTEKS...';
+canvasContainer.innerHTML = '<div class="loader-centric"><i class="ph-bold ph-spinner ph-spin"></i><span>EKSTRAKSI RASTER HIERARKI GAMBAR...</span></div>';
+btnPrev.disabled = (targetIndexParameter >= currentChapterListArray.length - 1);
+btnNext.disabled = (targetIndexParameter <= 0);
+window.scrollTo(0, 0);
+try {
+const res = await fetch(`/api/manhwa-render?chapter_id=${encodeURIComponent(targetChapterObject.id)}`, { signal: activeExtractionController.signal });
+const json = await res.json();
+const imagesTargetArray = json.pages || json.pagesSaver || [];
+if (!json.ok || !imagesTargetArray || imagesTargetArray.length === 0) {
+canvasContainer.innerHTML = '<div class="loader-centric"><i class="ph-bold ph-warning-circle" style="animation:none;"></i><span>RESOLUSI RASTER HOST MENGALAMI KEGAGALAN.</span></div>';
+return;
+}
+canvasContainer.innerHTML = '';
+imagesTargetArray.forEach((imgUrl, i) => {
+const directUrl = unwrapProxyUrl(imgUrl);
+const finalUrl = directUrl.includes('mangadex.org') ? directUrl : processUrlThroughProxy(directUrl);
+const imgEl = document.createElement('img');
+imgEl.className = 'manhwa-page-img';
+imgEl.loading = i < 3 ? 'eager' : 'lazy';
+imgEl.src = finalUrl;
+imgEl.setAttribute('referrerpolicy', 'no-referrer');
+canvasContainer.appendChild(imgEl);
+});
+} catch (e) {
+if (e.name === 'AbortError') return;
+canvasContainer.innerHTML = '<div class="loader-centric"><i class="ph-bold ph-warning-circle" style="animation:none;"></i><span>KEGAGALAN PENETRASI PAYLOAD GAMBAR EKSTERNAL.</span></div>';
+}
+}
+document.getElementById('btn-close-reader').addEventListener('click', () => {
+if (activeExtractionController) activeExtractionController.abort();
+document.getElementById('manhwa-reader-view').style.display = 'none';
+document.getElementById('manhwa-detail-view').style.display = 'flex';
+document.getElementById('reader-canvas').innerHTML = '';
+});
+document.getElementById('btn-prev-chapter').addEventListener('click', () => {
+initManhwaReaderContext(currentActiveChapterIndex + 1);
+});
+document.getElementById('btn-next-chapter').addEventListener('click', () => {
+initManhwaReaderContext(currentActiveChapterIndex - 1);
+});
+function getBlockedCommentsManhwa() { return JSON.parse(localStorage.getItem('Saurus_manhwa_blocked') || '[]'); }
+function blockCommentLocalManhwa(cid) {
+const b = getBlockedCommentsManhwa();
+if (!b.includes(cid)) { b.push(cid); localStorage.setItem('Saurus_manhwa_blocked', JSON.stringify(b)); }
+}
+function renderCommentTreeManhwa(docs) {
+const list = document.getElementById('comments-list');
+const blocked = getBlockedCommentsManhwa();
+list.innerHTML = '';
+const parents = [];
+const childrenMap = {};
+docs.forEach(doc => {
+if (blocked.includes(doc.id)) return;
+const d = doc.data();
+d.id = doc.id;
+if (d.parentId) {
+if (!childrenMap[d.parentId]) childrenMap[d.parentId] = [];
+childrenMap[d.parentId].push(d);
+} else {
+parents.push(d);
+}
+});
+if (parents.length === 0) {
+list.innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;">BELUM ADA KOMPUTASI TEKS YANG DIINISIASI.</div>';
+return;
+}
+parents.sort((a,b) => b.ts?.toMillis() - a.ts?.toMillis()).forEach(p => {
+const wrap = document.createElement('div');
+wrap.className = 'comment-thread-wrapper';
+wrap.appendChild(createCommentElementManhwa(p, false));
+if (childrenMap[p.id] && childrenMap[p.id].length > 0) {
+const cWrap = document.createElement('div');
+cWrap.className = 'replies-container';
+childrenMap[p.id].sort((a,b) => a.ts?.toMillis() - b.ts?.toMillis()).forEach(c => {
+cWrap.appendChild(createCommentElementManhwa(c, true));
+});
+wrap.appendChild(cWrap);
+}
+list.appendChild(wrap);
+});
+}
+function createCommentElementManhwa(d, isChild) {
+const el = document.createElement('div');
+el.className = 'comment-item';
+const isMine = d.uid === userIdent.uid;
+const timeStr = d.ts ? new Date(d.ts.toMillis ? d.ts.toMillis() : Date.now()).toLocaleString('id-ID', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'BARU SAJA';
+const likesArr = d.likes || [];
+const isLiked = likesArr.includes(userIdent.uid);
+const likeIcon = isLiked ? 'ph-fill ph-heart' : 'ph-bold ph-heart';
+const likeClass = isLiked ? 'btn-c-action liked' : 'btn-c-action';
+el.innerHTML = `
+<img src="${d.photo}" class="comment-avatar" onerror="this.src='https://files.catbox.moe/9y8310.jpg'">
+<div class="comment-content">
+<div class="comment-header">
+<span class="comment-author">${d.name}</span>
+<span class="comment-time">${timeStr}</span>
+</div>
+<div class="comment-text">${isChild && d.replyToName ? `<span style="color:var(--color-inverse-bg); font-weight:800;">@${d.replyToName}</span> ` : ''}${d.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+<div class="comment-actions">
+<button class="${likeClass}" onclick="toggleLikeManhwa('${d.id}', ${isLiked})"><i class="${likeIcon}"></i> ${likesArr.length || ''}</button>
+<button class="btn-c-action" onclick="setManhwaReplyContext('${isChild ? d.parentId : d.id}', '${d.name}', '${d.uid}')"><i class="ph-bold ph-chat-teardrop"></i> BALAS</button>
+${isMine 
+? `<button class="btn-c-action danger" onclick="deleteCommentManhwa('${d.id}')"><i class="ph-bold ph-trash"></i> HAPUS</button>` 
+: `<button class="btn-c-action" onclick="blockCommentUIManhwa('${d.id}')"><i class="ph-bold ph-warning-octagon"></i> BLOKIR</button>`}
+</div>
+</div>
+`;
+return el;
+}
+function initManhwaCommentsListener() {
+if (unsubCommentsManhwa) unsubCommentsManhwa();
+document.getElementById('comments-list').innerHTML = '<div class="empty-data-notice" style="grid-column: 1 / -1;"><i class="ph-bold ph-spinner ph-spin" style="font-size:32px;"></i><br>MENDEKRIPSI ANTRIAN PESAN KOMUNITAS...</div>';
+async function fetchAndRenderComments() {
+try {
+const res = await FB.getComments('manhwa_comments', currentManhwaSlugHash);
+if (res.ok) renderCommentTreeManhwa(res.data.map(d => ({ id: d.id, data: () => d })));
+} catch(e) {}
+}
+fetchAndRenderComments();
+if (window._manhwaCommentPoll) clearInterval(window._manhwaCommentPoll);
+window._manhwaCommentPoll = setInterval(fetchAndRenderComments, 5000);
+}
+function clearManhwaReplyContext() {
+replyContextManhwa = null;
+document.getElementById('reply-indicator').style.display = 'none';
+document.getElementById('inp-comment').placeholder = "KONTRIBUSIKAN PEMIKIRAN ANDA...";
+}
+window.setManhwaReplyContext = function(parentIdStringReference, authorNameTargetString, authorUidTargetString) {
+replyContextManhwa = { parentId: parentIdStringReference, replyToName: authorNameTargetString, targetUid: authorUidTargetString };
+document.getElementById('reply-indicator').style.display = 'flex';
+document.getElementById('reply-target-name').textContent = `@${authorNameTargetString}`;
+document.getElementById('inp-comment').placeholder = `SUB-ORDINAT KE @${authorNameTargetString}...`;
+document.getElementById('inp-comment').focus();
+};
+document.getElementById('btn-cancel-reply').onclick = clearManhwaReplyContext;
+async function pushNotification(targetUid, msg, type) {
+try {
+await FB.pushNotif(targetUid, msg, type);
+} catch(e) {}
+}
+document.getElementById('btn-post-comment').onclick = async () => {
+const txtArea = document.getElementById('inp-comment');
+const txt = txtArea.value.trim();
+if (!txt) return;
+if (!currentManhwaSlugHash) return showToast('BUKA HALAMAN DETAIL MANHWA TERLEBIH DAHULU.', 'err');
+document.getElementById('btn-post-comment').innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i>';
+const payload = {
+uid: userIdent.uid,
+name: userIdent.name,
+photo: userIdent.photo,
+text: txt,
+likes: [],
+ts: new Date().toISOString()
+};
+if (replyContextManhwa) {
+payload.parentId = replyContextManhwa.parentId;
+payload.replyToName = replyContextManhwa.replyToName;
+}
+try {
+await FB.postComment('manhwa_comments', currentManhwaSlugHash, payload.uid, payload.name, payload.photo, payload.text, payload.parentId, payload.replyToName);
+if (replyContextManhwa && replyContextManhwa.targetUid) {
+pushNotification(replyContextManhwa.targetUid, `${userIdent.name} MENAUTKAN ENTRI BALASAN DI INDEKS MANHWA INI.`, 'reply');
+}
+txtArea.value = '';
+clearManhwaReplyContext();
+showToast('KOMENTAR BERHASIL DIPUBLIKASIKAN.', 'success');
+} catch (e) {
+showToast(e.message || 'KESALAHAN KOMIT DATABASE.', 'err');
+}
+document.getElementById('btn-post-comment').innerHTML = '<i class="ph-bold ph-paper-plane-right"></i> PUBLIKASI';
+};
+window.toggleLikeManhwa = async function(cidHash, currentlyLikedBooleanParam) {
+try {
+if (currentlyLikedBooleanParam) {
+await FB.toggleLike('manhwa_comments', currentManhwaSlugHash, cidHash, userIdent.uid, true);
+} else {
+await FB.toggleLike('manhwa_comments', currentManhwaSlugHash, cidHash, userIdent.uid, false);
+}
+} catch (e) {}
+};
+window.deleteCommentManhwa = async function(cidHashTarget) {
+if (!confirm('OPERASI DESTRUKTIF INI TIDAK DAPAT DI-ROLLBACK. LANJUTKAN PENGHAPUSAN SIMPUL?')) return;
+try {
+const r = await FB.deleteComment('manhwa_comments', currentManhwaSlugHash, cidHashTarget); if (!r.ok) throw new Error('GAGAL MENGHAPUS.');
+} catch (e) { showToast('GAGAL MEMUSNAHKAN KOMPONEN NODE DATABASE.', 'err'); }
+};
+window.blockCommentUIManhwa = function(cidHashTargetElement) {
+if (!confirm('INISIASI SENSOR VISIBILITAS TERHADAP PARAMETER DATA PENGGUNA EKSTERNAL?')) return;
+blockCommentLocalManhwa(cidHashTargetElement);
+showToast('TANGGAPAN TELAH TERISOLASI DARI PROSES RENDERING KLIEN.', 'success');
+initManhwaCommentsListener(); 
+};
+loadRecentManhwaUpdates();
+loadPopularManhwaUpdates('');
+</script>
+<script id="Saurus-auth-gate-logic">
+(function() {
+var gate = document.getElementById('Saurus-auth-gate');
+if (!gate) return;
+function showGate() {
+gate.style.display = 'flex';
+document.body.style.overflow = 'hidden';
+}
+function hideGate() {
+gate.style.display = 'none';
+document.body.style.overflow = '';
+}
+window._SaurusAuthReady = function(auth) {
+var gateTimeout = setTimeout(function() { showGate(); }, 3000);
+auth.onAuthStateChanged(function(user) {
+clearTimeout(gateTimeout);
+if (user) {
+hideGate();
+if (typeof userIdent !== 'undefined') {
+userIdent.uid   = user.uid;
+userIdent.name  = user.displayName || userIdent.name;
+userIdent.photo = user.photoURL    || userIdent.photo;
+}
+if (typeof auth === 'undefined') window.auth = window._SaurusAuth;
+} else {
+showGate();
+}
+});
+};
+if (window._SaurusAuth) window._SaurusAuthReady(window._SaurusAuth);
+})();
+</script>
+<script id="pwa-install-script">
+(function() {
+let deferredPrompt = null;
+const banner = document.getElementById('pwa-install-banner');
+const btnInstall = document.getElementById('pwa-btn-install');
+const btnClose = document.getElementById('pwa-btn-close');
+const DISMISSED_KEY = 'Saurus_pwa_dismissed';
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+if (localStorage.getItem(DISMISSED_KEY)) return;
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+setTimeout(() => {
+if (banner) banner.classList.add('pwa-visible');
+}, 1800);
+});
+if (btnInstall) {
+btnInstall.addEventListener('click', async () => {
+if (!deferredPrompt) return;
+deferredPrompt.prompt();
+const { outcome } = await deferredPrompt.userChoice;
+deferredPrompt = null;
+if (banner) banner.classList.remove('pwa-visible');
+if (outcome === 'accepted') localStorage.setItem(DISMISSED_KEY, '1');
+});
+}
+if (btnClose) {
+btnClose.addEventListener('click', () => {
+if (banner) banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+}
+window.addEventListener('appinstalled', () => {
+if (banner) banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+})();
+</script>
+<script src="/shared.js"></script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) return;
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+
+    const auth = firebase.auth();
+    window._SaurusAuth = auth;
+    if (typeof window._SaurusAuthReady === 'function') window._SaurusAuthReady(auth);
+}
+_initFirebase().catch(e => console.error('Firebase init gagal:', e));
+</script>
+</body>
+</html>

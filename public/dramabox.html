@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F4F4F5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SaurusAPI">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Dramabox - Saurus API</title>
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+  <meta property="og:site_name" content="Saurus API">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    :root {
+      --bg-main: #F4F4F5;
+      --bg-card: #FFFFFF;
+      --border-dark: #000000;
+      --text-main: #000000;
+      --text-muted: #52525B;
+      --gray-light: #E4E4E7;
+      --gray-med: #D4D4D8;
+      --gray-dark: #A1A1AA;
+      --bg-inverse: #000000;
+      --text-inverse: #FFFFFF;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+      --border-thick: 2.5px solid var(--border-dark);
+      --border-dashed: 2.5px dashed var(--border-dark);
+      --shadow-solid: 4px 4px 0px var(--border-dark);
+      --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+      --shadow-active: 0px 0px 0px transparent;
+    }
+
+    body.dark-theme {
+      --bg-main: #121212;
+      --bg-card: #1E1E1E;
+      --border-dark: #000000;
+      --text-main: #FFFFFF;
+      --text-muted: #A1A1AA;
+      --gray-light: #27272A;
+      --gray-med: #3F3F46;
+      --gray-dark: #52525B;
+      --bg-inverse: #FFFFFF;
+      --text-inverse: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    .moving-background-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+      background-size: 32px 32px;
+      opacity: 0.15;
+      animation: pan-background 40s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pan-background {
+      0% { background-position: 0 0; }
+      100% { background-position: 100vw 100vh; }
+    }
+
+    .fixed-bg-photo {
+      position: fixed;
+      inset: 0;
+      background-image: url('https://i.ibb.co/hR2yfJHd/Saurus28039813.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 0;
+      opacity: 0.25;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    body.dark-theme .fixed-bg-photo {
+      opacity: 0.15;
+    }
+
+    body.sidebar-open {
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .app-viewport-wide {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 0 0 100px 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+      gap: 24px;
+    }
+
+    .top-navigation-cluster {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-main);
+      padding: 16px 20px;
+      border-bottom: var(--border-thick);
+    }
+
+    .kinetic-hamburger-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+    }
+
+    .kinetic-hamburger-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .kinetic-line {
+      width: 20px;
+      height: 2px;
+      background-color: var(--text-inverse);
+      border-radius: 2px;
+    }
+
+    .center-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cluster-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn-circle {
+      width: 44px;
+      height: 44px;
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+    }
+
+    .action-btn-circle:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .action-btn-circle.is-active-state {
+      background-color: var(--bg-inverse);
+      color: var(--text-inverse);
+    }
+
+    .section-padding {
+      padding: 0 16px;
+      width: 100%;
+    }
+
+    .master-search-module {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--bg-card);
+      padding: 20px 16px;
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-solid);
+    }
+
+    .master-search-header {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .master-search-input-group {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .master-search-input {
+      flex: 1;
+      min-width: 0;
+      height: 50px;
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      background: var(--bg-main);
+      color: var(--text-main);
+      padding: 0 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      outline: none;
+      transition: box-shadow 0.3s;
+    }
+
+    .master-search-input:focus {
+      box-shadow: 0 0 0 4px var(--gray-light);
+    }
+
+    .master-search-btn {
+      flex-shrink: 0;
+      width: 50px;
+      height: 50px;
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .master-search-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .view-state {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .view-state.is-active {
+      display: flex;
+    }
+
+    .grid-presentation {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      width: 100%;
+    }
+
+    .drama-card {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-solid);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .drama-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 4px 4px 0px var(--border-dark);
+    }
+
+    .drama-card:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .drama-card-cover {
+      width: 100%;
+      height: 240px;
+      background: var(--gray-light);
+      position: relative;
+      overflow: hidden;
+      border-bottom: var(--border-thick);
+    }
+
+    .drama-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .drama-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px;
+    }
+
+    .drama-card-rating {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      padding: 4px 8px;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      font-weight: 900;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .drama-card-rating i {
+      color: #FACC15;
+    }
+
+    .drama-card-info {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .drama-card-title {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .drama-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .drama-card-badge {
+      background: var(--gray-light);
+      color: var(--text-main);
+      border: 2px solid var(--border-dark);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.65rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .detail-master-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .player-section {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-solid);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .player-viewport {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      position: relative;
+    }
+
+    .html5-video-element {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .player-overlay-state {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 10;
+      transition: opacity 0.3s;
+      color: #FFF;
+      padding: 20px;
+    }
+
+    .player-overlay-state.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .player-overlay-icon {
+      font-size: 48px;
+      animation: pulse-icon 2s infinite;
+    }
+
+    @keyframes pulse-icon {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .player-overlay-message {
+      font-size: 0.9rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .player-controls-bar {
+      padding: 14px 16px;
+      background: var(--gray-light);
+      border-top: var(--border-thick);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .now-playing-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: center;
+    }
+
+    .now-playing-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .now-playing-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .player-actions-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .control-action-btn {
+      flex: 1;
+      max-width: 140px;
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .control-action-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .info-sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .detail-cover-card {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-solid);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .detail-cover-img {
+      width: 100%;
+      max-width: 180px;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .detail-meta-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .detail-meta-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed var(--gray-med);
+    }
+
+    .detail-meta-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .meta-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .meta-value {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-align: right;
+    }
+
+    .synopsis-card {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-solid);
+    }
+
+    .synopsis-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .synopsis-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .synopsis-text::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .synopsis-text::-webkit-scrollbar-track {
+      background: var(--gray-light);
+      border-radius: 4px;
+    }
+
+    .synopsis-text::-webkit-scrollbar-thumb {
+      background: var(--border-dark);
+      border-radius: 4px;
+    }
+
+    .episodes-card {
+      grid-column: 1 / -1;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-solid);
+    }
+
+    .episodes-header {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .episodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .episodes-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .episodes-grid::-webkit-scrollbar-track {
+      background: var(--gray-light);
+      border-radius: 4px;
+    }
+
+    .episodes-grid::-webkit-scrollbar-thumb {
+      background: var(--border-dark);
+      border-radius: 4px;
+    }
+
+    .episode-btn {
+      background: var(--gray-light);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+    }
+
+    .episode-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .episode-btn.is-locked {
+      background: var(--bg-main);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .episode-btn.is-locked:active {
+      transform: none;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .episode-btn.is-active {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+    }
+
+    .episode-btn.is-active .episode-num,
+    .episode-btn.is-active .episode-title-short {
+      color: var(--text-inverse);
+    }
+
+    .episode-num {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .episode-title-short {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+      padding: 14px 20px;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: max-content;
+      max-width: 90vw;
+    }
+
+    .status-toast.is-visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .status-toast.is-error {
+      background: #EF4444;
+      color: #FFFFFF;
+    }
+
+    .return-action-bar {
+      margin-bottom: 20px;
+    }
+
+    .btn-return {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: var(--border-thick);
+      border-radius: var(--radius-md);
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .btn-return:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .application-footer-block {
+      text-align: center;
+      padding: 30px 20px;
+      width: 100%;
+    }
+
+    .footer-primary-text {
+      font-size: 1rem;
+      color: var(--text-main);
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .footer-secondary-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 6px;
+      background: var(--gray-light);
+      display: inline-block;
+      padding: 4px 10px;
+      border: 2px solid var(--border-dark);
+    }
+
+    .kinetic-overlay-navigation {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 900;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .kinetic-overlay-navigation.is-active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .navigation-menu-card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 85%;
+      max-width: 320px;
+      height: 100%;
+      background: var(--bg-main);
+      border-right: var(--border-thick);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 10px 0 0 rgba(0,0,0,0.3);
+      transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+      overflow: hidden;
+      z-index: 2;
+      pointer-events: auto;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .kinetic-overlay-navigation.is-active .navigation-menu-card {
+      transform: translateX(0);
+    }
+
+    .navigation-menu-card::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .nav-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: var(--border-thick);
+      background: var(--bg-card);
+      flex-shrink: 0;
+    }
+
+    .nav-card-title {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .btn-close-sidebar {
+      background: var(--bg-card);
+      border: 2px solid var(--border-dark);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: var(--shadow-solid-sm);
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .btn-close-sidebar:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .nav-links-stagger {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-links-stagger::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .navigation-route-link {
+      text-decoration: none;
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 12px 14px;
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: var(--shadow-solid-sm);
+      text-transform: uppercase;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .navigation-route-link i {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+    }
+
+    .navigation-route-link:active {
+      transform: translate(2px, 2px) !important;
+      box-shadow: var(--shadow-active) !important;
+    }
+
+    .navigation-route-link.route-active {
+      background: var(--bg-inverse);
+      color: var(--text-inverse);
+    }
+
+    .nav-card-footer {
+      padding: 16px 20px;
+      border-top: var(--border-thick);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+    }
+
+    .nav-footer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid var(--border-dark);
+    }
+
+    .nav-footer-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .nav-footer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-footer-name {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .nav-footer-desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .loading-skeleton {
+      animation: skeleton-pulse 1.5s infinite;
+      background: var(--gray-light);
+      border-radius: var(--radius-md);
+      width: 100%;
+      height: 100%;
+    }
+
+    @keyframes skeleton-pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    @media (min-width: 768px) {
+      .section-padding { padding: 0 24px; }
+      .master-search-module { padding: 32px; gap: 24px; }
+      .master-search-header { font-size: 1.8rem; }
+      .master-search-input { height: 56px; font-size: 1rem; padding: 0 20px; }
+      .master-search-btn { width: 56px; height: 56px; font-size: 24px; }
+      .grid-presentation { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+      .drama-card-cover { height: 380px; }
+      .drama-card-title { font-size: 1.2rem; }
+      .player-controls-bar { flex-direction: row; justify-content: space-between; align-items: center; padding: 16px 24px; }
+      .now-playing-info { text-align: left; }
+      .control-action-btn { flex: none; width: auto; max-width: none; }
+      .detail-master-layout { grid-template-columns: 2fr 1fr; gap: 24px; }
+      .episodes-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; max-height: 500px; }
+      .status-toast { font-size: 0.95rem; padding: 16px 24px; }
+    }
+  </style>
+  <script>
+    (function(){
+      var t = localStorage.getItem('Saurus-theme') || localStorage.getItem('Saurus_theme');
+      var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.classList.add('pre-dark');
+    })();
+  </script>
+  <style>
+    html.pre-dark body { background-color: #121212 !important; }
+  </style>
+</head>
+<body>
+
+<div class="fixed-bg-photo"></div>
+<div class="moving-background-pattern"></div>
+
+<div class="app-viewport-wide">
+  <div class="top-navigation-cluster">
+    <button class="kinetic-hamburger-btn" id="trigger-menu" aria-label="Buka menu">
+      <span class="kinetic-line line-top"></span>
+      <span class="kinetic-line line-mid"></span>
+      <span class="kinetic-line line-bot"></span>
+    </button>
+    <div class="center-brand-group">
+      <i class="ph-bold ph-clapperboard"></i> DRAMABOX
+    </div>
+    <div class="cluster-actions">
+      <button class="action-btn-circle" id="btn-theme-toggle" aria-label="Toggle theme">
+        <i id="theme-icon" class="ph-bold ph-moon"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="section-padding view-state is-active" id="view-search">
+    <div class="master-search-module">
+      <div class="master-search-header">
+        <i class="ph-bold ph-magnifying-glass"></i> Cari Series
+      </div>
+      <div class="master-search-input-group">
+        <input type="text" class="master-search-input" id="search-input" placeholder="Masukkan judul series...">
+        <button class="master-search-btn" id="search-btn">
+          <i class="ph-bold ph-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+    <div class="grid-presentation" id="search-results-grid">
+    </div>
+  </div>
+
+  <div class="section-padding view-state" id="view-detail">
+    <div class="return-action-bar">
+      <button class="btn-return" id="btn-back-to-search">
+        <i class="ph-bold ph-arrow-left"></i> KEMBALI
+      </button>
+    </div>
+    
+    <div class="detail-master-layout">
+      <div class="player-section">
+        <div class="player-viewport">
+          <video id="html5-video-element" class="html5-video-element" controls playsinline></video>
+          <div class="player-overlay-state" id="player-overlay">
+            <i class="ph-bold ph-film-strip player-overlay-icon" id="player-overlay-icon"></i>
+            <span class="player-overlay-message" id="player-overlay-message">PILIH EPISODE UNTUK MEMUTAR</span>
+          </div>
+        </div>
+        <div class="player-controls-bar">
+          <div class="now-playing-info">
+            <span class="now-playing-label">SEDANG MEMUTAR</span>
+            <span class="now-playing-title" id="now-playing-title">BELUM ADA EPISODE</span>
+          </div>
+          <div class="player-actions-group">
+            <button class="control-action-btn" id="btn-prev-ep">
+              <i class="ph-bold ph-skip-back"></i> SEBELUMNYA
+            </button>
+            <button class="control-action-btn" id="btn-next-ep">
+              SELANJUTNYA <i class="ph-bold ph-skip-forward"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-sidebar-section">
+        <div class="detail-cover-card">
+          <img src="" alt="Cover" class="detail-cover-img" id="detail-cover">
+          <div class="detail-meta-list">
+            <div class="detail-meta-item">
+              <span class="meta-label">JUDUL</span>
+              <span class="meta-value" id="detail-title">-</span>
+            </div>
+            <div class="detail-meta-item">
+              <span class="meta-label">TOTAL EPISODE</span>
+              <span class="meta-value" id="detail-episodes">-</span>
+            </div>
+            <div class="detail-meta-item">
+              <span class="meta-label">PENONTON</span>
+              <span class="meta-value" id="detail-views">-</span>
+            </div>
+            <div class="detail-meta-item">
+              <span class="meta-label">GENRE</span>
+              <span class="meta-value" id="detail-genres">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="synopsis-card">
+          <div class="synopsis-title"><i class="ph-bold ph-text-align-left"></i> SINOPSIS</div>
+          <div class="synopsis-text" id="detail-description">-</div>
+        </div>
+      </div>
+
+      <div class="episodes-card">
+        <div class="episodes-header">
+          <span><i class="ph-bold ph-list-numbers"></i> DAFTAR EPISODE</span>
+        </div>
+        <div class="episodes-grid" id="episodes-container">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="application-footer-block">
+    <div class="footer-primary-text">API BY Saurus</div>
+    <div class="footer-secondary-text">DRAMABOX ENGINE INTEGRATION</div>
+  </div>
+</div>
+
+<div class="status-toast" id="system-toast">
+  <i class="ph-bold ph-info" id="toast-icon"></i>
+  <span id="toast-message">Pesan sistem</span>
+</div>
+
+<div class="kinetic-overlay-navigation" id="navigation-overlay">
+  <div class="navigation-menu-card" id="navigation-menu-card">
+    <div class="nav-card-header">
+      <span class="nav-card-title">Menu Utama</span>
+      <button class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Tutup menu"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="nav-links-stagger">
+      <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> Dasbor Utama</a>
+      <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> Akun & ApiKey</a>
+      <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> Dokumentasi API</a>
+      <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> Repositori Snippet</a>
+      <a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+      <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> Streaming Anime</a>
+      <a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> Streaming Donghua</a>
+      <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> Baca Manga</a>
+      <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> Baca Manhwa</a>
+      <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> Bioskop Film</a>
+      <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+      <a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> Streaming TV</a>
+      <a href="/dramabox" class="navigation-route-link route-active"><i class="ph-bold ph-clapperboard"></i> Dramabox Series</a>
+      <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> Claim Panel</a>
+      <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> Aplikasi Mod</a>
+      <a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> Host Media</a>
+    </div>
+    <div class="nav-card-footer">
+      <div class="nav-footer-avatar">
+        <img src="https://files.catbox.moe/9y8310.jpg" alt="Saurus">
+      </div>
+      <div class="nav-footer-info">
+        <span class="nav-footer-name">API Saurus</span>
+        <span class="nav-footer-desc">Infrastruktur REST API</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initTheme() {
+    const isDark = localStorage.getItem('Saurus-theme') === 'dark' || localStorage.getItem('Saurus_theme') === 'dark';
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      document.getElementById('btn-theme-toggle').classList.add('is-active-state');
+    }
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+  }
+  initTheme();
+
+  const btnThemeToggle = document.getElementById('btn-theme-toggle');
+  btnThemeToggle.onclick = (e) => {
+    const btn = e.currentTarget;
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+    document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+    btn.classList.toggle('is-active-state', isDark);
+  };
+
+  const btnMenu = document.getElementById('trigger-menu');
+  const navOverlay = document.getElementById('navigation-overlay');
+  const navMenuCard = document.getElementById('navigation-menu-card');
+  const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+
+  function openSidebar() {
+    navOverlay.classList.add('is-active');
+    document.body.classList.add('sidebar-open');
+  }
+
+  function closeSidebar() {
+    navOverlay.classList.remove('is-active');
+    document.body.classList.remove('sidebar-open');
+    navMenuCard.style.transition = '';
+    navMenuCard.style.transform = '';
+  }
+
+  btnMenu.addEventListener('click', openSidebar);
+  btnCloseSidebar.addEventListener('click', closeSidebar);
+  navOverlay.addEventListener('click', (e) => {
+    if (e.target === navOverlay) closeSidebar();
+  });
+
+  let sbStartX = 0, sbCurrentX = 0, isDraggingSidebar = false;
+  function startDragSidebar(x) {
+    sbStartX = x; sbCurrentX = x; isDraggingSidebar = true;
+    navMenuCard.style.transition = 'none';
+  }
+  function dragSidebar(x) {
+    if (!isDraggingSidebar) return;
+    sbCurrentX = x;
+    const diff = sbCurrentX - sbStartX;
+    if (diff < 0) navMenuCard.style.transform = `translateX(${diff}px)`;
+  }
+  function endDragSidebar() {
+    if (!isDraggingSidebar) return;
+    isDraggingSidebar = false;
+    navMenuCard.style.transition = 'transform 0.4s cubic-bezier(0.2, 0, 0.2, 1)';
+    const diff = sbCurrentX - sbStartX;
+    if (diff < -80) closeSidebar();
+    else navMenuCard.style.transform = 'translateX(0)';
+  }
+  function shouldIgnoreDragTarget(target) {
+    return !!target.closest('a, button, input, textarea, select, label');
+  }
+  navMenuCard.addEventListener('touchstart', (e) => {
+    if (shouldIgnoreDragTarget(e.target)) return;
+    startDragSidebar(e.touches[0].clientX);
+  }, { passive: true });
+  navMenuCard.addEventListener('touchmove', (e) => {
+    if (shouldIgnoreDragTarget(e.target)) return;
+    dragSidebar(e.touches[0].clientX);
+  }, { passive: true });
+  navMenuCard.addEventListener('touchend', endDragSidebar);
+
+  const viewSearch = document.getElementById('view-search');
+  const viewDetail = document.getElementById('view-detail');
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
+  const searchResultsGrid = document.getElementById('search-results-grid');
+  const btnBackToSearch = document.getElementById('btn-back-to-search');
+  
+  const detailCover = document.getElementById('detail-cover');
+  const detailTitle = document.getElementById('detail-title');
+  const detailEpisodes = document.getElementById('detail-episodes');
+  const detailViews = document.getElementById('detail-views');
+  const detailGenres = document.getElementById('detail-genres');
+  const detailDescription = document.getElementById('detail-description');
+  const episodesContainer = document.getElementById('episodes-container');
+  
+  const videoElement = document.getElementById('html5-video-element');
+  const playerOverlay = document.getElementById('player-overlay');
+  const playerOverlayIcon = document.getElementById('player-overlay-icon');
+  const playerOverlayMessage = document.getElementById('player-overlay-message');
+  const nowPlayingTitle = document.getElementById('now-playing-title');
+  const btnPrevEp = document.getElementById('btn-prev-ep');
+  const btnNextEp = document.getElementById('btn-next-ep');
+
+  const toastElement = document.getElementById('system-toast');
+  const toastIcon = document.getElementById('toast-icon');
+  const toastMessage = document.getElementById('toast-message');
+  let toastTimeout;
+
+  let currentDramaData = null;
+  let currentEpisodeIndex = -1;
+  let hlsInstance = null;
+
+  function showToast(message, isError = false) {
+    clearTimeout(toastTimeout);
+    toastMessage.textContent = message;
+    toastElement.className = `status-toast is-visible ${isError ? 'is-error' : ''}`;
+    toastIcon.className = isError ? 'ph-bold ph-warning-circle' : 'ph-bold ph-check-circle';
+    toastTimeout = setTimeout(() => {
+      toastElement.classList.remove('is-visible');
+    }, 3000);
+  }
+
+  function switchView(viewName) {
+    viewSearch.classList.remove('is-active');
+    viewDetail.classList.remove('is-active');
+    if (viewName === 'search') {
+      viewSearch.classList.add('is-active');
+      destroyPlayer();
+    } else if (viewName === 'detail') {
+      viewDetail.classList.add('is-active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function createSkeletonGrid() {
+    searchResultsGrid.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const card = document.createElement('div');
+      card.className = 'drama-card';
+      card.style.pointerEvents = 'none';
+      card.innerHTML = `
+        <div class="drama-card-cover">
+          <div class="loading-skeleton"></div>
+        </div>
+        <div class="drama-card-info" style="gap:16px;">
+          <div class="loading-skeleton" style="height:20px;width:80%;"></div>
+          <div class="loading-skeleton" style="height:14px;width:60%;"></div>
+          <div class="loading-skeleton" style="height:24px;width:40%;margin-top:auto;"></div>
+        </div>
+      `;
+      searchResultsGrid.appendChild(card);
+    }
+  }
+
+  async function executeSearch() {
+    const query = searchInput.value.trim();
+    if (!query) return showToast('Masukkan kata kunci pencarian.', true);
+
+    createSkeletonGrid();
+    try {
+      const response = await fetch(`/api/dramabox-search?q=${encodeURIComponent(query)}`);
+      const payload = await response.json();
+      
+      if (!response.ok || !payload.status) {
+        throw new Error(payload.message || 'Gagal mengambil data pencarian.');
+      }
+
+      const results = payload.result?.results || [];
+      searchResultsGrid.innerHTML = '';
+
+      if (results.length === 0) {
+        searchResultsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;font-weight:800;font-size:1.1rem;color:var(--text-muted);">TIDAK DITEMUKAN HASIL UNTUK "${query.toUpperCase()}"</div>`;
+        return;
+      }
+
+      results.forEach(item => {
+        const idMatch = item.url.match(/\/drama\/(\d+)\//);
+        const slugMatch = item.url.match(/\/drama\/\d+\/([^/?]+)/);
+        const actualId = idMatch ? idMatch[1] : item.id;
+        const actualSlug = slugMatch ? slugMatch[1] : item.title_en;
+
+        const card = document.createElement('div');
+        card.className = 'drama-card';
+        card.innerHTML = `
+          <div class="drama-card-cover">
+            <img src="${item.cover}" alt="${item.title}" class="drama-card-img" loading="lazy">
+            <div class="drama-card-overlay">
+              <div class="drama-card-rating"><i class="ph-fill ph-star"></i> ${item.rating || 'N/A'}</div>
+            </div>
+          </div>
+          <div class="drama-card-info">
+            <div class="drama-card-title">${item.title}</div>
+            <div class="drama-card-meta">
+              <span class="drama-card-badge"><i class="ph-bold ph-eye"></i> ${item.views}</span>
+              <span class="drama-card-badge"><i class="ph-bold ph-list-numbers"></i> ${item.chapters} EP</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => loadDramaDetail(actualId, actualSlug));
+        searchResultsGrid.appendChild(card);
+      });
+    } catch (err) {
+      searchResultsGrid.innerHTML = '';
+      showToast(err.message, true);
+    }
+  }
+
+  function setPlayerLoadingState(isLoading, message, isError = false) {
+    if (isLoading) {
+      playerOverlay.classList.remove('is-hidden');
+      playerOverlayIcon.className = 'ph-bold ph-spinner-gap player-overlay-icon';
+      playerOverlayMessage.textContent = message || 'MEMUAT ALIRAN DATA...';
+    } else if (isError) {
+      playerOverlay.classList.remove('is-hidden');
+      playerOverlayIcon.className = 'ph-bold ph-warning-circle player-overlay-icon';
+      playerOverlayIcon.style.animation = 'none';
+      playerOverlayMessage.textContent = message || 'TERJADI KESALAHAN';
+    } else {
+      playerOverlay.classList.add('is-hidden');
+    }
+  }
+
+  function destroyPlayer() {
+    if (hlsInstance) {
+      hlsInstance.destroy();
+      hlsInstance = null;
+    }
+    videoElement.removeAttribute('src');
+    videoElement.load();
+    setPlayerLoadingState(true, 'PILIH EPISODE UNTUK MEMUTAR', false);
+    playerOverlayIcon.className = 'ph-bold ph-film-strip player-overlay-icon';
+    playerOverlayIcon.style.animation = 'none';
+    nowPlayingTitle.textContent = 'BELUM ADA EPISODE';
+    currentEpisodeIndex = -1;
+    updateEpisodeButtons();
+  }
+
+  async function loadDramaDetail(id, slug) {
+    showToast('Mengambil data detail...');
+    try {
+      const response = await fetch(`/api/dramabox-detail?id=${encodeURIComponent(id)}&slug=${encodeURIComponent(slug)}`);
+      const payload = await response.json();
+
+      if (!response.ok || !payload.status) {
+        throw new Error(payload.message || 'Gagal memuat detail drama.');
+      }
+
+      currentDramaData = payload.result;
+      
+      detailCover.src = currentDramaData.cover || '';
+      detailTitle.textContent = currentDramaData.title || '-';
+      detailEpisodes.textContent = currentDramaData.total_episodes || '-';
+      detailViews.textContent = currentDramaData.views ? currentDramaData.views.toLocaleString() : '-';
+      detailGenres.textContent = (currentDramaData.genres || []).join(', ') || '-';
+      detailDescription.textContent = currentDramaData.description || 'Tidak ada sinopsis.';
+
+      episodesContainer.innerHTML = '';
+      const episodes = currentDramaData.episodes || [];
+      
+      episodes.forEach((ep, index) => {
+        const btn = document.createElement('button');
+        btn.className = `episode-btn ${ep.unlocked ? '' : 'is-locked'}`;
+        btn.dataset.index = index;
+        btn.innerHTML = `
+          <span class="episode-num">${ep.episode}</span>
+          <span class="episode-title-short">${ep.unlocked ? 'TERSEDIA' : 'TERKUNCI'}</span>
+        `;
+        
+        if (ep.unlocked) {
+          btn.addEventListener('click', () => playEpisode(index));
+        } else {
+          btn.addEventListener('click', () => showToast('Episode ini masih terkunci.', true));
+        }
+        
+        episodesContainer.appendChild(btn);
+      });
+
+      switchView('detail');
+      
+      const firstUnlockedIndex = episodes.findIndex(ep => ep.unlocked);
+      if (firstUnlockedIndex !== -1) {
+        playEpisode(firstUnlockedIndex);
+      }
+
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  }
+
+  function updateEpisodeButtons() {
+    const buttons = episodesContainer.querySelectorAll('.episode-btn');
+    buttons.forEach((btn, index) => {
+      if (index === currentEpisodeIndex) {
+        btn.classList.add('is-active');
+      } else {
+        btn.classList.remove('is-active');
+      }
+    });
+  }
+
+  function playEpisode(index) {
+    if (!currentDramaData || !currentDramaData.episodes) return;
+    const ep = currentDramaData.episodes[index];
+    if (!ep || !ep.unlocked) return;
+
+    currentEpisodeIndex = index;
+    updateEpisodeButtons();
+    destroyPlayer();
+    
+    nowPlayingTitle.textContent = `EPISODE ${ep.episode} - ${ep.title}`;
+    setPlayerLoadingState(true, 'MENGHUBUNGKAN STREAM...');
+
+    let streamUrl = null;
+    if (ep.stream) {
+      streamUrl = ep.stream.m3u8 || ep.stream.mp4;
+    }
+
+    if (!streamUrl) {
+      setPlayerLoadingState(true, 'MENCOBA SERVER CADANGAN...');
+      fetch(`/api/dramabox-download?id=${encodeURIComponent(currentDramaData.id)}&slug=${encodeURIComponent(currentDramaData.slug)}`)
+        .then(res => res.json())
+        .then(payload => {
+          if (payload.status && payload.result && payload.result.downloads) {
+            const dl = payload.result.downloads.find(d => d.episode === ep.episode);
+            if (dl && dl.mp4) {
+              initializeStream(dl.mp4, false);
+            } else {
+              setPlayerLoadingState(false, 'STREAM TIDAK DITEMUKAN', true);
+            }
+          } else {
+            setPlayerLoadingState(false, 'GAGAL MENDAPATKAN STREAM', true);
+          }
+        })
+        .catch(() => {
+          setPlayerLoadingState(false, 'KESALAHAN JARINGAN', true);
+        });
+    } else {
+      const isM3u8 = streamUrl.includes('.m3u8');
+      initializeStream(streamUrl, isM3u8);
+    }
+  }
+
+  function initializeStream(url, isM3u8) {
+    if (isM3u8 && Hls.isSupported()) {
+      hlsInstance = new Hls({ maxBufferLength: 30 });
+      hlsInstance.loadSource(url);
+      hlsInstance.attachMedia(videoElement);
+      
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+        setPlayerLoadingState(false);
+        videoElement.play().catch(() => {});
+      });
+
+      hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hlsInstance.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hlsInstance.recoverMediaError();
+              break;
+            default:
+              setPlayerLoadingState(false, 'ERROR FATAL PADA STREAM', true);
+              destroyPlayer();
+              break;
+          }
+        }
+      });
+    } else {
+      videoElement.src = url;
+      videoElement.addEventListener('loadedmetadata', function() {
+        setPlayerLoadingState(false);
+        videoElement.play().catch(() => {});
+      });
+      videoElement.addEventListener('error', function() {
+        setPlayerLoadingState(false, 'FORMAT VIDEO TIDAK DIDUKUNG', true);
+      });
+    }
+  }
+
+  searchBtn.addEventListener('click', executeSearch);
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') executeSearch();
+  });
+
+  btnBackToSearch.addEventListener('click', () => {
+    switchView('search');
+  });
+
+  btnPrevEp.addEventListener('click', () => {
+    if (currentEpisodeIndex > 0) {
+      playEpisode(currentEpisodeIndex - 1);
+    } else {
+      showToast('Ini adalah episode pertama.');
+    }
+  });
+
+  btnNextEp.addEventListener('click', () => {
+    if (currentDramaData && currentDramaData.episodes && currentEpisodeIndex < currentDramaData.episodes.length - 1) {
+      playEpisode(currentEpisodeIndex + 1);
+    } else {
+      showToast('Tidak ada episode selanjutnya atau masih terkunci.');
+    }
+  });
+
+  window.addEventListener('load', () => {
+    searchInput.value = "CEO";
+    executeSearch();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Klaim Panel - API Saurus</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<style>
+:root {
+--color-bg-base: #F4F4F5;
+--color-surface: #FFFFFF;
+--color-text-main: #000000;
+--color-text-muted: #52525B;
+--color-text-subtle: #A1A1AA;
+--color-border: #000000;
+--color-inverse-bg: #000000;
+--color-inverse-text: #FFFFFF;
+--gray-light: #E4E4E7;
+--gray-med: #D4D4D8;
+--radius-sm: 8px;
+--radius-md: 16px;
+--radius-lg: 24px;
+--radius-pill: 999px;
+--border-thick: 2.5px solid var(--color-border);
+--shadow-solid: 4px 4px 0px var(--color-border);
+--shadow-solid-sm: 2px 2px 0px var(--color-border);
+--shadow-active: 0px 0px 0px transparent;
+}
+body.dark-theme {
+--color-bg-base: #121212;
+--color-surface: #1E1E1E;
+--color-text-main: #FFFFFF;
+--color-text-muted: #A1A1AA;
+--color-text-subtle: #52525B;
+--color-border: #000000;
+--color-inverse-bg: #FFFFFF;
+--color-inverse-text: #000000;
+--gray-light: #27272A;
+--gray-med: #3F3F46;
+}
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Poppins', sans-serif;
+-webkit-tap-highlight-color: transparent;
+}
+html, body {
+width: 100%;
+min-height: 100vh;
+background-color: var(--color-bg-base);
+color: var(--color-text-main);
+overflow-x: hidden;
+display: flex;
+justify-content: center;
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+.animated-gradient-text {
+background: var(--color-inverse-bg);
+color: var(--color-inverse-text);
+padding: 4px 12px;
+border-radius: var(--radius-pill);
+border: 2px solid var(--color-border);
+font-weight: 900;
+box-shadow: var(--shadow-solid-sm);
+text-transform: uppercase;
+display: inline-block;
+letter-spacing: 1px;
+}
+.app-viewport {
+width: 100%;
+max-width: 768px;
+min-height: 100vh;
+padding: 24px 20px 40px;
+display: flex;
+flex-direction: column;
+position: relative;
+gap: 24px;
+z-index: 10;
+}
+.global-background-layer {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image: radial-gradient(var(--color-text-subtle) 2px, transparent 2px);
+background-size: 32px 32px;
+opacity: 0.1;
+z-index: -1;
+pointer-events: none;
+animation: pan-background 40s linear infinite;
+}
+@keyframes pan-background { 0% { background-position: 0 0; } 100% { background-position: 100vw 100vh; } }
+.top-navigation-cluster {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: calc(100% + 40px);
+position: sticky;
+top: 0;
+z-index: 100;
+background: var(--color-bg-base);
+padding: 20px 20px 10px;
+margin-left: -20px;
+margin-right: -20px;
+border-bottom: var(--border-thick);
+transition: background 0.3s ease;
+}
+.kinetic-hamburger-btn {
+width: 48px;
+height: 48px;
+border-radius: var(--radius-md);
+background-color: var(--color-surface);
+border: var(--border-thick);
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+gap: 5px;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.kinetic-hamburger-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+background: var(--gray-light);
+}
+.kinetic-line {
+width: 22px;
+height: 3px;
+background-color: var(--color-text-main);
+border-radius: 4px;
+transition: transform 0.4s, opacity 0.3s;
+}
+.brand-logotype-header {
+font-size: 1.3rem;
+font-weight: 900;
+color: var(--color-text-main);
+text-transform: uppercase;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.cluster-actions {
+display: flex;
+gap: 10px;
+}
+.audio-control-interactive {
+width: 48px;
+height: 48px;
+border-radius: var(--radius-md);
+border: var(--border-thick);
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 22px;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+background-color: var(--color-surface);
+color: var(--color-text-main);
+box-shadow: var(--shadow-solid-sm);
+position: relative;
+}
+.audio-control-interactive:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+background-color: var(--gray-light);
+}
+.kinetic-overlay-navigation {
+position: fixed;
+inset: 0;
+background: rgba(0, 0, 0, 0.8);
+z-index: 1000;
+display: flex;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.kinetic-overlay-navigation.is-active {
+opacity: 1;
+visibility: visible;
+}
+.navigation-menu-card {
+position: absolute;
+left: 0;
+top: 0;
+width: 85%;
+max-width: 340px;
+height: 100vh;
+background: var(--color-surface);
+border-right: var(--border-thick);
+padding: 0;
+display: flex;
+flex-direction: column;
+transform: translateX(-100%);
+transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+overflow-y: auto;
+overflow-x: hidden;
+}
+.kinetic-overlay-navigation.is-active .navigation-menu-card {
+transform: translateX(0);
+}
+.navigation-menu-card::-webkit-scrollbar { display: none; }
+.nav-header-box {
+padding: 24px;
+border-bottom: var(--border-thick);
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: var(--color-surface);
+flex-shrink: 0;
+}
+.nav-header-title {
+font-size: 1.2rem;
+font-weight: 900;
+color: var(--color-text-main);
+text-transform: uppercase;
+}
+.btn-close-sidebar {
+background: var(--color-inverse-bg);
+border: var(--border-thick);
+width: 44px;
+height: 44px;
+border-radius: var(--radius-pill);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.4rem;
+color: var(--color-inverse-text);
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+flex-shrink: 0;
+}
+.btn-close-sidebar:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.sidebar-promo-banner {
+background: var(--gray-light);
+border: var(--border-thick);
+border-radius: var(--radius-md);
+padding: 20px;
+color: var(--color-text-main);
+text-align: left;
+margin: 24px 24px 0 24px;
+box-shadow: var(--shadow-solid-sm);
+flex-shrink: 0;
+}
+.sidebar-promo-title {
+font-size: 1.1rem;
+font-weight: 900;
+margin-bottom: 8px;
+text-transform: uppercase;
+}
+.sidebar-promo-desc {
+font-size: 0.85rem;
+font-weight: 700;
+line-height: 1.5;
+color: var(--color-text-muted);
+text-transform: uppercase;
+}
+.navigation-menu-header {
+font-size: 0.8rem;
+font-weight: 900;
+color: var(--color-text-main);
+letter-spacing: 1px;
+margin: 24px 24px 8px 24px;
+text-transform: uppercase;
+}
+.nav-links-stagger {
+display: flex;
+flex-direction: column;
+gap: 12px;
+padding: 0 24px 24px;
+overflow-y: auto;
+flex: 1;
+}
+.nav-links-stagger::-webkit-scrollbar { display: none; }
+.navigation-route-link {
+text-decoration: none;
+background: var(--color-bg-base);
+color: var(--color-text-main);
+padding: 16px 20px;
+border: var(--border-thick);
+border-radius: var(--radius-md);
+font-size: 0.95rem;
+font-weight: 900;
+display: flex;
+align-items: center;
+gap: 16px;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+text-transform: uppercase;
+}
+.navigation-route-link i {
+font-size: 1.4rem;
+flex-shrink: 0;
+color: var(--color-text-main);
+}
+.navigation-route-link:active {
+transform: translate(2px, 2px) !important;
+box-shadow: var(--shadow-active) !important;
+}
+.navigation-route-link.route-active {
+background: var(--color-inverse-bg);
+color: var(--color-inverse-text);
+}
+.navigation-route-link.route-active i {
+color: var(--color-inverse-text);
+}
+.hero-section {
+padding: 10px 0;
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+.hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+background: var(--color-inverse-bg);
+color: var(--color-inverse-text);
+font-size: 0.75rem;
+font-weight: 900;
+letter-spacing: 1px;
+padding: 8px 16px;
+border-radius: var(--radius-pill);
+width: fit-content;
+text-transform: uppercase;
+border: 2px solid var(--color-border);
+box-shadow: var(--shadow-solid-sm);
+}
+.hero-title {
+font-size: 2.2rem;
+font-weight: 900;
+line-height: 1.1;
+color: var(--color-text-main);
+text-transform: uppercase;
+text-shadow: 2px 2px 0px var(--color-border);
+}
+.hero-sub {
+font-size: 0.85rem;
+color: var(--color-text-main);
+line-height: 1.6;
+font-weight: 900;
+text-transform: uppercase;
+}
+.horizontal-tabs-container {
+display: flex;
+background: var(--color-surface);
+border-radius: var(--radius-md);
+padding: 8px;
+box-shadow: var(--shadow-solid);
+border: var(--border-thick);
+gap: 8px;
+transition: background 0.3s ease;
+}
+.h-tab-btn {
+flex: 1;
+background: transparent;
+border: 2px solid transparent;
+padding: 14px 6px;
+border-radius: var(--radius-sm);
+font-size: 0.85rem;
+font-weight: 900;
+color: var(--color-text-main);
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+text-transform: uppercase;
+}
+.h-tab-btn.is-active {
+background: var(--color-inverse-bg);
+color: var(--color-inverse-text);
+border: 2px solid var(--color-border);
+box-shadow: var(--shadow-solid-sm);
+}
+.h-tab-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.main-content-panel {
+background: var(--color-surface);
+border-radius: var(--radius-lg);
+border: var(--border-thick);
+padding: 24px;
+box-shadow: var(--shadow-solid);
+display: flex;
+flex-direction: column;
+gap: 20px;
+transition: background 0.3s ease;
+}
+.auth-notice-box {
+background: var(--gray-light);
+border: var(--border-thick);
+border-radius: var(--radius-md);
+padding: 20px;
+display: flex;
+gap: 16px;
+align-items: center;
+box-shadow: var(--shadow-solid-sm);
+}
+.auth-notice-icon {
+color: var(--color-text-main);
+font-size: 2rem;
+flex-shrink: 0;
+}
+.auth-notice-text {
+font-size: 0.85rem;
+color: var(--color-text-main);
+line-height: 1.5;
+font-weight: 900;
+text-transform: uppercase;
+}
+.auth-notice-text a {
+color: var(--color-inverse-bg);
+background: var(--color-inverse-text);
+padding: 2px 8px;
+border-radius: var(--radius-pill);
+border: 2px solid var(--color-border);
+text-decoration: none;
+font-weight: 900;
+display: inline-block;
+margin-top: 4px;
+}
+.form-group {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.form-label {
+font-size: 0.85rem;
+font-weight: 900;
+color: var(--color-text-main);
+text-transform: uppercase;
+}
+.form-input {
+width: 100%;
+background: var(--color-bg-base);
+border: var(--border-thick);
+padding: 16px;
+border-radius: var(--radius-sm);
+font-size: 0.95rem;
+font-weight: 800;
+color: var(--color-text-main);
+outline: none;
+font-family: 'Poppins', sans-serif;
+transition: box-shadow 0.2s, background 0.2s;
+box-shadow: var(--shadow-solid-sm);
+}
+.form-input:focus {
+background: var(--color-surface);
+box-shadow: var(--shadow-solid);
+}
+.form-input::placeholder {
+color: var(--color-text-muted);
+font-weight: 700;
+text-transform: uppercase;
+}
+.custom-select-wrapper {
+position: relative;
+user-select: none;
+width: 100%;
+}
+.custom-select-trigger {
+background: var(--color-bg-base);
+padding: 16px;
+border-radius: var(--radius-sm);
+border: var(--border-thick);
+display: flex;
+justify-content: space-between;
+align-items: center;
+cursor: pointer;
+font-weight: 900;
+color: var(--color-text-main);
+font-family: 'Poppins', sans-serif;
+transition: box-shadow 0.2s, background 0.2s;
+box-shadow: var(--shadow-solid-sm);
+text-transform: uppercase;
+}
+.custom-select-wrapper.is-open .custom-select-trigger {
+background: var(--color-surface);
+box-shadow: var(--shadow-solid);
+}
+.custom-select-options {
+position: absolute;
+top: calc(100% + 8px);
+left: 0;
+width: 100%;
+background: var(--color-surface);
+border-radius: var(--radius-md);
+border: var(--border-thick);
+box-shadow: var(--shadow-solid);
+z-index: 50;
+display: none;
+flex-direction: column;
+max-height: 240px;
+overflow-y: auto;
+}
+.custom-select-options::-webkit-scrollbar { display: none; }
+.custom-select-wrapper.is-open .custom-select-options {
+display: flex;
+}
+.custom-option {
+padding: 16px;
+font-weight: 900;
+font-size: 0.85rem;
+color: var(--color-text-muted);
+cursor: pointer;
+transition: background 0.2s;
+border-bottom: 2px solid var(--color-border);
+text-transform: uppercase;
+}
+.custom-option:last-child { border-bottom: none; }
+.custom-option:hover { background: var(--gray-light); color: var(--color-text-main); }
+.custom-option.selected { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.btn-action-highlight {
+background: var(--color-inverse-bg);
+color: var(--color-inverse-text);
+border: var(--border-thick);
+padding: 16px;
+border-radius: var(--radius-pill);
+font-weight: 900;
+font-size: 0.95rem;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+text-transform: uppercase;
+width: 100%;
+margin-top: 10px;
+box-shadow: var(--shadow-solid-sm);
+}
+.btn-action-highlight:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.loading-overlay {
+position: fixed;
+inset: 0;
+background: var(--color-bg-base);
+z-index: 9999;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 8px;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s ease;
+}
+.loading-overlay.is-active { opacity: 1; visibility: visible; }
+.loader-cube {
+width: 72px; height: 72px; border: var(--border-thick);
+border-radius: var(--radius-md); box-shadow: var(--shadow-solid);
+animation: spin-cube 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+display: flex; align-items: center; justify-content: center;
+background: var(--color-surface); color: var(--color-text-main);
+margin-bottom: 24px;
+}
+.loader-cube i { font-size: 36px; color: inherit; }
+@keyframes spin-cube {
+0% { transform: rotate(0deg) scale(1); background: var(--color-surface); color: var(--color-text-main); border-radius: var(--radius-md); }
+50% { transform: rotate(180deg) scale(1.08); background: var(--color-inverse-bg); color: var(--color-inverse-text); border-radius: var(--radius-pill); }
+100% { transform: rotate(360deg) scale(1); background: var(--color-surface); color: var(--color-text-main); border-radius: var(--radius-md); }
+}
+.loading-terminal-text {
+color: var(--color-text-main);
+font-size: 0.9rem;
+font-weight: 900;
+text-transform: uppercase;
+font-family: var(--font-mono);
+text-align: center;
+max-width: 280px;
+line-height: 1.5;
+}
+.loading-terminal-sub {
+color: var(--color-text-main);
+font-size: 0.72rem;
+font-weight: 700;
+text-transform: uppercase;
+font-family: var(--font-mono);
+opacity: 0.45;
+margin-top: 4px;
+letter-spacing: 1px;
+}
+.tos-box {
+background: var(--gray-light);
+border: var(--border-thick);
+padding: 24px;
+border-radius: var(--radius-md);
+box-shadow: var(--shadow-solid-sm);
+}
+.tos-title {
+font-size: 1rem;
+font-weight: 900;
+color: var(--color-text-main);
+margin-bottom: 16px;
+display: flex;
+align-items: center;
+gap: 10px;
+text-transform: uppercase;
+}
+.tos-title i { font-size: 1.4rem; }
+.tos-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.tos-list li { font-size: 0.85rem; font-weight: 800; color: var(--color-text-main); display: flex; gap: 10px; line-height: 1.5; text-transform: uppercase; }
+.tos-list li::before { content: ''; display: block; width: 8px; height: 8px; background: var(--color-text-main); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.my-panels-grid { display: flex; flex-direction: column; gap: 20px; }
+.my-panel-card {
+background: var(--color-surface);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+padding: 24px;
+display: flex;
+flex-direction: column;
+gap: 16px;
+box-shadow: var(--shadow-solid);
+transition: transform 0.1s, box-shadow 0.1s;
+}
+.my-panel-card:active { transform: translate(4px, 4px); box-shadow: var(--shadow-active); }
+.my-panel-header {
+display: flex; justify-content: space-between; align-items: center; border-bottom: var(--border-thick); padding-bottom: 16px;
+}
+.my-panel-title { font-weight: 900; font-size: 1.2rem; color: var(--color-text-main); text-transform: uppercase; }
+.my-panel-ram { font-weight: 900; font-size: 0.75rem; padding: 6px 12px; background: var(--color-inverse-bg); color: var(--color-inverse-text); border-radius: var(--radius-pill); border: 2px solid var(--color-border); }
+.my-panel-info { display: flex; flex-direction: column; gap: 8px; }
+.my-panel-text { font-size: 0.85rem; font-weight: 900; color: var(--color-text-main); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.credential-box {
+background: var(--gray-light);
+border-radius: var(--radius-md);
+padding: 16px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+margin-top: 8px;
+border: var(--border-thick);
+}
+.cred-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+}
+.cred-label {
+font-size: 0.85rem;
+font-weight: 900;
+color: var(--color-text-main);
+width: 60px;
+}
+.cred-val-container {
+display: flex;
+align-items: center;
+gap: 12px;
+flex: 1;
+background: var(--color-surface);
+padding: 12px 16px;
+border-radius: var(--radius-sm);
+border: 2px solid var(--color-border);
+box-shadow: var(--shadow-solid-sm);
+}
+.cred-val {
+font-family: var(--font-mono);
+font-size: 0.9rem;
+font-weight: 800;
+color: var(--color-text-main);
+flex: 1;
+filter: blur(6px);
+cursor: pointer;
+user-select: none;
+transition: filter 0.3s ease, transform 0.2s ease;
+}
+.cred-val:active { transform: scale(0.98); }
+.cred-val.revealed {
+filter: blur(0);
+user-select: all;
+}
+.btn-copy-mini {
+background: var(--color-inverse-bg);
+border: 2px solid var(--color-border);
+color: var(--color-inverse-text);
+border-radius: 8px;
+width: 36px;
+height: 36px;
+cursor: pointer;
+font-size: 1.2rem;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: transform 0.1s;
+flex-shrink: 0;
+}
+.btn-copy-mini:active { transform: scale(0.9); }
+.my-panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.btn-mini {
+padding: 14px; font-size: 0.85rem; font-weight: 900; border-radius: var(--radius-pill);
+display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px;
+cursor: pointer; border: var(--border-thick); text-transform: uppercase; text-decoration: none; transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.btn-mini.open { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.btn-mini.del { background: var(--color-surface); color: var(--color-text-main); }
+.btn-mini:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.empty-data-notice { padding: 40px 20px; color: var(--color-text-main); font-size: 1rem; font-weight: 900; text-align: center; text-transform: uppercase; border: var(--border-thick); border-radius: var(--radius-md); background: var(--gray-light); display: flex; flex-direction: column; align-items: center; gap: 16px; box-shadow: var(--shadow-solid-sm); }
+.empty-data-notice i { font-size: 48px; }
+.deployment-result-card {
+background: var(--color-surface);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+padding: 24px;
+display: none;
+flex-direction: column;
+gap: 20px;
+box-shadow: var(--shadow-solid);
+}
+.result-header-row {
+display: flex;
+align-items: center;
+gap: 12px;
+color: var(--color-text-main);
+font-weight: 900;
+font-size: 1.2rem;
+text-transform: uppercase;
+border-bottom: var(--border-thick);
+padding-bottom: 16px;
+}
+.result-header-row i { font-size: 1.8rem; }
+.result-data-grid {
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+.data-item {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.data-label {
+font-size: 0.8rem;
+font-weight: 900;
+color: var(--color-text-main);
+text-transform: uppercase;
+}
+.data-value {
+font-family: var(--font-mono);
+font-size: 0.95rem;
+font-weight: 800;
+color: var(--color-inverse-text);
+background: var(--color-inverse-bg);
+padding: 16px;
+border-radius: var(--radius-sm);
+border: 2px solid var(--color-border);
+word-break: break-all;
+user-select: all;
+}
+.toast-notification-float {
+position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(50px);
+background: var(--color-inverse-bg); color: var(--color-inverse-text); padding: 16px 24px; border-radius: var(--radius-pill);
+font-size: 0.95rem; font-weight: 900; box-shadow: var(--shadow-solid); z-index: 99999;
+opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+display: flex; align-items: center; gap: 12px; text-transform: uppercase; white-space: normal; border: var(--border-thick);
+max-width: calc(100vw - 48px); width: max-content; text-align: center; justify-content: center;
+}
+.toast-notification-float.is-shown { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
+.toast-success-style { background: var(--color-inverse-bg); color: var(--color-inverse-text); }
+.toast-err-style { background: var(--color-surface); color: var(--color-text-main); }
+.application-footer-block { text-align: center; margin-top: auto; padding: 32px 0 20px; }
+.footer-primary-text { font-size: 1rem; color: var(--color-text-main); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+.footer-secondary-text { font-size: 0.8rem; color: var(--color-text-main); font-weight: 900; margin-top: 8px; text-transform: uppercase; background: var(--color-surface); display: inline-block; padding: 6px 16px; border-radius: var(--radius-pill); border: 2px solid var(--color-border); box-shadow: var(--shadow-solid-sm); }
+</style>
+<style id="pwa-install-style">
+#pwa-install-banner {
+display: none;
+position: fixed;
+bottom: 24px; left: 24px; right: 24px;
+z-index: 99999;
+padding: 24px;
+background: var(--color-surface);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-solid);
+animation: pwaSlideUp 0.4s ease;
+}
+#pwa-install-banner.pwa-visible { display: flex; align-items: center; gap: 16px; }
+@media (min-width: 600px) { #pwa-install-banner { max-width: 552px; left: 50%; transform: translateX(-50%); } }
+@keyframes pwaSlideUp {
+from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+.pwa-icon-wrap {
+width: 56px; height: 56px; flex-shrink: 0;
+background: var(--color-inverse-bg);
+border-radius: var(--radius-md);
+display: flex; align-items: center; justify-content: center;
+border: var(--border-thick); box-shadow: var(--shadow-solid-sm);
+}
+.pwa-icon-wrap i { font-size: 32px; color: var(--color-inverse-text); }
+.pwa-text-wrap { flex: 1; min-width: 0; }
+.pwa-text-title {
+font-size: 1.1rem; font-weight: 900;
+color: var(--color-text-main); text-transform: uppercase;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pwa-text-sub {
+font-size: 0.85rem; color: var(--color-text-muted); font-weight: 900;
+margin-top: 4px; text-transform: uppercase;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pwa-btn-install {
+flex-shrink: 0;
+padding: 14px 24px;
+background: var(--color-surface); color: var(--color-text-main); border: var(--border-thick); border-radius: var(--radius-pill);
+font-size: 0.9rem; font-weight: 900;
+text-transform: uppercase; cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.pwa-btn-install:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--gray-light); }
+.pwa-btn-close {
+flex-shrink: 0;
+width: 48px; height: 48px;
+background: var(--gray-light); border: var(--border-thick);
+border-radius: 50%; color: var(--color-text-main); font-size: 1.4rem;
+cursor: pointer; display: flex;
+align-items: center; justify-content: center;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.pwa-btn-close:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+</style>
+<script>
+(function(){
+var t = localStorage.getItem('Saurus-theme');
+var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: var(--color-bg-base, #121212) !important; }
+</style>
+</head>
+<body>
+
+<div class="global-background-layer"></div>
+<div id="toast-notify" class="toast-notification-float"></div>
+
+<audio id="audio-background-engine" loop preload="auto">
+<source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg">
+</audio>
+
+<div class="loading-overlay" id="loading-overlay">
+<div class="loader-cube">
+<i class="ph-bold ph-rocket-launch"></i>
+</div>
+<div class="loading-terminal-text" id="loading-terminal-text">[▰▱▱▱▱] MENGINISIASI...</div>
+<div class="loading-terminal-sub">Saurus DEPLOY ENGINE</div>
+</div>
+
+<div class="app-viewport">
+<div class="top-navigation-cluster">
+<button class="kinetic-hamburger-btn" id="btn-trigger-menu">
+<span class="kinetic-line line-top"></span>
+<span class="kinetic-line line-mid"></span>
+<span class="kinetic-line line-bot"></span>
+</button>
+<div class="brand-logotype-header">API <span class="animated-gradient-text">Saurus</span></div>
+<div class="cluster-actions">
+<button class="audio-control-interactive is-muted" id="btn-theme-toggle">
+<i id="theme-icon" class="ph-bold ph-moon"></i>
+</button>
+<button class="audio-control-interactive is-muted" id="btn-trigger-audio">
+<i id="audio-state-icon" class="ph-bold ph-speaker-slash"></i>
+</button>
+<a href="https://trakteer.id/zexxo_store/tip" target="_blank" rel="noopener" title="Dukung Saurus via Trakteer" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--color-surface);color:var(--color-text-main);border-radius:var(--radius-pill);font-size:0.85rem;font-weight:900;text-decoration:none;text-transform:uppercase;border:var(--border-thick);cursor:pointer;transition:transform 0.1s, box-shadow 0.1s;box-shadow:var(--shadow-solid-sm);"><i class="ph-bold ph-heart"></i> TRAKTEER</a>
+</div>
+</div>
+
+<div class="kinetic-overlay-navigation" id="navigation-overlay-layer">
+<div class="navigation-menu-card">
+<div class="nav-header-box">
+<div class="nav-header-title">MENU UTAMA</div>
+<button class="btn-close-sidebar" id="btn-close-nav"><i class="ph-bold ph-x"></i></button>
+</div>
+<div class="sidebar-promo-banner">
+<div class="sidebar-promo-title">DEPLOY SERVER INSTAN</div>
+<div class="sidebar-promo-desc">BANGUN PANEL CLOUD DENGAN RESOURCE TERJAMIN TANPA INTERUPSI.</div>
+</div>
+<div class="navigation-menu-header">NAVIGASI SISTEM</div>
+<div class="nav-links-stagger">
+<a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> BERANDA</a>
+<a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> PROFIL & KUNCI API</a>
+<a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> DOKUMENTASI</a>
+<a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> REPO SNIPPET</a>
+<a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> NONTON ANIME</a>
+<a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> NONTON DONGHUA</a>
+<a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> BACA MANGA</a>
+<a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> BACA MANHWA</a>
+<a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> NONTON FILM</a>
+<a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+<a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+<a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+<a href="/panel" class="navigation-route-link route-active"><i class="ph-bold ph-hard-drives"></i> KLAIM PANEL</a>
+<a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> UNDUH APK</a>
+<a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> MEDIA HOSTER</a>
+<a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+</div>
+</div>
+</div>
+
+<div class="hero-section">
+<div class="hero-badge">
+<i class="ph-bold ph-server"></i> INFRASTRUKTUR CLOUD
+</div>
+<h1 class="hero-title">
+DEPLOY <span class="animated-gradient-text">SERVER.</span>
+</h1>
+<p class="hero-sub">BUAT INSTANSI PANEL PRIVAT SECARA INSTAN. MEMBUTUHKAN VALIDASI KUNCI API. KUOTA MAKSIMAL: 2 NODE PER IP/PERANGKAT.</p>
+</div>
+
+<div class="horizontal-tabs-container">
+<button class="h-tab-btn is-active" data-target="create"><i class="ph-bold ph-plus-circle"></i> BUAT PANEL</button>
+<button class="h-tab-btn" data-target="manage"><i class="ph-bold ph-list-dashes"></i> PANEL SAYA</button>
+</div>
+
+<div id="view-create" class="main-content-panel">
+<div class="auth-notice-box" id="auth-notice">
+<i class="ph-bold ph-circle-notch ph-spin auth-notice-icon"></i>
+<div class="auth-notice-text">MEMVALIDASI STATUS OTORISASI...</div>
+</div>
+
+<div id="panel-form-container" style="display: none;">
+<div class="form-group">
+<label class="form-label">TOKEN KUNCI API</label>
+<input type="text" id="input-apikey" class="form-input" placeholder="DIBUTUHKAN KUNCI OTORISASI" readonly>
+</div>
+
+<div class="form-group">
+<label class="form-label">IDENTIFIKASI USERNAME</label>
+<input type="text" id="input-username" class="form-input" placeholder="HURUF KECIL, ANGKA, UNDERSCORE SAJA" autocomplete="off">
+</div>
+
+<div class="form-group">
+<label class="form-label">ALOKASI SUMBER DAYA (RAM)</label>
+<div class="custom-select-wrapper" id="ram-select-wrapper">
+<div class="custom-select-trigger">
+<span id="ram-selected-text">1 GB RAM / 1 GB DISK</span>
+<i class="ph-bold ph-caret-down"></i>
+</div>
+<div class="custom-select-options">
+<div class="custom-option selected" data-value="1gb">1 GB RAM / 1 GB DISK</div>
+<div class="custom-option" data-value="2gb">2 GB RAM / 2 GB DISK</div>
+<div class="custom-option" data-value="3gb">3 GB RAM / 2 GB DISK</div>
+<div class="custom-option" data-value="4gb">4 GB RAM / 4 GB DISK</div>
+<div class="custom-option" data-value="5gb">5 GB RAM / 5 GB DISK</div>
+<div class="custom-option" data-value="6gb">6 GB RAM / 6 GB DISK</div>
+<div class="custom-option" data-value="7gb">7 GB RAM / 7 GB DISK</div>
+<div class="custom-option" data-value="8gb">8 GB RAM / 8 GB DISK</div>
+<div class="custom-option" data-value="9gb">9 GB RAM / 9 GB DISK</div>
+<div class="custom-option" data-value="10gb">10 GB RAM / 10 GB DISK</div>
+<div class="custom-option" data-value="unli">UNLIMITED</div>
+</div>
+<input type="hidden" id="input-ram" value="1gb">
+</div>
+</div>
+
+<button class="btn-action-highlight" id="btn-deploy-server">
+<i class="ph-bold ph-rocket-launch"></i> EKSEKUSI DEPLOYMENT
+</button>
+</div>
+
+<div class="deployment-result-card" id="deployment-result">
+<div class="result-header-row"><i class="ph-bold ph-check-circle"></i> DEPLOYMENT BERHASIL</div>
+<div class="result-data-grid">
+<div class="data-item">
+<span class="data-label">URL NODE</span>
+<span class="data-value" id="res-url"></span>
+</div>
+<div class="data-item">
+<span class="data-label">EMAIL LOGIN</span>
+<span class="data-value" id="res-email"></span>
+</div>
+<div class="data-item">
+<span class="data-label">USERNAME</span>
+<span class="data-value" id="res-user"></span>
+</div>
+<div class="data-item">
+<span class="data-label">KATA SANDI</span>
+<span class="data-value" id="res-pass"></span>
+</div>
+<div class="data-item">
+<span class="data-label">INFO INSTANSI</span>
+<span class="data-value" id="res-info"></span>
+</div>
+</div>
+</div>
+
+<div class="tos-box">
+<div class="tos-title"><i class="ph-bold ph-shield-warning"></i> SYARAT & KETENTUAN</div>
+<ul class="tos-list">
+<li>DILARANG KERAS MENJALANKAN SKRIP MINING, ALAT DDOS, ATAU BOTNET.</li>
+<li>MATERI PORNOGRAFI, PHISHING, ATAU DISTRIBUSI KONTEN ILEGAL AKAN MEMICU TERMINASI NODE SEKETIKA.</li>
+<li>PENYALAHGUNAAN SUMBER DAYA ATAU MANIPULASI KUOTA AKAN BERAKIBAT PADA PEMBLOKIRAN PERMANEN KUNCI API.</li>
+<li>KAMI TIDAK BERTANGGUNG JAWAB ATAS KEHILANGAN DATA. SELALU BUAT CADANGAN FILE LOKAL ANDA.</li>
+<li>KAMI MEMILIKI HAK ABSOLUT UNTUK MENANGGUHKAN ATAU MENGHAPUS INSTANSI TANPA PEMBERITAHUAN SEBELUMNYA.</li>
+</ul>
+</div>
+</div>
+
+<div id="view-manage" class="main-content-panel" style="display: none;">
+<div class="my-panels-grid" id="my-panels-grid">
+<div class="empty-data-notice"><i class="ph-bold ph-spinner ph-spin"></i><br>MEMUAT INSTANSI...</div>
+</div>
+</div>
+
+<div class="application-footer-block">
+<div class="footer-primary-text">Saurus REST API V2.0</div>
+<div class="footer-secondary-text">ARSITEKTUR MESIN SERVERLESS</div>
+</div>
+</div>
+
+<div id="pwa-install-banner">
+<div class="pwa-icon-wrap"><i class="ph-bold ph-app-window"></i></div>
+<div class="pwa-text-wrap">
+<div class="pwa-text-title">INSTALL Saurus API</div>
+<div class="pwa-text-sub">PASANG SEBAGAI APLIKASI DI PERANGKAT LU.</div>
+</div>
+<button class="pwa-btn-install" id="pwa-btn-install">PASANG</button>
+<button class="pwa-btn-close" id="pwa-btn-close"><i class="ph-bold ph-x"></i></button>
+</div>
+
+<script>
+function initTheme() {
+const isDark = localStorage.getItem('Saurus_theme') === 'dark';
+if (isDark) document.body.classList.add('dark-theme');
+const icon = document.getElementById('theme-icon');
+if (icon) icon.className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+}
+initTheme();
+
+document.getElementById('btn-theme-toggle').onclick = () => {
+const isDark = document.body.classList.toggle('dark-theme');
+localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+};
+
+const triggerMenuBtn = document.getElementById('btn-trigger-menu');
+const navOverlayLayer = document.getElementById('navigation-overlay-layer');
+const btnCloseNav = document.getElementById('btn-close-nav');
+
+triggerMenuBtn.addEventListener('click', () => {
+const isAct = triggerMenuBtn.classList.contains('is-active');
+if (isAct) {
+triggerMenuBtn.classList.remove('is-active');
+navOverlayLayer.classList.remove('is-active');
+document.body.classList.remove('sidebar-open');
+} else {
+triggerMenuBtn.classList.add('is-active');
+navOverlayLayer.classList.add('is-active');
+document.body.classList.add('sidebar-open');
+}
+});
+
+btnCloseNav.addEventListener('click', () => {
+triggerMenuBtn.classList.remove('is-active');
+navOverlayLayer.classList.remove('is-active');
+document.body.classList.remove('sidebar-open');
+});
+
+navOverlayLayer.addEventListener('click', (ev) => {
+if (ev.target === navOverlayLayer) {
+triggerMenuBtn.classList.remove('is-active');
+navOverlayLayer.classList.remove('is-active');
+document.body.classList.remove('sidebar-open');
+}
+});
+
+const BGM_STORE_KEY = 'Saurus_bgm_playing';
+const audioCore = document.getElementById('audio-background-engine');
+const btnAudioTog = document.getElementById('btn-trigger-audio');
+const iconAudioState = document.getElementById('audio-state-icon');
+
+function syncAudioVisualState(isPlaying) {
+if (isPlaying) {
+btnAudioTog.classList.remove('is-muted');
+iconAudioState.className = 'ph-bold ph-speaker-high';
+} else {
+btnAudioTog.classList.add('is-muted');
+iconAudioState.className = 'ph-bold ph-speaker-slash';
+}
+}
+
+if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {
+document.addEventListener('click', function resumePlayEvent() {
+if (localStorage.getItem(BGM_STORE_KEY) === '1') {
+audioCore.play().then(() => syncAudioVisualState(true)).catch(() => {});
+}
+document.removeEventListener('click', resumePlayEvent);
+}, { once: true });
+});
+}
+
+btnAudioTog.addEventListener('click', () => {
+if (audioCore.paused) {
+audioCore.play().then(() => {
+localStorage.setItem(BGM_STORE_KEY, '1');
+syncAudioVisualState(true);
+}).catch(() => {});
+} else {
+audioCore.pause();
+localStorage.setItem(BGM_STORE_KEY, '0');
+syncAudioVisualState(false);
+}
+});
+
+document.querySelectorAll('.h-tab-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+document.querySelectorAll('.h-tab-btn').forEach(b => b.classList.remove('is-active'));
+btn.classList.add('is-active');
+const target = btn.getAttribute('data-target');
+
+document.getElementById('view-create').style.display = 'none';
+document.getElementById('view-manage').style.display = 'none';
+
+if (target === 'create') {
+document.getElementById('view-create').style.display = 'flex';
+} else if (target === 'manage') {
+document.getElementById('view-manage').style.display = 'flex';
+renderMyPanels();
+}
+});
+});
+
+const toastRef = document.getElementById('toast-notify');
+let toastTimer = null;
+function showToast(msg, type = 'err') {
+toastRef.innerHTML = type === 'success' ? `<i class="ph-bold ph-check-circle"></i> ${msg}` : `<i class="ph-bold ph-warning-octagon"></i> ${msg}`;
+toastRef.className = 'toast-notification-float is-shown ' + (type === 'success' ? 'toast-success-style' : 'toast-err-style');
+if (toastTimer) clearTimeout(toastTimer);
+toastTimer = setTimeout(() => toastRef.className = 'toast-notification-float', 3500);
+}
+
+let auth, db;
+
+const uiAuthNoticeBox = document.getElementById('auth-notice');
+const uiPanelFormContainer = document.getElementById('panel-form-container');
+const uiInputApikey = document.getElementById('input-apikey');
+
+function _initAuthListener() {
+  try {
+    auth = firebase.auth();
+    db = firebase.firestore();
+  } catch (e) {}
+
+  if (auth && db) {
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        db.collection('users').doc(user.uid).get().then(doc => {
+          if (doc.exists && doc.data().apiKey) {
+            uiInputApikey.value = doc.data().apiKey;
+            uiAuthNoticeBox.style.display = 'none';
+            uiPanelFormContainer.style.display = 'flex';
+            uiPanelFormContainer.style.flexDirection = 'column';
+            uiPanelFormContainer.style.gap = '16px';
+          } else {
+            uiAuthNoticeBox.innerHTML = `<i class="ph-bold ph-key auth-notice-icon"></i><div class="auth-notice-text">AKUN TERVERIFIKASI, TAPI KUNCI API HILANG.<br><a href="/profile">BUAT DI BAGIAN PROFIL</a>.</div>`;
+          }
+        }).catch(() => {
+          uiAuthNoticeBox.innerHTML = `<i class="ph-bold ph-warning-circle auth-notice-icon"></i><div class="auth-notice-text">KEGAGALAN PEMBACAAN DATABASE.</div>`;
+        });
+      } else {
+        uiAuthNoticeBox.innerHTML = `<i class="ph-bold ph-lock-key auth-notice-icon"></i><div class="auth-notice-text">AKSES DITOLAK. OTENTIKASI DAN KUNCI API YANG VALID SANGAT DIPERLUKAN.<br><a href="/profile">LOGIN DI SINI</a>.</div>`;
+        uiPanelFormContainer.style.display = 'none';
+      }
+    });
+  } else {
+    uiAuthNoticeBox.innerHTML = `<i class="ph-bold ph-plugs auth-notice-icon"></i><div class="auth-notice-text">KESALAHAN KONEKSI FIREBASE.</div>`;
+  }
+}
+
+const customSelectWrapper = document.getElementById('ram-select-wrapper');
+const customSelectTrigger = customSelectWrapper.querySelector('.custom-select-trigger');
+const customSelectOptions = customSelectWrapper.querySelector('.custom-select-options');
+const hiddenInputRam = document.getElementById('input-ram');
+const selectedText = document.getElementById('ram-selected-text');
+
+customSelectTrigger.addEventListener('click', () => {
+customSelectWrapper.classList.toggle('is-open');
+});
+
+document.addEventListener('click', (e) => {
+if (!customSelectWrapper.contains(e.target)) {
+customSelectWrapper.classList.remove('is-open');
+}
+});
+
+customSelectOptions.querySelectorAll('.custom-option').forEach(option => {
+option.addEventListener('click', function() {
+customSelectOptions.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+this.classList.add('selected');
+selectedText.textContent = this.textContent;
+hiddenInputRam.value = this.getAttribute('data-value');
+customSelectWrapper.classList.remove('is-open');
+});
+});
+
+window.copyToClipboard = function(text) {
+navigator.clipboard.writeText(text).then(() => {
+showToast('DISALIN KE KLIPBORD.', 'success');
+}).catch(() => {
+showToast('GAGAL MENYALIN.', 'err');
+});
+};
+
+function savePanelToLocal(panelData) {
+let panels = JSON.parse(localStorage.getItem('Saurus_my_panels') || '[]');
+panels.unshift({
+id: panelData.server_id,
+name: panelData.server_name,
+ram: panelData.ram,
+domain: panelData.domain,
+user: panelData.username,
+pass: panelData.password,
+date: new Date().toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' })
+});
+localStorage.setItem('Saurus_my_panels', JSON.stringify(panels));
+}
+
+function removePanelFromLocal(serverId) {
+let panels = JSON.parse(localStorage.getItem('Saurus_my_panels') || '[]');
+panels = panels.filter(p => p.id !== serverId);
+localStorage.setItem('Saurus_my_panels', JSON.stringify(panels));
+}
+
+async function renderMyPanels() {
+const grid = document.getElementById('my-panels-grid');
+grid.innerHTML = '<div class="empty-data-notice"><i class="ph-bold ph-spinner" style="font-size:32px; margin-bottom:12px; animation:spin 1s linear infinite;"></i><br>MEMUAT DATA INSTANSI...</div>';
+
+// Coba load dari server (Firestore via API)
+let serverPanels = [];
+const apikeyForLoad = uiInputApikey.value.trim();
+if (apikeyForLoad) {
+  try {
+    const r = await fetch(`/api/my-panels?apikey=${encodeURIComponent(apikeyForLoad)}`);
+    const j = await r.json();
+    if (j.ok && Array.isArray(j.data)) {
+      serverPanels = j.data;
+      // Sync ke localStorage
+      if (serverPanels.length > 0) {
+        const merged = serverPanels.map(p => ({
+          id: p.server_id,
+          name: p.server_name,
+          ram: p.ram,
+          domain: p.domain,
+          user: p.username,
+          pass: p.password,
+          date: p.createdAt ? new Date(p.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'
+        }));
+        localStorage.setItem('Saurus_my_panels', JSON.stringify(merged));
+      }
+    }
+  } catch(_) {}
+}
+
+// Fallback ke localStorage kalau API gagal / apikey belum ada
+let panels = serverPanels.length > 0
+  ? serverPanels.map(p => ({
+      id: p.server_id,
+      name: p.server_name,
+      ram: p.ram,
+      domain: p.domain,
+      user: p.username,
+      pass: p.password,
+      date: p.createdAt ? new Date(p.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'
+    }))
+  : JSON.parse(localStorage.getItem('Saurus_my_panels') || '[]');
+
+grid.innerHTML = '';
+if (panels.length === 0) {
+grid.innerHTML = '<div class="empty-data-notice"><i class="ph-bold ph-hard-drives" style="font-size:40px; margin-bottom:12px;"></i><br>TIDAK ADA INSTANSI AKTIF DITEMUKAN.</div>';
+return;
+}
+
+panels.forEach(p => {
+const card = document.createElement('div');
+card.className = 'my-panel-card';
+card.innerHTML = `
+<div class="my-panel-header">
+<div class="my-panel-title">${p.name}</div>
+<div class="my-panel-ram">${p.ram}</div>
+</div>
+<div class="my-panel-info">
+<div class="my-panel-text"><i class="ph-bold ph-hash"></i> ID NODE: ${p.id}</div>
+<div class="my-panel-text"><i class="ph-bold ph-calendar"></i> DI-DEPLOY PADA: ${p.date}</div>
+
+<div class="credential-box">
+<div class="cred-row">
+<span class="cred-label">USER</span>
+<div class="cred-val-container">
+<span class="cred-val" onclick="this.classList.toggle('revealed')" title="KETUK UNTUK MENAMPILKAN">${p.user}</span>
+<button class="btn-copy-mini" onclick="copyToClipboard('${p.user}')"><i class="ph-bold ph-copy"></i></button>
+</div>
+</div>
+<div class="cred-row">
+<span class="cred-label">SANDI</span>
+<div class="cred-val-container">
+<span class="cred-val" onclick="this.classList.toggle('revealed')" title="KETUK UNTUK MENAMPILKAN">${p.pass}</span>
+<button class="btn-copy-mini" onclick="copyToClipboard('${p.pass}')"><i class="ph-bold ph-copy"></i></button>
+</div>
+</div>
+</div>
+</div>
+<div class="my-panel-actions">
+<a href="${p.domain}" target="_blank" class="btn-mini open"><i class="ph-bold ph-browser"></i> LOGIN PANEL</a>
+<button class="btn-mini del" onclick="executeDeletePanel(${p.id})"><i class="ph-bold ph-trash"></i> HAPUS NODE</button>
+</div>
+`;
+grid.appendChild(card);
+});
+}
+
+window.executeDeletePanel = async function(serverId) {
+if (!confirm('MEMULAI OPERASI DESTRUKTIF. SEMUA DATA SERVER AKAN DIHAPUS. LANJUTKAN?')) return;
+
+const apikeyTokenString = uiInputApikey.value.trim();
+if (!apikeyTokenString) return showToast('KUNCI API DIBUTUHKAN UNTUK PENGHAPUSAN.', 'err');
+
+const loadingOverlayLayer = document.getElementById('loading-overlay');
+const loadingTerminalText = document.getElementById('loading-terminal-text');
+loadingTerminalText.textContent = "[▰▰▰▰▰] MENGAKHIRI INSTANSI...";
+loadingOverlayLayer.classList.add('is-active');
+
+try {
+const res = await fetch('/api/delete-panel', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ apikey: apikeyTokenString, server_id: serverId })
+});
+const json = await res.json();
+
+loadingOverlayLayer.classList.remove('is-active');
+
+if (json.ok) {
+removePanelFromLocal(serverId);
+renderMyPanels();
+showToast('INSTANSI BERHASIL DIAKHIRI.', 'success');
+} else {
+showToast(json.message || 'GAGAL MENGAKHIRI INSTANSI.', 'err');
+}
+} catch (e) {
+loadingOverlayLayer.classList.remove('is-active');
+showToast('KEHABISAN WAKTU JARINGAN.', 'err');
+}
+};
+
+const loadingTerminalFramesArray = [
+"[▰▱▱▱▱] MENGINISIASI SEKUEN DEPLOYMENT...",
+"[▰▰▱▱▱] MEMVALIDASI OTORISASI DAN KUOTA...",
+"[▰▰▰▱▱] MEMBUAT KREDENSIAL DATABASE...",
+"[▰▰▰▰▱] MENGALOKASIKAN SUMBER DAYA SERVER...",
+"[▰▰▰▰▰] MENGAKHIRI KONFIGURASI INSTANSI..."
+];
+
+function triggerDelayProcess(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.getElementById('btn-deploy-server').addEventListener('click', async () => {
+const apikeyTokenString = uiInputApikey.value.trim();
+const usernameIdentifierString = document.getElementById('input-username').value.trim();
+const ramAllocationValue = hiddenInputRam.value;
+
+if (!apikeyTokenString || !usernameIdentifierString) return showToast('SEMUA KOLOM WAJIB DIISI.', 'err');
+
+const usernameValidationRegex = /^[a-z0-9_]{3,16}$/;
+if (!usernameValidationRegex.test(usernameIdentifierString)) {
+return showToast('FORMAT USERNAME TIDAK VALID.', 'err');
+}
+
+document.getElementById('deployment-result').style.display = 'none';
+const loadingOverlayLayer = document.getElementById('loading-overlay');
+const loadingTerminalText = document.getElementById('loading-terminal-text');
+loadingOverlayLayer.classList.add('is-active');
+
+let isDeploymentFinished = false;
+(async () => {
+for (let frameIndex = 0; frameIndex < loadingTerminalFramesArray.length; frameIndex++) {
+if (isDeploymentFinished) break;
+loadingTerminalText.textContent = loadingTerminalFramesArray[frameIndex];
+await triggerDelayProcess(750);
+}
+})();
+
+try {
+const deploymentNetworkResponse = await fetch('/api/create-panel', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ apikey: apikeyTokenString, username: usernameIdentifierString, ram: ramAllocationValue })
+});
+const deploymentJsonResponse = await deploymentNetworkResponse.json();
+
+isDeploymentFinished = true;
+loadingTerminalText.textContent = "[▰▰▰▰▰] EKSEKUSI SELESAI.";
+await triggerDelayProcess(400);
+loadingOverlayLayer.classList.remove('is-active');
+
+if (deploymentJsonResponse.ok && deploymentJsonResponse.data) {
+savePanelToLocal(deploymentJsonResponse.data);
+showToast('DEPLOYMENT BERHASIL.', 'success');
+document.getElementById('deployment-result').style.display = 'flex';
+document.getElementById('res-url').textContent = deploymentJsonResponse.data.domain;
+document.getElementById('res-email').textContent = deploymentJsonResponse.data.email;
+document.getElementById('res-user').textContent = deploymentJsonResponse.data.username;
+document.getElementById('res-pass').textContent = deploymentJsonResponse.data.password;
+document.getElementById('res-info').textContent = `[ID:${deploymentJsonResponse.data.server_id}] ${deploymentJsonResponse.data.server_name} ⎔ ${deploymentJsonResponse.data.ram}`;
+document.getElementById('input-username').value = '';
+} else {
+showToast(deploymentJsonResponse.message || 'DEPLOYMENT DITOLAK.', 'err');
+}
+} catch (networkError) {
+isDeploymentFinished = true;
+loadingOverlayLayer.classList.remove('is-active');
+showToast('KEHABISAN WAKTU JARINGAN. SILAKAN COBA LAGI.', 'err');
+}
+});
+</script>
+<script id="pwa-install-script">
+(function() {
+let deferredPrompt = null;
+const banner = document.getElementById('pwa-install-banner');
+const btnInstall = document.getElementById('pwa-btn-install');
+const btnClose = document.getElementById('pwa-btn-close');
+const DISMISSED_KEY = 'Saurus_pwa_dismissed';
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+if (localStorage.getItem(DISMISSED_KEY)) return;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+setTimeout(() => {
+if (banner) banner.classList.add('pwa-visible');
+}, 1800);
+});
+
+if (btnInstall) {
+btnInstall.addEventListener('click', async () => {
+if (!deferredPrompt) return;
+deferredPrompt.prompt();
+const { outcome } = await deferredPrompt.userChoice;
+deferredPrompt = null;
+if (banner) banner.classList.remove('pwa-visible');
+if (outcome === 'accepted') localStorage.setItem(DISMISSED_KEY, '1');
+});
+}
+
+if (btnClose) {
+btnClose.addEventListener('click', () => {
+if (banner) banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+}
+
+window.addEventListener('appinstalled', () => {
+if (banner) banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+})();
+</script>
+<script src="/shared.js"></script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+        _initAuthListener();
+        return;
+    }
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+    _initAuthListener();
+}
+_initFirebase().catch(() => {
+    const uiAuthNoticeBox = document.getElementById('auth-notice');
+    if (uiAuthNoticeBox) uiAuthNoticeBox.innerHTML = `<i class="ph-bold ph-plugs auth-notice-icon"></i><div class="auth-notice-text">KESALAHAN KONEKSI FIREBASE.</div>`;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CS Dashboard - API Saurus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg-main: #F6F8FA;
+      --bg-card: #FFFFFF;
+      --border-dark: #2A2B32;
+      --text-main: #2A2B32;
+      --text-muted: #5C6275;
+      
+      --pastel-pink: #FFC4D9;
+      --pastel-blue: #C4E4FF;
+      --pastel-green: #C4FFD9;
+      --pastel-peach: #FFDBC4;
+      --pastel-yellow: #FFF3C4;
+
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+
+      --border-thick: 3px solid var(--border-dark);
+      --border-dashed: 3px dashed var(--border-dark);
+      
+      --shadow-solid: 4px 4px 0px var(--border-dark);
+      --shadow-solid-sm: 2px 2px 0px var(--border-dark);
+      --shadow-active: 0px 0px 0px transparent;
+    }
+
+    body.dark-theme {
+      --bg-main: #1A1C23;
+      --bg-card: #242730;
+      --border-dark: #E2E8F0;
+      --text-main: #E2E8F0;
+      --text-muted: #94A3B8;
+
+      --pastel-pink: #9A2A5A;
+      --pastel-blue: #2A5A9A;
+      --pastel-green: #2A7A4A;
+      --pastel-peach: #9A5A2A;
+      --pastel-yellow: #9A8A2A;
+
+      --shadow-solid: 4px 4px 0px var(--pastel-blue);
+      --shadow-solid-sm: 2px 2px 0px var(--pastel-blue);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; min-height: 100vh; background: var(--bg-main); color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
+
+    .moving-background-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+      background-size: 32px 32px;
+      opacity: 0.15;
+      animation: pan-background 40s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pan-background {
+      0% { background-position: 0 0; }
+      100% { background-position: 100vw 100vh; }
+    }
+
+    .access-gate {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg-main);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; padding: 32px 24px;
+    }
+
+    .access-gate.hidden { display: none; }
+
+    .gate-icon {
+      width: 80px; height: 80px; border-radius: var(--radius-md);
+      background: var(--pastel-pink);
+      border: var(--border-thick);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem; color: var(--border-dark);
+      box-shadow: var(--shadow-solid);
+    }
+
+    .gate-title { font-size: 1.4rem; font-weight: 900; color: var(--text-main); text-align: center; text-transform: uppercase; }
+    .gate-sub { font-size: 0.85rem; color: var(--text-muted); text-align: center; max-width: 280px; line-height: 1.6; font-weight: 600; }
+
+    .gate-login-card {
+      width: 100%; max-width: 340px;
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg); padding: 24px;
+      display: flex; flex-direction: column; gap: 16px;
+      box-shadow: var(--shadow-solid);
+      position: relative;
+      z-index: 1;
+    }
+
+    .gate-input {
+      width: 100%; background: var(--bg-main);
+      border: var(--border-thick);
+      border-radius: var(--radius-md); padding: 14px 16px;
+      color: var(--text-main); font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      outline: none; transition: background-color 0.2s;
+    }
+
+    .gate-input:focus { background: var(--bg-card); box-shadow: var(--shadow-solid-sm); }
+
+    .gate-btn {
+      width: 100%; padding: 14px;
+      background: var(--pastel-yellow);
+      border: 2px solid var(--border-dark); border-radius: var(--radius-pill);
+      color: var(--border-dark); font-size: 0.9rem; font-weight: 900; text-transform: uppercase;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+      box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .gate-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+    .gate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .gate-google-btn {
+      width: 100%; padding: 14px;
+      background: var(--bg-card);
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-pill); color: var(--text-main);
+      font-size: 0.9rem; font-weight: 800; text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .gate-google-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--pastel-blue); }
+
+    .gate-error {
+      font-size: 0.75rem; color: #fff;
+      background: #EF4444; border: 2px solid var(--border-dark);
+      border-radius: var(--radius-sm); padding: 10px 14px; text-align: center; font-weight: 800; text-transform: uppercase;
+      display: none;
+    }
+
+    .gate-error.show { display: block; }
+
+    .gate-divider {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--text-main); font-size: 0.8rem; font-weight: 800;
+    }
+
+    .gate-divider::before, .gate-divider::after {
+      content: ''; flex: 1; height: 3px; background: var(--border-dark);
+    }
+
+    .cs-layout {
+      display: flex; flex-direction: column;
+      min-height: 100dvh;
+      max-width: 600px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+
+    .cs-header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 24px;
+      background: var(--pastel-blue);
+      border-bottom: var(--border-thick);
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .cs-header-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      background: var(--bg-card); border: 2px solid var(--border-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; color: var(--border-dark); flex-shrink: 0;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .cs-header-info { flex: 1; }
+    .cs-header-title { font-size: 1.1rem; font-weight: 900; color: var(--border-dark); text-transform: uppercase; }
+    .cs-header-sub { font-size: 0.75rem; color: var(--border-dark); font-weight: 800; display: flex; align-items: center; gap: 6px; }
+
+    .cs-header-right { display: flex; gap: 10px; align-items: center; }
+
+    .cs-notif-badge {
+      background: var(--pastel-pink); color: var(--border-dark);
+      font-size: 0.75rem; font-weight: 900; border: 2px solid var(--border-dark);
+      border-radius: var(--radius-pill); padding: 4px 10px;
+      display: none; box-shadow: var(--shadow-solid-sm);
+    }
+
+    .cs-notif-badge.show { display: inline-block; }
+
+    .cs-header-btn {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background: var(--bg-card); border: 2px solid var(--border-dark);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--border-dark); cursor: pointer; font-size: 1.4rem;
+      box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .cs-header-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+
+    .cs-tabs {
+      display: flex; gap: 12px; padding: 16px 24px;
+      background: var(--bg-main);
+      border-bottom: var(--border-thick);
+      flex-shrink: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    
+    .cs-tabs::-webkit-scrollbar { display: none; }
+
+    .cs-tab {
+      flex: 1; min-width: 140px; padding: 12px 16px;
+      border: 2px solid var(--border-dark); background: var(--bg-card);
+      border-radius: var(--radius-md);
+      font-size: 0.8rem; font-weight: 800; text-transform: uppercase;
+      color: var(--text-main); cursor: pointer;
+      transition: transform 0.1s, background-color 0.2s, box-shadow 0.1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: var(--shadow-solid-sm);
+    }
+
+    .cs-tab:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+    .cs-tab.active { background: var(--pastel-yellow); color: var(--border-dark); }
+
+    .cs-content { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    .complaint-card {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-solid);
+      animation: card-in 0.3s ease;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .complaint-card.unread { background: var(--bg-card); border-color: var(--border-dark); }
+
+    .complaint-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; border-bottom: 2px solid var(--border-dark);
+      background: var(--bg-main);
+    }
+
+    .complaint-avatar {
+      width: 44px; height: 44px; border-radius: var(--radius-md);
+      background: var(--pastel-peach); border: 2px solid var(--border-dark); overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 900; color: var(--border-dark);
+      flex-shrink: 0;
+    }
+
+    .complaint-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .complaint-user { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .complaint-name { font-size: 0.9rem; font-weight: 900; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+    .complaint-email { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .complaint-time { font-size: 0.75rem; font-weight: 800; color: var(--text-main); flex-shrink: 0; background: var(--bg-card); padding: 4px 10px; border: 2px solid var(--border-dark); border-radius: var(--radius-pill); }
+
+    .unread-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--pastel-pink); flex-shrink: 0; border: 2px solid var(--border-dark);
+    }
+
+    .complaint-body { padding: 20px; }
+    .complaint-message {
+      font-size: 0.9rem; color: var(--text-main); line-height: 1.6; font-weight: 600;
+      background: var(--bg-main); border: var(--border-dashed); border-radius: var(--radius-md); padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .complaint-reply-area { display: flex; flex-direction: column; gap: 12px; }
+
+    .reply-label { font-size: 0.8rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+    .reply-label i { font-size: 1.2rem; color: var(--border-dark); }
+
+    .reply-existing {
+      background: var(--pastel-green);
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-md); padding: 16px;
+      font-size: 0.85rem; font-weight: 700; color: var(--border-dark); line-height: 1.5;
+    }
+
+    .reply-textarea {
+      width: 100%; background: var(--bg-main);
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-md); padding: 16px;
+      color: var(--text-main); font-size: 0.9rem; font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      resize: vertical; outline: none; min-height: 100px;
+      transition: background-color 0.2s;
+    }
+
+    .reply-textarea:focus { background: var(--bg-card); }
+
+    .reply-actions { display: flex; gap: 12px; }
+
+    .reply-send-btn {
+      flex: 1; padding: 14px;
+      background: var(--pastel-blue);
+      border: 2px solid var(--border-dark); border-radius: var(--radius-md);
+      color: var(--border-dark); font-size: 0.85rem; font-weight: 900; text-transform: uppercase;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px; box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .reply-send-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+    .reply-send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .reply-delete-btn {
+      padding: 14px;
+      background: var(--pastel-pink);
+      border: 2px solid var(--border-dark);
+      border-radius: var(--radius-md); color: var(--border-dark);
+      font-size: 1.2rem; cursor: pointer; box-shadow: var(--shadow-solid-sm);
+      transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; justify-content: center;
+    }
+
+    .reply-delete-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; padding: 60px 24px; text-align: center;
+      background: var(--bg-card); border: var(--border-thick); border-radius: var(--radius-lg); box-shadow: var(--shadow-solid);
+    }
+
+    .empty-icon { font-size: 4rem; color: var(--text-main); background: var(--pastel-yellow); border: 2px solid var(--border-dark); border-radius: 50%; padding: 16px; box-shadow: var(--shadow-solid-sm); }
+    .empty-title { font-size: 1.2rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
+    .empty-sub { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; line-height: 1.5; }
+
+    .stats-row { display: flex; flex-direction: column; gap: 16px; }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: var(--border-thick);
+      border-radius: var(--radius-lg); padding: 24px;
+      display: flex; align-items: center; gap: 20px;
+      box-shadow: var(--shadow-solid);
+    }
+
+    .stat-card:nth-child(1) { background: var(--pastel-yellow); color: var(--border-dark); }
+    .stat-card:nth-child(2) { background: var(--pastel-pink); color: var(--border-dark); }
+    .stat-card:nth-child(3) { background: var(--pastel-green); color: var(--border-dark); }
+
+    .stat-icon-wrap {
+      width: 64px; height: 64px; background: var(--bg-card); border: 2px solid var(--border-dark);
+      border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: var(--border-dark); box-shadow: var(--shadow-solid-sm); flex-shrink: 0;
+    }
+
+    .stat-info { display: flex; flex-direction: column; gap: 4px; }
+    .stat-number { font-size: 2.2rem; font-weight: 900; color: var(--border-dark); line-height: 1; }
+    .stat-label { font-size: 0.8rem; color: var(--border-dark); font-weight: 800; text-transform: uppercase; }
+
+    .cs-loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; padding: 40px; background: var(--bg-card); border: var(--border-thick); border-radius: var(--radius-lg);
+      color: var(--text-main); font-size: 1rem; font-weight: 800; text-transform: uppercase; box-shadow: var(--shadow-solid);
+    }
+
+    .cs-loading i { font-size: 2rem; color: var(--pastel-blue); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; display: inline-block; }
+  
+</style>
+
+<script>
+/* Saurus dark-sync: respect body.dark-theme system */
+(function(){
+    var t = localStorage.getItem('Saurus-theme');
+    var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: var(--bg-main, #1A1C23) !important; }
+</style>
+</head>
+<body>
+
+<div class="moving-background-pattern"></div>
+
+<div class="access-gate" id="access-gate">
+  <div class="gate-icon"><i class="ph-bold ph-shield-check"></i></div>
+  <div class="gate-title">PORTAL ADMIN</div>
+  <div class="gate-sub">Halaman ini diawasi ketat. Autentikasi dengan kredensial owner untuk membuka akses data.</div>
+
+  <div class="gate-login-card">
+    <input type="email" class="gate-input" id="gate-email" placeholder="Alamat Email">
+    <input type="password" class="gate-input" id="gate-pass" placeholder="Kata Sandi">
+    <div class="gate-error" id="gate-error"></div>
+    <button class="gate-btn" id="gate-login-btn">
+      <i class="ph-bold ph-lock-key"></i> OTORISASI AKSES
+    </button>
+    <div class="gate-divider">KONEKSI AMAN</div>
+    <button class="gate-google-btn" id="gate-google-btn">
+      <i class="ph-bold ph-google-logo"></i> MASUK VIA GOOGLE
+    </button>
+  </div>
+</div>
+
+<div class="cs-layout" id="cs-dashboard" style="display:none">
+
+  <div class="cs-header">
+    <div class="cs-header-icon"><i class="ph-bold ph-headset"></i></div>
+    <div class="cs-header-info">
+      <div class="cs-header-title">COMMAND CENTER</div>
+      <div class="cs-header-sub" id="owner-label"><i class="ph-fill ph-circle" style="color:#10B981"></i> Memuat Akses...</div>
+    </div>
+    <div class="cs-header-right">
+      <span class="cs-notif-badge" id="unread-badge">0</span>
+      <button class="cs-header-btn" onclick="window.location.href='index.html'" title="Kembali ke Dasbor">
+        <i class="ph-bold ph-house"></i>
+      </button>
+      <button class="cs-header-btn" id="logout-btn" title="Keluar">
+        <i class="ph-bold ph-sign-out"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="cs-tabs">
+    <button class="cs-tab active" id="tab-unread" onclick="switchTab('unread')">
+      <i class="ph-bold ph-bell-ringing"></i> ANTRIAN TIKET
+    </button>
+    <button class="cs-tab" id="tab-all" onclick="switchTab('all')">
+      <i class="ph-bold ph-folders"></i> SEMUA LOG
+    </button>
+    <button class="cs-tab" id="tab-stats" onclick="switchTab('stats')">
+      <i class="ph-bold ph-chart-bar"></i> STATISTIK
+    </button>
+  </div>
+
+  <div class="cs-content" id="panel-unread">
+    <div class="cs-loading"><i class="ph-bold ph-spinner spin"></i> MENGUNDUH DATA...</div>
+  </div>
+
+  <div class="cs-content" id="panel-all" style="display:none">
+    <div class="cs-loading"><i class="ph-bold ph-spinner spin"></i> MENGUNDUH DATA...</div>
+  </div>
+
+  <div class="cs-content" id="panel-stats" style="display:none">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon-wrap"><i class="ph-bold ph-files"></i></div>
+        <div class="stat-info">
+          <div class="stat-number" id="stat-total">-</div>
+          <div class="stat-label">TOTAL LAPORAN MASUK</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap"><i class="ph-bold ph-warning-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-number" id="stat-unread">-</div>
+          <div class="stat-label">LAPORAN MENGGANTUNG</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap"><i class="ph-bold ph-check-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-number" id="stat-replied">-</div>
+          <div class="stat-label">MASALAH TERSELESAIKAN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER_EMAIL = 'zexxostore85@gmail.com';
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+let allComplaints = {};
+let currentTab = 'unread';
+
+const accessGate = document.getElementById('access-gate');
+const csDashboard = document.getElementById('cs-dashboard');
+
+(function() {
+  const cached = localStorage.getItem('Saurus_user_cache_v2');
+  if (cached) {
+    try {
+      const u = JSON.parse(cached);
+      if (u.email === OWNER_EMAIL) {
+        accessGate.classList.add('hidden');
+        csDashboard.style.display = 'flex';
+        document.getElementById('owner-label').innerHTML = '<i class="ph-fill ph-check-circle" style="color:#10B981"></i> ' + (u.displayName || u.email);
+      }
+    } catch(e) {}
+  }
+})();
+
+auth.onAuthStateChanged(user => {
+  if (user && user.email === OWNER_EMAIL) {
+    accessGate.classList.add('hidden');
+    csDashboard.style.display = 'flex';
+    document.getElementById('owner-label').innerHTML = '<i class="ph-fill ph-check-circle" style="color:#10B981"></i> ' + (user.displayName || user.email);
+    startListening();
+  } else if (user) {
+    auth.signOut();
+    showGateError('Akses ditolak! Anda bukan pemegang otoritas sistem.');
+  } else {
+    accessGate.classList.remove('hidden');
+    csDashboard.style.display = 'none';
+  }
+});
+
+function showGateError(msg) {
+  const el = document.getElementById('gate-error');
+  el.innerHTML = '<i class="ph-bold ph-warning"></i> ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+function mapError(code) {
+  const m = {
+    'auth/wrong-password': 'Password tidak cocok.',
+    'auth/user-not-found': 'Identitas tidak ditemukan.',
+    'auth/invalid-credential': 'Kredensial akses ditolak.',
+    'auth/too-many-requests': 'Terlalu banyak intrusi. Sistem dikunci.',
+    'auth/popup-closed-by-user': 'Koneksi eksternal dibatalkan.'
+  };
+  return m[code] || 'Terjadi kesalahan sistem internal.';
+}
+
+document.getElementById('gate-login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('gate-email').value.trim();
+  const pass = document.getElementById('gate-pass').value;
+  if (!email || !pass) { showGateError('Parameter login tidak lengkap.'); return; }
+  const btn = document.getElementById('gate-login-btn');
+  btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner spin"></i> MENGOTENTIKASI...';
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    showGateError(mapError(e.code));
+    btn.disabled = false; btn.innerHTML = '<i class="ph-bold ph-lock-key"></i> OTORISASI AKSES';
+  }
+});
+
+document.getElementById('gate-google-btn').addEventListener('click', () => {
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => showGateError(mapError(e.code)));
+});
+
+document.getElementById('gate-email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('gate-login-btn').click();
+});
+
+document.getElementById('gate-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('gate-login-btn').click();
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+function startListening() {
+  db.ref('cs_complaints').orderByChild('timestamp').on('value', snap => {
+    allComplaints = {};
+    if (snap.exists()) {
+      snap.forEach(child => {
+        allComplaints[child.key] = { id: child.key, ...child.val() };
+      });
+    }
+    renderAll();
+    updateStats();
+    updateBadge();
+  });
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['unread','all','stats'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('panel-' + t).style.display = t === tab ? 'flex' : 'none';
+  });
+  if (tab !== 'stats') renderAll();
+}
+
+function renderAll() {
+  const items = Object.values(allComplaints).reverse();
+  const filtered = currentTab === 'unread'
+    ? items.filter(c => !c.reply)
+    : items;
+
+  const panelId = 'panel-' + currentTab;
+  const panel = document.getElementById(panelId);
+  panel.innerHTML = '';
+
+  if (filtered.length === 0) {
+    panel.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><i class="ph-fill ph-check-circle"></i></div>
+        <div class="empty-title">${currentTab === 'unread' ? 'SEMUA AMAN TERKENDALI' : 'BELUM ADA LAPORAN MASUK'}</div>
+        <div class="empty-sub">${currentTab === 'unread' ? 'Tidak ada tiket laporan yang memerlukan tindakan.' : 'Belum ada interaksi laporan dari sisi client.'}</div>
+      </div>`;
+    return;
+  }
+
+  filtered.forEach(c => {
+    const card = buildCard(c);
+    panel.appendChild(card);
+  });
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'BARU SAJA';
+  if (m < 60) return m + ' MNT LALU';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' JAM LALU';
+  return Math.floor(h / 24) + ' HARI LALU';
+}
+
+function buildCard(c) {
+  const card = document.createElement('div');
+  card.className = 'complaint-card' + (!c.reply ? ' unread' : '');
+  card.id = 'card-' + c.id;
+
+  const initial = (c.displayName || c.email || 'U')[0].toUpperCase();
+  const avatarHtml = c.photoURL
+    ? `<img src="${c.photoURL}" alt="avatar">`
+    : `<span>${initial}</span>`;
+
+  const replySection = c.reply
+    ? `<div class="reply-label"><i class="ph-bold ph-check-circle"></i> TIKET DITUTUP (BALASAN TERKIRIM)</div>
+       <div class="reply-existing">${escHtml(c.reply)}</div>
+       <div class="reply-actions">
+         <button class="reply-send-btn" style="background:var(--pastel-yellow);color:var(--border-dark);" onclick="editReply('${c.id}')">
+           <i class="ph-bold ph-pencil"></i> REVISI BALASAN
+         </button>
+         <button class="reply-delete-btn" onclick="deleteComplaint('${c.id}')">
+           <i class="ph-bold ph-trash"></i>
+         </button>
+       </div>`
+    : `<div class="reply-label"><i class="ph-bold ph-chat-centered-text"></i> TINDAK LANJUTI TIKET INI</div>
+       <textarea class="reply-textarea" id="reply-${c.id}" placeholder="Ketik balasan teknis untuk ${escHtml(c.displayName || c.email)}..."></textarea>
+       <div class="reply-actions">
+         <button class="reply-send-btn" onclick="sendReply('${c.id}')">
+           <i class="ph-bold ph-paper-plane-right"></i> KIRIM BALASAN
+         </button>
+         <button class="reply-delete-btn" onclick="deleteComplaint('${c.id}')">
+           <i class="ph-bold ph-trash"></i>
+         </button>
+       </div>`;
+
+  card.innerHTML = `
+    <div class="complaint-header">
+      <div class="complaint-avatar">${avatarHtml}</div>
+      <div class="complaint-user">
+        <div class="complaint-name">${escHtml(c.displayName || 'PENGGUNA TIDAK DIKETAHUI')}</div>
+        <div class="complaint-email">${escHtml(c.email || '---')}</div>
+      </div>
+      <div class="complaint-time">${timeAgo(c.timestamp)}</div>
+      ${!c.reply ? '<div class="unread-dot"></div>' : ''}
+    </div>
+    <div class="complaint-body">
+      <div class="complaint-message">${escHtml(c.message)}</div>
+      <div class="complaint-reply-area">${replySection}</div>
+    </div>`;
+
+  return card;
+}
+
+async function sendReply(id) {
+  const ta = document.getElementById('reply-' + id);
+  if (!ta) return;
+  const reply = ta.value.trim();
+  if (!reply) return;
+
+  const btn = ta.parentElement.querySelector('.reply-send-btn');
+  btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner spin"></i> TRANSMISI...';
+
+  await db.ref('cs_complaints/' + id).update({ reply, repliedAt: Date.now(), status: 'replied' });
+}
+
+async function deleteComplaint(id) {
+  if (!confirm('Peringatan: Aksi ini akan memusnahkan laporan dari database secara permanen. Lanjutkan?')) return;
+  await db.ref('cs_complaints/' + id).remove();
+}
+
+function editReply(id) {
+  const c = allComplaints[id];
+  if (!c) return;
+  const replyArea = document.querySelector('#card-' + id + ' .complaint-reply-area');
+  replyArea.innerHTML = `
+    <div class="reply-label"><i class="ph-bold ph-pencil"></i> MODE REVISI DIAKTIFKAN</div>
+    <textarea class="reply-textarea" id="reply-${id}">${escHtml(c.reply)}</textarea>
+    <div class="reply-actions">
+      <button class="reply-send-btn" onclick="sendReply('${id}')">
+        <i class="ph-bold ph-floppy-disk"></i> SIMPAN PERUBAHAN
+      </button>
+      <button class="reply-delete-btn" onclick="deleteComplaint('${id}')">
+        <i class="ph-bold ph-trash"></i>
+      </button>
+    </div>`;
+}
+
+function updateStats() {
+  const items = Object.values(allComplaints);
+  const total = items.length;
+  const replied = items.filter(c => c.reply).length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-unread').textContent = total - replied;
+  document.getElementById('stat-replied').textContent = replied;
+}
+
+function updateBadge() {
+  const unread = Object.values(allComplaints).filter(c => !c.reply).length;
+  const badge = document.getElementById('unread-badge');
+  badge.textContent = unread;
+  badge.classList.toggle('show', unread > 0);
+  document.title = unread > 0 ? `(${unread}) COMMAND CENTER - Saurus` : 'COMMAND CENTER - Saurus';
+}
+</script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) return;
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+}
+_initFirebase();
+</script>
+</body>
+</html>

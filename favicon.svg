@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <!-- Gradien latar belakang -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </radialGradient>
+    
+    <!-- Gradien neon untuk path utama -->
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#D946EF"/>
+    </linearGradient>
+    
+    <!-- Gradien glow -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background rounded dengan radian gradient -->
+  <rect width="256" height="256" rx="56" fill="url(#bgGrad)"/>
+  
+  <!-- Lingkaran cahaya di belakang -->
+  <circle cx="128" cy="128" r="80" fill="#8B5CF6" opacity="0.15" filter="url(#softGlow)"/>
+  <circle cx="128" cy="128" r="50" fill="#06B6D4" opacity="0.1" filter="url(#softGlow)"/>
+  
+  <!-- Path utama dengan efek gradien neon -->
+  <path d="
+    M 78 64 
+    L 182 64 
+    C 195 64 204 73 204 86 
+    C 204 99 195 108 182 108 
+    L 110 108 
+    L 110 122 
+    L 170 122 
+    C 183 122 192 131 192 144 
+    C 192 157 183 166 170 166 
+    L 110 166 
+    L 110 180 
+    L 182 180 
+    C 195 180 204 189 204 202 
+    C 204 215 195 224 182 224 
+    L 78 224 
+    C 65 224 56 215 56 202 
+    L 56 86 
+    C 56 73 65 64 78 64 Z
+  " fill="none" stroke="url(#neonGrad)" stroke-width="8" stroke-linejoin="round" filter="url(#glow)"/>
+  
+  <!-- Path utama dengan fill transparan untuk efek glass -->
+  <path d="
+    M 78 64 
+    L 182 64 
+    C 195 64 204 73 204 86 
+    C 204 99 195 108 182 108 
+    L 110 108 
+    L 110 122 
+    L 170 122 
+    C 183 122 192 131 192 144 
+    C 192 157 183 166 170 166 
+    L 110 166 
+    L 110 180 
+    L 182 180 
+    C 195 180 204 189 204 202 
+    C 204 215 195 224 182 224 
+    L 78 224 
+    C 65 224 56 215 56 202 
+    L 56 86 
+    C 56 73 65 64 78 64 Z
+  " fill="rgba(255,255,255,0.05)" stroke="none"/>
+  
+  <!-- Garis aksen dekoratif di pojok -->
+  <line x1="40" y1="40" x2="70" y2="40" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="40" y1="40" x2="40" y2="70" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="216" y1="40" x2="186" y2="40" stroke="#D946EF" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="216" y1="40" x2="216" y2="70" stroke="#D946EF" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="40" y1="216" x2="70" y2="216" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="40" y1="216" x2="40" y2="186" stroke="#8B5CF6" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="216" y1="216" x2="186" y2="216" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <line x1="216" y1="216" x2="216" y2="186" stroke="#06B6D4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+</svg>

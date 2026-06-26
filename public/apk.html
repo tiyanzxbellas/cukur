@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>Unduh APK - API Saurus</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+</script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>
+window._SaurusAuth = null; // diset setelah Firebase init
+</script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+:root {
+--bg-main: #F4F4F5;
+--bg-card: #FFFFFF;
+--border-dark: #000000;
+--text-main: #000000;
+--text-muted: #52525B;
+--bg-inverse: #000000;
+--text-inverse: #FFFFFF;
+--gray-light: #E4E4E7;
+--gray-med: #D4D4D8;
+--radius-sm: 8px;
+--radius-md: 16px;
+--radius-lg: 24px;
+--radius-pill: 999px;
+--border-thick: 2.5px solid var(--border-dark);
+--border-dashed: 2.5px dashed var(--border-dark);
+--shadow-solid: 4px 4px 0px var(--border-dark);
+--shadow-solid-sm: 2px 2px 0px var(--border-dark);
+--shadow-active: 0px 0px 0px transparent;
+}
+body.dark-theme {
+--bg-main: #121212;
+--bg-card: #1E1E1E;
+--border-dark: #000000;
+--text-main: #FFFFFF;
+--text-muted: #A1A1AA;
+--bg-inverse: #FFFFFF;
+--text-inverse: #000000;
+--gray-light: #27272A;
+--gray-med: #3F3F46;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+html, body {
+width: 100%;
+min-height: 100vh;
+background-color: var(--bg-main);
+color: var(--text-main);
+overflow-x: hidden;
+transition: background-color 0.3s ease, color 0.3s ease;
+position: relative;
+}
+.moving-background-pattern {
+position: fixed;
+inset: 0;
+z-index: 0;
+background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+background-size: 32px 32px;
+opacity: 0.15;
+animation: pan-background 40s linear infinite;
+pointer-events: none;
+}
+@keyframes pan-background {
+0% { background-position: 0 0; }
+100% { background-position: 100vw 100vh; }
+}
+body.sidebar-open { overflow: hidden; touch-action: none; }
+.app-viewport {
+width: 100%;
+max-width: 600px;
+margin: 0 auto;
+min-height: 100vh;
+padding: 0 0 100px 0;
+display: flex;
+flex-direction: column;
+position: relative;
+z-index: 1;
+gap: 24px;
+}
+.top-navigation-cluster {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 100%;
+position: sticky;
+top: 0;
+z-index: 100;
+background: var(--bg-main);
+padding: 16px 20px;
+border-bottom: var(--border-thick);
+}
+.kinetic-hamburger-btn {
+width: 48px;
+height: 48px;
+background: var(--bg-inverse);
+border: var(--border-thick);
+border-radius: var(--radius-md);
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+gap: 5px;
+cursor: pointer;
+box-shadow: var(--shadow-solid-sm);
+transition: transform 0.1s, box-shadow 0.1s;
+touch-action: manipulation;
+}
+.kinetic-hamburger-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.kinetic-line {
+width: 22px;
+height: 3px;
+background-color: var(--text-inverse);
+border-radius: 2px;
+}
+.brand-logotype-header {
+font-size: 1.25rem;
+font-weight: 900;
+letter-spacing: 1px;
+color: var(--text-main);
+text-transform: uppercase;
+}
+.animated-gradient-text {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+padding: 2px 8px;
+border: 2px solid var(--border-dark);
+border-radius: var(--radius-sm);
+font-weight: 900;
+box-shadow: var(--shadow-solid-sm);
+}
+.cluster-actions { display: flex; align-items: center; gap: 10px; }
+.audio-control-interactive {
+width: 48px;
+height: 48px;
+border: var(--border-thick);
+border-radius: var(--radius-md);
+background-color: var(--bg-card);
+color: var(--text-main);
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 22px;
+cursor: pointer;
+box-shadow: var(--shadow-solid-sm);
+transition: transform 0.1s, box-shadow 0.1s;
+touch-action: manipulation;
+}
+.audio-control-interactive:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+background-color: var(--gray-light);
+}
+.kinetic-overlay-navigation {
+position: fixed; inset: 0;
+background: rgba(0, 0, 0, 0.8);
+z-index: 1000;
+display: flex;
+opacity: 0; visibility: hidden;
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.kinetic-overlay-navigation.is-active { opacity: 1; visibility: visible; }
+.navigation-menu-card {
+background: var(--bg-main);
+width: 85%; max-width: 340px; height: 100vh;
+border-right: var(--border-thick);
+display: flex; flex-direction: column;
+box-shadow: 10px 0 0 rgba(0,0,0,0.5);
+transform: translateX(-100%);
+transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+overflow: hidden;
+}
+.kinetic-overlay-navigation.is-active .navigation-menu-card { transform: translateX(0); }
+.nav-card-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 20px;
+border-bottom: var(--border-thick);
+background: var(--bg-card);
+flex-shrink: 0;
+}
+.nav-card-title {
+font-size: 1.1rem;
+font-weight: 900;
+color: var(--text-main);
+text-transform: uppercase;
+}
+.btn-close-sidebar {
+background: var(--bg-inverse);
+border: var(--border-thick);
+width: 40px;
+height: 40px;
+border-radius: var(--radius-md);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.4rem;
+color: var(--text-inverse);
+cursor: pointer;
+box-shadow: var(--shadow-solid-sm);
+flex-shrink: 0;
+touch-action: manipulation;
+transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-close-sidebar:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.nav-links-stagger {
+flex: 1;
+overflow-y: auto;
+padding: 20px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.nav-links-stagger::-webkit-scrollbar { width: 0; }
+.navigation-route-link {
+text-decoration: none;
+background: var(--bg-card);
+color: var(--text-main);
+padding: 14px 16px;
+border: 2px solid var(--border-dark);
+border-radius: var(--radius-md);
+font-size: 0.9rem;
+font-weight: 900;
+display: flex;
+align-items: center;
+gap: 14px;
+width: 100%;
+box-sizing: border-box;
+box-shadow: var(--shadow-solid-sm);
+text-transform: uppercase;
+transition: transform 0.1s, box-shadow 0.1s;
+}
+.navigation-route-link i { font-size: 1.4rem; flex-shrink: 0; width: 24px; text-align: center; }
+.navigation-route-link:active { transform: translate(2px, 2px) !important; box-shadow: var(--shadow-active) !important; }
+.navigation-route-link.route-active { background: var(--bg-inverse); color: var(--text-inverse); }
+.nav-card-footer {
+padding: 20px;
+border-top: var(--border-thick);
+flex-shrink: 0;
+display: flex;
+align-items: center;
+gap: 12px;
+background: var(--bg-card);
+}
+.nav-footer-avatar {
+width: 44px;
+height: 44px;
+border-radius: var(--radius-md);
+overflow: hidden;
+flex-shrink: 0;
+border: 2px solid var(--border-dark);
+}
+.nav-footer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nav-footer-info { display: flex; flex-direction: column; }
+.nav-footer-name { font-size: 0.95rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
+.nav-footer-desc { font-size: 0.75rem; color: var(--text-muted); font-weight: 800; }
+.hero-section {
+padding: 0 20px;
+display: flex; flex-direction: column; gap: 16px;
+align-items: center; text-align: center;
+}
+.hero-badge {
+display: inline-flex; align-items: center; gap: 8px;
+background: var(--bg-card);
+color: var(--text-main);
+padding: 8px 16px; border-radius: var(--radius-pill);
+border: 2px solid var(--border-dark);
+font-size: 0.75rem; font-weight: 900; letter-spacing: 1px;
+box-shadow: var(--shadow-solid-sm);
+text-transform: uppercase;
+}
+.hero-title { font-size: 2.5rem; font-weight: 900; line-height: 1.1; color: var(--text-main); text-transform: uppercase; }
+.hero-sub { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); line-height: 1.5; text-transform: uppercase; }
+.search-section { padding: 0 20px; }
+.search-wrapper {
+display: flex; gap: 10px; align-items: center;
+background: var(--bg-card);
+border: var(--border-thick);
+border-radius: var(--radius-pill);
+padding: 8px 8px 8px 20px;
+box-shadow: var(--shadow-solid);
+}
+.search-input {
+flex: 1; border: none; outline: none; background: transparent;
+font-family: 'Poppins', sans-serif;
+font-size: 0.95rem; font-weight: 800;
+color: var(--text-main);
+}
+.search-input::placeholder { color: var(--text-muted); font-weight: 700; }
+.search-btn {
+padding: 14px 24px; border-radius: var(--radius-pill);
+background: var(--bg-inverse); color: var(--text-inverse);
+border: 2px solid var(--border-dark); font-family: 'Poppins', sans-serif;
+font-size: 0.9rem; font-weight: 900; text-transform: uppercase;
+cursor: pointer; display: flex; align-items: center; gap: 8px;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.search-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.search-btn:disabled { opacity: 0.5; pointer-events: none; background: var(--gray-med); color: var(--border-dark); }
+.chip-section { padding: 0 20px; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
+.chip-section::-webkit-scrollbar { display: none; }
+.chip-btn {
+padding: 10px 20px; border-radius: var(--radius-pill);
+background: var(--bg-card); color: var(--text-main);
+border: 2px solid var(--border-dark);
+font-family: 'Poppins', sans-serif;
+font-size: 0.8rem; font-weight: 900; text-transform: uppercase;
+cursor: pointer; white-space: nowrap;
+transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+box-shadow: var(--shadow-solid-sm);
+}
+.chip-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.chip-btn.chip-active {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+}
+.section-header {
+padding: 0 20px;
+display: flex; align-items: center; justify-content: space-between;
+}
+.section-title-wrap {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.section-title {
+font-size: 1.1rem; font-weight: 900;
+color: var(--text-main); text-transform: uppercase;
+}
+.section-count {
+font-size: 0.75rem; font-weight: 900;
+color: var(--text-inverse);
+background: var(--bg-inverse);
+padding: 4px 12px; border-radius: var(--radius-pill);
+border: 2px solid var(--border-dark);
+}
+.apk-grid {
+padding: 0 20px;
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 20px;
+}
+.apk-card {
+background: var(--bg-card);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+overflow: hidden;
+box-shadow: var(--shadow-solid);
+cursor: pointer;
+display: flex; flex-direction: column;
+transition: transform 0.1s, box-shadow 0.1s;
+position: relative;
+}
+.apk-card:active { transform: translate(4px, 4px); box-shadow: var(--shadow-active); }
+.apk-card-thumb {
+width: 100%; aspect-ratio: 1;
+background: var(--gray-light);
+display: flex; align-items: center; justify-content: center;
+overflow: hidden; border-bottom: var(--border-thick);
+}
+.apk-card-thumb img {
+width: 100%; height: 100%; object-fit: cover;
+}
+.apk-thumb-placeholder {
+font-size: 3.5rem;
+color: var(--border-dark);
+}
+.apk-card-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.apk-card-name {
+font-size: 0.95rem; font-weight: 900;
+color: var(--text-main);
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+text-transform: uppercase;
+}
+.apk-card-meta {
+font-size: 0.8rem; font-weight: 900;
+color: var(--text-muted);
+display: flex; align-items: center; gap: 6px;
+}
+.apk-card-badge {
+position: absolute; top: 12px; right: 12px;
+background: var(--bg-inverse);
+color: var(--text-inverse); font-size: 0.7rem; font-weight: 900;
+padding: 4px 10px; border-radius: var(--radius-pill);
+border: 2px solid var(--border-dark);
+}
+.skeleton {
+animation: pulse 1.5s ease-in-out infinite;
+background: linear-gradient(90deg, var(--gray-light) 25%, var(--gray-med) 50%, var(--gray-light) 75%);
+background-size: 200% 100%;
+}
+body.dark-theme .skeleton {
+background: linear-gradient(90deg, var(--bg-card) 25%, var(--border-dark) 50%, var(--bg-card) 75%);
+}
+@keyframes pulse {
+0% { background-position: 200% 0; }
+100% { background-position: -200% 0; }
+}
+.skeleton-card {
+background: var(--bg-card);
+border: var(--border-thick);
+border-radius: var(--radius-lg); overflow: hidden;
+box-shadow: var(--shadow-solid);
+}
+.skeleton-thumb {
+width: 100%; aspect-ratio: 1;
+border-radius: 0; border-bottom: var(--border-thick);
+}
+.skeleton-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.skeleton-line { height: 16px; border-radius: 8px; border: 2px solid var(--border-dark); }
+.skeleton-line.short { width: 60%; }
+.state-panel {
+padding: 48px 20px;
+display: flex; flex-direction: column;
+align-items: center; gap: 16px; text-align: center;
+background: var(--gray-light);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-solid);
+}
+.state-icon { font-size: 4rem; color: var(--border-dark); }
+.state-title { font-size: 1.2rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
+.state-sub { font-size: 0.85rem; color: var(--text-muted); font-weight: 800; line-height: 1.6; }
+.state-btn {
+padding: 14px 24px; border-radius: var(--radius-pill);
+background: var(--bg-inverse); color: var(--text-inverse);
+border: 2px solid var(--border-dark); font-family: 'Poppins', sans-serif;
+font-size: 0.9rem; font-weight: 900; cursor: pointer;
+box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase;
+}
+.state-btn:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.modal-overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,.8);
+z-index: 1000;
+display: flex; align-items: flex-end; justify-content: center;
+opacity: 0; visibility: hidden;
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal-overlay.is-open { opacity: 1; visibility: visible; }
+.modal-sheet {
+background: var(--bg-main);
+width: 100%; max-width: 600px;
+max-height: 90vh;
+border: var(--border-thick);
+border-bottom: none;
+border-radius: 32px 32px 0 0;
+overflow-y: auto;
+padding: 0 0 env(safe-area-inset-bottom, 20px);
+transform: translateY(100%);
+transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+.modal-sheet::-webkit-scrollbar { display: none; }
+.modal-overlay.is-open .modal-sheet { transform: translateY(0); }
+.modal-drag-handle {
+width: 60px; height: 6px;
+background: var(--text-muted);
+border-radius: 10px; margin: 24px auto 16px;
+}
+.modal-hero {
+display: flex; align-items: flex-start; gap: 20px;
+padding: 0 24px 24px;
+}
+.modal-icon-wrap {
+width: 90px; height: 90px; border-radius: var(--radius-md);
+background: var(--gray-light);
+border: var(--border-thick);
+overflow: hidden; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+box-shadow: var(--shadow-solid-sm);
+}
+.modal-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.modal-title-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.modal-app-name {
+font-size: 1.4rem; font-weight: 900;
+color: var(--text-main); line-height: 1.2;
+word-break: break-word; text-transform: uppercase;
+}
+.modal-app-dev {
+font-size: 0.85rem; font-weight: 900;
+color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+}
+.modal-app-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.modal-tag {
+padding: 4px 12px; border-radius: var(--radius-pill);
+font-size: 0.75rem; font-weight: 900; text-transform: uppercase;
+background: var(--bg-card);
+border: 2px solid var(--border-dark);
+color: var(--text-main);
+box-shadow: var(--shadow-solid-sm);
+}
+.modal-divider { height: 3px; background: var(--border-dark); margin: 0 24px; }
+.modal-stats-row {
+display: grid; grid-template-columns: repeat(3, 1fr);
+padding: 24px; gap: 16px;
+}
+.modal-stat {
+display: flex; flex-direction: column; align-items: center; gap: 8px;
+background: var(--gray-light); border: var(--border-thick);
+border-radius: var(--radius-lg); padding: 16px 12px;
+box-shadow: var(--shadow-solid-sm);
+}
+.modal-stat-icon { font-size: 1.6rem; color: var(--border-dark); }
+.modal-stat-val { font-size: 1rem; font-weight: 900; color: var(--border-dark); text-align: center; }
+.modal-stat-label { font-size: 0.7rem; font-weight: 900; color: var(--border-dark); text-align: center; text-transform: uppercase; }
+.modal-desc-wrap { padding: 0 24px 24px; }
+.modal-desc-label { font-size: 0.85rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.modal-desc-label i { font-size: 1.2rem; }
+.modal-desc-text { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); line-height: 1.6; background: var(--bg-card); padding: 16px; border: var(--border-thick); border-radius: var(--radius-md); box-shadow: var(--shadow-solid-sm); }
+.modal-actions { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+.btn-download {
+width: 100%; padding: 18px;
+background: var(--bg-inverse);
+color: var(--text-inverse); border: var(--border-thick); border-radius: var(--radius-pill);
+font-family: 'Poppins', sans-serif;
+font-size: 1rem; font-weight: 900; text-transform: uppercase;
+cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+box-shadow: var(--shadow-solid);
+transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-download:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+.btn-download:disabled { opacity: 0.5; background: var(--bg-card); color: var(--text-main); cursor: not-allowed; }
+.btn-visit {
+width: 100%; padding: 16px;
+background: var(--bg-card); color: var(--text-main);
+border: var(--border-thick);
+border-radius: var(--radius-pill);
+font-family: 'Poppins', sans-serif;
+font-size: 0.95rem; font-weight: 900; cursor: pointer;
+display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase;
+box-shadow: var(--shadow-solid-sm);
+transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-visit:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--gray-light); }
+.modal-loading-state {
+padding: 60px 24px;
+display: flex; flex-direction: column; align-items: center; gap: 20px;
+}
+.modal-spinner {
+width: 50px; height: 50px; border-radius: 50%;
+border: 4px dashed var(--text-main);
+animation: spin 2s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#pwa-install-banner {
+position: fixed; bottom: 24px; left: 24px; right: 24px;
+background: var(--bg-card);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+padding: 20px;
+display: none;
+box-shadow: var(--shadow-solid);
+z-index: 999; align-items: center; gap: 16px;
+animation: slideUp 0.4s ease;
+}
+@media (min-width: 600px) {
+#pwa-install-banner { max-width: 552px; left: 50%; transform: translateX(-50%); }
+}
+@keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(40px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+#pwa-install-banner.pwa-visible { display: flex; }
+#pwa-install-banner .pwa-icon { font-size: 2rem; color: var(--text-inverse); background: var(--bg-inverse); padding: 12px; border-radius: var(--radius-md); border: 2px solid var(--border-dark); }
+#pwa-install-banner .pwa-text { flex: 1; }
+#pwa-install-banner .pwa-text strong { font-size: 1rem; font-weight: 900; color: var(--text-main); display: block; text-transform: uppercase; }
+#pwa-install-banner .pwa-text span { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); }
+#pwa-btn-install {
+padding: 12px 20px; border-radius: var(--radius-pill);
+background: var(--bg-inverse); color: var(--text-inverse);
+border: var(--border-thick); font-family: 'Poppins', sans-serif;
+font-size: 0.85rem; font-weight: 900; cursor: pointer; text-transform: uppercase;
+box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s;
+}
+#pwa-btn-install:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); }
+#pwa-btn-close {
+width: 44px; height: 44px; border-radius: 50%;
+background: var(--bg-card); border: var(--border-thick);
+font-size: 1.4rem; cursor: pointer; color: var(--text-main);
+display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+box-shadow: var(--shadow-solid-sm); transition: transform 0.1s, box-shadow 0.1s;
+}
+#pwa-btn-close:active { transform: translate(2px, 2px); box-shadow: var(--shadow-active); background: var(--gray-light); }
+#Saurus-auth-gate {
+position: fixed;
+inset: 0;
+z-index: 99999;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: var(--bg-main);
+gap: 20px;
+padding: 32px 24px;
+text-align: center;
+font-family: 'Poppins', sans-serif;
+}
+#Saurus-auth-gate .gate-icon {
+animation: gate-bounce 1.2s ease-in-out infinite alternate;
+}
+@keyframes gate-bounce {
+from { transform: translateY(0) rotate(-5deg); }
+to   { transform: translateY(-12px) rotate(5deg); }
+}
+#Saurus-auth-gate .gate-title {
+font-size: 1.4rem;
+font-weight: 900;
+color: var(--text-main);
+letter-spacing: -0.5px;
+line-height: 1.3;
+text-transform: uppercase;
+}
+#Saurus-auth-gate .gate-sindiran {
+font-size: 0.85rem;
+color: var(--text-muted);
+font-weight: 800;
+max-width: 300px;
+line-height: 1.6;
+}
+#Saurus-auth-gate .gate-btn {
+margin-top: 8px;
+padding: 16px 32px;
+border-radius: var(--radius-pill);
+border: var(--border-thick);
+background: var(--bg-inverse);
+color: var(--text-inverse);
+font-size: 0.95rem;
+font-weight: 900;
+cursor: pointer;
+letter-spacing: 0.5px;
+box-shadow: var(--shadow-solid);
+transition: transform 0.1s, box-shadow 0.1s;
+display: flex;
+align-items: center;
+gap: 8px;
+text-transform: uppercase;
+}
+#Saurus-auth-gate .gate-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+#Saurus-auth-gate .gate-sub {
+font-size: 0.75rem;
+color: var(--text-muted);
+font-weight: 900;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+}
+</style>
+<script>
+(function(){
+var t = localStorage.getItem('Saurus-theme');
+var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: var(--bg-main, #121212) !important; }
+</style>
+</head>
+<body>
+<div class="moving-background-pattern"></div>
+<div id="Saurus-auth-gate" style="display:none;">
+<div class="gate-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="var(--text-main)"><path d="M208,40H48A16,16,0,0,0,32,56V112c0,50.8,32.39,94,84.66,113.11a15.89,15.89,0,0,0,10.68,0C179.61,206,212,162.8,212,112V56A16,16,0,0,0,208,40ZM128,208.57C85.59,192.51,48,155.67,48,112V56H208v56C208,155.67,170.41,192.51,128,208.57ZM128,72a8,8,0,0,0-8,8v40a8,8,0,0,0,16,0V80A8,8,0,0,0,128,72Zm0,76a12,12,0,1,0,12,12A12,12,0,0,0,128,148Z"></path></svg>
+</div>
+<div class="gate-title">Akses Diblokir</div>
+<div class="gate-sindiran" id="gate-sindiran-text">Loading...</div>
+<button class="gate-btn" onclick="window.location.href='/profile'">
+<i class="ph-bold ph-sign-in"></i> Login / Daftar Gratis
+</button>
+<div class="gate-sub">
+SELURUH FITUR UNDUHAN APK MEMERLUKAN AUTENTIKASI SISTEM
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-28-92a12,12,0,1,1,12-12A12,12,0,0,1,100,124Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,124Zm14.28,31.7a8,8,0,0,1-10.49-4A40,40,0,0,0,96.21,151.7a8,8,0,0,1-14.42-6.84A56,56,0,0,1,174.29,145.2,8,8,0,0,1,170.28,155.7Z"></path></svg>
+</div>
+</div>
+<script>
+(function() {
+var msgs = [
+"Sistem mendeteksi upaya akses tanpa izin. Silakan lakukan autentikasi terlebih dahulu.",
+"Fitur eksklusif ini membutuhkan identitas terverifikasi. Jangan lupa login.",
+"Tampaknya Anda belum terdaftar di sesi ini. Silakan masuk untuk melanjutkan.",
+"Akses database dikunci. Verifikasi akun Anda untuk membuka gerbang unduhan.",
+"Identifikasi gagal. Lakukan login dalam beberapa detik untuk mengembalikan akses."
+];
+document.getElementById('gate-sindiran-text').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+})();
+</script>
+<div class="kinetic-overlay-navigation" id="navigation-overlay-layer">
+<div class="navigation-menu-card">
+<div class="nav-card-header">
+<div class="nav-card-title">MENU UTAMA</div>
+<button class="btn-close-sidebar" id="btn-close-sidebar"><i class="ph-bold ph-x"></i></button>
+</div>
+<div class="nav-links-stagger">
+<a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> BERANDA</a>
+<a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> AKUN &amp; APIKEY</a>
+<a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> DOKUMENTASI</a>
+<a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> REPO SNIPPET</a>
+<a href="/anime" class="navigation-route-link"><i class="ph-bold ph-television"></i> NONTON ANIME</a>
+<a href="/donghua" class="navigation-route-link"><i class="ph-bold ph-sword"></i> NONTON DONGHUA</a>
+<a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> BACA MANGA</a>
+<a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> BACA MANHWA</a>
+<a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> NONTON FILM</a>
+<a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+<a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+<a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+<a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> CLAIM PANEL</a>
+<a href="/apk" class="navigation-route-link route-active"><i class="ph-bold ph-device-mobile"></i> UNDUH APK</a>
+<a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> HOST MEDIA</a>
+<a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+</div>
+</div>
+</div>
+<div class="app-viewport">
+<div class="top-navigation-cluster">
+<button class="kinetic-hamburger-btn" id="btn-trigger-menu">
+<span class="kinetic-line line-top"></span>
+<span class="kinetic-line line-mid"></span>
+<span class="kinetic-line line-bot"></span>
+</button>
+<div class="brand-logotype-header">API <span class="animated-gradient-text">Saurus</span></div>
+<div class="cluster-actions">
+<button class="audio-control-interactive" id="btn-theme-toggle">
+<i id="theme-icon" class="ph-bold ph-moon"></i>
+</button>
+</div>
+</div>
+<div class="hero-section">
+<div class="hero-badge"><i class="ph-bold ph-device-mobile"></i> APK DOWNLOADER</div>
+<h1 class="hero-title">Unduh <span class="animated-gradient-text" style="color:var(--bg-main)">APK</span></h1>
+<p class="hero-sub">Cari &amp; unduh aplikasi Android — original maupun mod — langsung dari database Saurus.</p>
+</div>
+<div class="search-section">
+<div class="search-wrapper">
+<i class="ph-bold ph-magnifying-glass search-icon"></i>
+<input type="text" class="search-input" id="search-input" placeholder="Cari nama aplikasi..." autocomplete="off" autocorrect="off" spellcheck="false">
+<button class="search-btn" id="search-btn"><i class="ph-bold ph-magnifying-glass"></i> CARI</button>
+</div>
+</div>
+<div class="chip-section" id="chip-section">
+<button class="chip-btn chip-active" data-q="random">TRENDING</button>
+<button class="chip-btn" data-q="whatsapp">WHATSAPP</button>
+<button class="chip-btn" data-q="instagram">INSTAGRAM</button>
+<button class="chip-btn" data-q="tiktok">TIKTOK</button>
+<button class="chip-btn" data-q="youtube">YOUTUBE</button>
+<button class="chip-btn" data-q="spotify">SPOTIFY</button>
+<button class="chip-btn" data-q="minecraft">MINECRAFT</button>
+<button class="chip-btn" data-q="capcut">CAPCUT</button>
+</div>
+<div class="section-header">
+<div class="section-title-wrap">
+<i class="ph-fill ph-fire" style="font-size:1.4rem;color:var(--text-main)"></i>
+<span class="section-title" id="section-title">TRENDING APPS</span>
+</div>
+<span class="section-count" id="section-count" style="display:none;"></span>
+</div>
+<div class="apk-grid" id="apk-grid">
+<div class="skeleton-card"><div class="skeleton-thumb skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton"></div><div class="skeleton-line short skeleton"></div></div></div>
+<div class="skeleton-card"><div class="skeleton-thumb skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton"></div><div class="skeleton-line short skeleton"></div></div></div>
+<div class="skeleton-card"><div class="skeleton-thumb skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton"></div><div class="skeleton-line short skeleton"></div></div></div>
+<div class="skeleton-card"><div class="skeleton-thumb skeleton"></div><div class="skeleton-body"><div class="skeleton-line skeleton"></div><div class="skeleton-line short skeleton"></div></div></div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-overlay">
+<div class="modal-sheet" id="modal-sheet">
+<div class="modal-drag-handle"></div>
+<div id="modal-content">
+<div class="modal-loading-state">
+<div class="modal-spinner"></div>
+<span style="font-size:0.9rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:16px;">Memuat detail...</span>
+</div>
+</div>
+</div>
+</div>
+<div id="pwa-install-banner">
+<div class="pwa-icon-wrap"><i class="ph-bold ph-app-window"></i></div>
+<div class="pwa-text-wrap">
+<div class="pwa-text-title">Install Saurus API</div>
+<div class="pwa-text-sub">Pasang sebagai aplikasi di perangkatmu.</div>
+</div>
+<button class="pwa-btn-install" id="pwa-btn-install">PASANG</button>
+<button class="pwa-btn-close" id="pwa-btn-close"><i class="ph-bold ph-x"></i></button>
+</div>
+<script>
+(function() {
+const saved = localStorage.getItem('Saurus_theme');
+if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+document.body.classList.add('dark-theme');
+document.getElementById('theme-icon').className = 'ph-bold ph-sun';
+}
+})();
+document.getElementById('btn-theme-toggle').onclick = function() {
+const isDark = document.body.classList.toggle('dark-theme');
+localStorage.setItem('Saurus-theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+document.getElementById('theme-icon').className = isDark ? 'ph-bold ph-sun' : 'ph-bold ph-moon';
+localStorage.setItem('Saurus_theme', isDark ? 'dark' : 'light');
+};
+const btnMenu = document.getElementById('btn-trigger-menu');
+const navOverlay = document.getElementById('navigation-overlay-layer');
+const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+function closeSidebar() {
+navOverlay.classList.remove('is-active');
+document.body.classList.remove('sidebar-open');
+}
+btnMenu.onclick = function() {
+navOverlay.classList.add('is-active');
+document.body.classList.add('sidebar-open');
+};
+btnCloseSidebar.onclick = closeSidebar;
+navOverlay.addEventListener('click', function(e) {
+if (e.target === navOverlay) closeSidebar();
+});
+let currentData = [];
+let currentQuery = 'random';
+function sanitizeText(t) {
+if (!t) return '';
+return String(t).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function renderStars(ratingStr) {
+const r = parseFloat(ratingStr);
+if (!ratingStr || isNaN(r)) return '—';
+const full = Math.floor(r);
+const half = (r - full) >= 0.4;
+let stars = '';
+for (let i = 0; i < 5; i++) {
+if (i < full) stars += '<i class="ph-fill ph-star" style="color:var(--text-main);font-size:1.2rem;"></i>';
+else if (i === full && half) stars += '<i class="ph-fill ph-star-half" style="color:var(--text-main);font-size:1.2rem;"></i>';
+else stars += '<i class="ph-bold ph-star" style="color:var(--text-muted);font-size:1.2rem;"></i>';
+}
+return `<span style="display:flex;align-items:center;gap:2px;">${stars}</span><span style="font-size:0.9rem;font-weight:900;color:var(--text-main);margin-left:8px;">${r.toFixed(1)}</span>`;
+}
+function renderGrid(data) {
+const grid = document.getElementById('apk-grid');
+const countEl = document.getElementById('section-count');
+if (!data || !data.length) {
+countEl.style.display = 'none';
+grid.innerHTML = `
+<div class="state-panel" style="grid-column:1/-1">
+<div class="state-icon"><i class="ph-bold ph-magnifying-glass"></i></div>
+<div class="state-title">Tidak Ditemukan</div>
+<div class="state-sub">Coba kata kunci lain atau pilih kategori di atas.</div>
+</div>`;
+return;
+}
+countEl.style.display = '';
+countEl.textContent = data.length + ' APPS';
+grid.innerHTML = data.map((item, idx) => {
+const name = sanitizeText(item.name || item.title || 'Unknown App');
+const version = sanitizeText(item.version || '');
+const thumb = item.thumbnail || item.icon || '';
+const isMod = /mod/i.test(item.name || '');
+const rating = parseFloat(item.rating);
+return `
+<div class="apk-card" onclick="openModal(${idx})">
+<div class="apk-card-thumb">
+${thumb
+? `<img src="${sanitizeText(thumb)}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="apk-thumb-placeholder" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"><i class="ph-bold ph-device-mobile" style="font-size:3.5rem;color:var(--border-dark);"></i></div>`
+: `<div class="apk-thumb-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="ph-bold ph-device-mobile" style="font-size:3.5rem;color:var(--border-dark);"></i></div>`}
+</div>
+${isMod ? '<div class="apk-card-badge">MOD</div>' : ''}
+<div class="apk-card-body">
+<div class="apk-card-name">${name}</div>
+<div class="apk-card-meta">
+${!isNaN(rating) ? `<i class="ph-fill ph-star" style="color:var(--text-main);font-size:1rem;"></i> ${rating.toFixed(1)}` : `<i class="ph-fill ph-android-logo" style="color:var(--text-main);font-size:1rem;"></i> ${version || 'APK'}`}
+</div>
+</div>
+</div>`;
+}).join('');
+}
+function renderSkeleton() {
+document.getElementById('apk-grid').innerHTML = Array(4).fill(0).map(() => `
+<div class="skeleton-card">
+<div class="skeleton-thumb skeleton"></div>
+<div class="skeleton-body">
+<div class="skeleton-line skeleton"></div>
+<div class="skeleton-line short skeleton"></div>
+</div>
+</div>`).join('');
+document.getElementById('section-count').style.display = 'none';
+}
+async function fetchApk(q) {
+currentQuery = q;
+renderSkeleton();
+document.getElementById('section-title').textContent = q === 'random' ? 'TRENDING APPS' : 'HASIL PENCARIAN: ' + q.toUpperCase();
+try {
+const res = await fetch(`/api/apk?q=${encodeURIComponent(q)}`);
+const json = await res.json();
+if (json.status && Array.isArray(json.data)) {
+currentData = json.data;
+renderGrid(json.data);
+} else if (Array.isArray(json)) {
+currentData = json;
+renderGrid(json);
+} else {
+currentData = [];
+renderGrid([]);
+}
+} catch (err) {
+document.getElementById('apk-grid').innerHTML = `
+<div class="state-panel" style="grid-column:1/-1;background:var(--gray-light);">
+<div class="state-icon"><i class="ph-bold ph-wifi-slash"></i></div>
+<div class="state-title">Koneksi Gagal</div>
+<div class="state-sub">${sanitizeText(err.message) || 'Tidak dapat terhubung ke server.'}</div>
+<button class="state-btn" style="background:var(--bg-inverse);color:var(--text-inverse);" onclick="fetchApk(currentQuery)">Coba Lagi</button>
+</div>`;
+}
+}
+async function openModal(idx) {
+const item = currentData[idx];
+if (!item) return;
+const overlay = document.getElementById('modal-overlay');
+const content = document.getElementById('modal-content');
+overlay.classList.add('is-open');
+document.body.style.overflow = 'hidden';
+content.innerHTML = `
+<div class="modal-loading-state">
+<div class="modal-spinner"></div>
+<span style="font-size:0.9rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:16px;">Memuat detail...</span>
+</div>`;
+try {
+const no = item.no !== undefined ? item.no : (idx + 1);
+const res = await fetch(`/api/apk-detail?q=${encodeURIComponent(currentQuery)}&no=${encodeURIComponent(no)}`);
+const json = await res.json();
+if (json.status && json.data) {
+renderModal(json.data, json.file || null, item);
+} else {
+renderModal(item, null, item);
+}
+} catch (err) {
+renderModal(item, null, item);
+}
+}
+function renderModal(detail, fileInfo, listItem) {
+const content = document.getElementById('modal-content');
+const name      = sanitizeText(detail.name || listItem.name || 'Unknown App');
+const dev       = sanitizeText(detail.developer || '');
+const version   = sanitizeText(detail.version || listItem.version || '');
+const size      = sanitizeText(fileInfo?.size || detail.size || '');
+const rating    = sanitizeText(String(detail.rating || listItem.rating || ''));
+const installs  = sanitizeText(detail.installs || '');
+const category  = sanitizeText(detail.category || '');
+const updated   = sanitizeText(detail.updated || '');
+const reqs      = sanitizeText(detail.requirements || '');
+const pkgId     = sanitizeText(detail.id || '');
+const thumb     = detail.thumbnail || listItem.thumbnail || listItem.icon || '';
+const isMod     = /mod/i.test(name);
+const downloadUrl  = fileInfo?.url || '';
+const downloadName = fileInfo?.filename || (name.replace(/[^a-zA-Z0-9 ]/g,'').trim() + '.apk');
+content.innerHTML = `
+<div class="modal-hero">
+<div class="modal-icon-wrap">
+${thumb
+? `<img src="${sanitizeText(thumb)}" alt="${name}" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<i class=\\'ph-bold ph-device-mobile\\' style=\\'font-size:3rem;color:var(--border-dark);\\'/>');">`
+: `<i class="ph-bold ph-device-mobile" style="font-size:3rem;color:var(--border-dark);"></i>`}
+</div>
+<div class="modal-title-wrap">
+<div class="modal-app-name">${name}</div>
+${dev ? `<div class="modal-app-dev"><i class="ph-bold ph-buildings" style="font-size:1.1rem;color:var(--text-main);"></i> ${dev}</div>` : ''}
+<div class="modal-app-tags">
+${version ? `<span class="modal-tag">V${version}</span>` : ''}
+${category ? `<span class="modal-tag">${category}</span>` : ''}
+${isMod ? `<span class="modal-tag" style="background:var(--bg-inverse);color:var(--text-inverse);">MOD</span>` : ''}
+<span class="modal-tag" style="background:var(--gray-light);color:var(--border-dark);"><i class="ph-fill ph-android-logo" style="font-size:.9rem;"></i> ANDROID</span>
+</div>
+</div>
+</div>
+<div class="modal-divider"></div>
+${rating ? `
+<div style="padding:24px 24px 0;display:flex;align-items:center;gap:10px;">
+${renderStars(rating)}
+</div>` : ''}
+<div class="modal-stats-row">
+<div class="modal-stat">
+<div class="modal-stat-icon"><i class="ph-bold ph-hard-drive"></i></div>
+<div class="modal-stat-val">${size || '—'}</div>
+<div class="modal-stat-label">UKURAN FILE</div>
+</div>
+<div class="modal-stat">
+<div class="modal-stat-icon"><i class="ph-bold ph-download-simple"></i></div>
+<div class="modal-stat-val">${installs || '—'}</div>
+<div class="modal-stat-label">INSTALASI</div>
+</div>
+<div class="modal-stat">
+<div class="modal-stat-icon"><i class="ph-bold ph-calendar-blank"></i></div>
+<div class="modal-stat-val">${updated || '—'}</div>
+<div class="modal-stat-label">DIPERBARUI</div>
+</div>
+</div>
+${reqs ? `
+<div style="padding:0 24px 16px;display:flex;align-items:center;gap:12px;">
+<i class="ph-bold ph-cpu" style="color:var(--text-main);font-size:1.4rem;flex-shrink:0;"></i>
+<span style="font-size:0.85rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;">${reqs}</span>
+</div>` : ''}
+${pkgId ? `
+<div style="padding:0 24px 16px;display:flex;align-items:center;gap:12px;">
+<i class="ph-bold ph-package" style="color:var(--text-main);font-size:1.4rem;flex-shrink:0;"></i>
+<span style="font-size:0.85rem;font-weight:900;color:var(--text-main);font-family:'Courier New', monospace;">${pkgId}</span>
+</div>` : ''}
+<div class="modal-divider" style="margin-bottom:24px;"></div>
+<div class="modal-actions">
+${downloadUrl
+? `<button class="btn-download" id="btn-dl-action" onclick="triggerDownload('${sanitizeText(downloadUrl)}','${sanitizeText(downloadName)}',this)">
+<i class="ph-bold ph-download-simple" style="font-size:1.4rem;"></i> <span id="btn-dl-text">UNDUH APK SEKARANG</span>
+</button>`
+: `<button class="btn-download" disabled>
+<i class="ph-bold ph-warning-circle" style="font-size:1.4rem;"></i> LINK UNDUHAN TIDAK TERSEDIA
+</button>`}
+</div>`;
+}
+async function triggerDownload(url, filename, btnEl) {
+const textEl = document.getElementById('btn-dl-text');
+if (!url) return;
+btnEl.disabled = true;
+if (textEl) textEl.textContent = 'MENYIAPKAN UNDUHAN...';
+btnEl.querySelector('i').className = 'ph-bold ph-spinner';
+btnEl.querySelector('i').style.animation = 'spin 0.7s linear infinite';
+btnEl.style.background = 'var(--gray-light)';
+btnEl.style.color = 'var(--text-main)';
+try {
+const res = await fetch(url, { method: 'GET' });
+if (!res.ok) throw new Error('HTTP ' + res.status);
+const blob = await res.blob();
+const blobUrl = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = blobUrl;
+a.download = filename || 'app.apk';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+btnEl.disabled = false;
+btnEl.querySelector('i').className = 'ph-bold ph-check-circle';
+btnEl.querySelector('i').style.animation = '';
+if (textEl) textEl.textContent = 'UNDUHAN DIMULAI!';
+btnEl.style.background = 'var(--bg-inverse)';
+btnEl.style.color = 'var(--text-inverse)';
+setTimeout(() => {
+btnEl.querySelector('i').className = 'ph-bold ph-download-simple';
+if (textEl) textEl.textContent = 'UNDUH APK SEKARANG';
+}, 3000);
+} catch (err) {
+btnEl.disabled = false;
+btnEl.querySelector('i').className = 'ph-bold ph-arrow-square-out';
+btnEl.querySelector('i').style.animation = '';
+if (textEl) textEl.textContent = 'BUKA LINK UNDUHAN';
+btnEl.style.background = 'var(--bg-inverse)';
+btnEl.style.color = 'var(--text-inverse)';
+btnEl.onclick = function() { window.open(url, '_blank', 'noopener'); };
+}
+}
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+if (e.target === this) closeModal();
+});
+function closeModal() {
+document.getElementById('modal-overlay').classList.remove('is-open');
+document.body.style.overflow = '';
+}
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+function doSearch() {
+const q = searchInput.value.trim();
+if (!q) return;
+document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('chip-active'));
+fetchApk(q);
+}
+searchBtn.onclick = doSearch;
+searchInput.addEventListener('keydown', function(e) {
+if (e.key === 'Enter') doSearch();
+});
+document.getElementById('chip-section').addEventListener('click', function(e) {
+const btn = e.target.closest('.chip-btn');
+if (!btn) return;
+document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('chip-active'));
+btn.classList.add('chip-active');
+const q = btn.dataset.q;
+searchInput.value = q === 'random' ? '' : q;
+fetchApk(q);
+});
+fetchApk('random');
+(function() {
+let deferredPrompt = null;
+const banner = document.getElementById('pwa-install-banner');
+const btnInstall = document.getElementById('pwa-btn-install');
+const btnClose = document.getElementById('pwa-btn-close');
+const DISMISSED_KEY = 'Saurus_pwa_dismissed';
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+if (localStorage.getItem(DISMISSED_KEY)) return;
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault(); deferredPrompt = e;
+setTimeout(() => { if (banner) banner.classList.add('pwa-visible'); }, 2500);
+});
+if (btnInstall) btnInstall.addEventListener('click', async () => {
+if (!deferredPrompt) return;
+deferredPrompt.prompt();
+const { outcome } = await deferredPrompt.userChoice;
+deferredPrompt = null; banner.classList.remove('pwa-visible');
+if (outcome === 'accepted') localStorage.setItem(DISMISSED_KEY, '1');
+});
+if (btnClose) btnClose.addEventListener('click', () => {
+banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+window.addEventListener('appinstalled', () => {
+banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+})();
+</script>
+<script id="Saurus-auth-gate-logic">
+(function() {
+var gate = document.getElementById('Saurus-auth-gate');
+if (!gate) return;
+
+function showGate() {
+    gate.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function hideGate() {
+    gate.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+window._SaurusAuthReady = function(auth) {
+    var gateTimeout = setTimeout(function() { showGate(); }, 3000);
+
+    auth.onAuthStateChanged(function(user) {
+        clearTimeout(gateTimeout);
+
+        if (user) {
+            hideGate();
+            if (typeof userIdent !== 'undefined') {
+                userIdent.uid   = user.uid;
+                userIdent.name  = user.displayName || userIdent.name;
+                userIdent.photo = user.photoURL    || userIdent.photo;
+            }
+        } else {
+            showGate();
+        }
+    });
+};
+
+if (window._SaurusAuth) window._SaurusAuthReady(window._SaurusAuth);
+})();
+</script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) return;
+
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+
+    const auth = firebase.auth();
+    window._SaurusAuth = auth;
+
+    if (typeof window._SaurusAuthReady === 'function') window._SaurusAuthReady(auth);
+}
+_initFirebase().catch(e => console.error('Firebase init gagal:', e));
+</script>
+</body>
+</html>

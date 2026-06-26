@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Neo Brutalism Donghua (White)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+body {
+    background-color: #ffffff;
+    color: #000000;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-left: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+    background: #000000;
+    border: 2px solid #ffffff;
+}
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #ffffff;
+    padding: 16px 0;
+    border-bottom: 4px solid #000000;
+}
+.header-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.btn-menu {
+    background: #ffffff;
+    border: 3px solid #000000;
+    color: #000000;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+    z-index: 10;
+}
+.btn-menu:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000000;
+}
+.logo {
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: #000000;
+    text-shadow: 2px 2px 0px #cccccc;
+    position: relative;
+    z-index: 10;
+}
+.search-brutal {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    z-index: 10;
+}
+.search-brutal input {
+    width: 100%;
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 10px 16px 10px 40px;
+    color: #000000;
+    font-size: 0.9rem;
+    font-weight: 800;
+    outline: none;
+    box-shadow: 4px 4px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.search-brutal input:focus {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000000;
+}
+.search-brutal input::placeholder {
+    color: #555555;
+    text-transform: uppercase;
+}
+.search-brutal i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #000000;
+    font-size: 1.2rem;
+    font-weight: 900;
+    pointer-events: none;
+}
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s;
+}
+.sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: #ffffff;
+    border-right: 4px solid #000000;
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+.sidebar.open {
+    left: 0;
+}
+.sidebar-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid #000000;
+    background: #000000;
+    color: #ffffff;
+}
+.sidebar-header span {
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.btn-close-sidebar {
+    background: #ffffff;
+    color: #000000;
+    border: 3px solid #000000;
+    width: 38px;
+    height: 38px;
+    font-size: 1.2rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 3px 3px 0px #ffffff;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-close-sidebar:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #ffffff;
+}
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.navigation-route-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #000000;
+    background: #ffffff;
+    border: 3px solid #000000;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 3px 3px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s, color 0.1s;
+    cursor: pointer;
+}
+.navigation-route-link i {
+    font-size: 1.3rem;
+}
+.navigation-route-link:hover, .navigation-route-link.route-active {
+    background: #000000;
+    color: #ffffff;
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px #000000;
+}
+.hero-slider {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #ffffff;
+    border: 4px solid #000000;
+    margin: 20px 0;
+    position: relative;
+    box-shadow: 8px 8px 0px #000000;
+    overflow: hidden;
+}
+.slider-container {
+    display: flex;
+    width: 300%;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.slide-item {
+    width: 33.333333%;
+    height: 100%;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    border-right: 4px solid #000000;
+}
+.slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+}
+.slide-tag {
+    align-self: flex-start;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    padding: 4px 10px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    box-shadow: 2px 2px 0px #000000;
+}
+.slide-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 2px 2px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000;
+    margin-bottom: 10px;
+    max-width: 90%;
+}
+.slide-meta {
+    display: flex;
+    gap: 12px;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 0px #000000;
+}
+.slide-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.slider-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+}
+.control-dot {
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 2px solid #000000;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.control-dot.active {
+    background: #000000;
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px #000000;
+}
+.brutal-nav {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0 16px 0;
+    margin-bottom: 20px;
+}
+.brutal-nav::-webkit-scrollbar {
+    height: 4px;
+}
+.brutal-tab {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 10px 20px;
+    color: #000000;
+    font-weight: 900;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 4px 4px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s, color 0.1s;
+    position: relative;
+    z-index: 10;
+}
+.brutal-tab:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000000;
+}
+.brutal-tab.active {
+    background: #000000;
+    color: #ffffff;
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px #000000;
+}
+
+/* Wajib 5 Kolom di semua ukuran layar */
+.brutal-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 8px;
+}
+.brutal-card {
+    background: #ffffff;
+    border: 2px solid #000000;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 3px 3px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+    z-index: 5;
+}
+.brutal-card:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px #000000;
+}
+.brutal-poster {
+    width: 100%;
+    aspect-ratio: 9/16;
+    border: 2px solid #000000;
+    overflow: hidden;
+    position: relative;
+    background: #f0f0f0;
+    margin-bottom: 6px;
+}
+.brutal-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+.brutal-card:hover .brutal-poster img {
+    transform: scale(1.1);
+}
+.brutal-pill {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 2px 4px;
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    box-shadow: 1px 1px 0px #000000;
+}
+.brutal-type {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 2px 4px;
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    box-shadow: -1px -1px 0px #000000;
+}
+.brutal-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+.brutal-card-title {
+    font-size: 0.6rem;
+    font-weight: 900;
+    line-height: 1.2;
+    color: #000000;
+    text-transform: uppercase;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.brutal-card-meta {
+    font-size: 0.5rem;
+    color: #555555;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed #000000;
+    padding-top: 4px;
+}
+.brutal-card-meta i {
+    font-size: 0.8rem !important;
+}
+
+@media (min-width: 600px) {
+    .brutal-grid { gap: 16px; }
+    .brutal-card { padding: 10px; border-width: 3px; box-shadow: 6px 6px 0px #000000; }
+    .brutal-card:hover { transform: translate(3px, 3px); box-shadow: 3px 3px 0px #000000; }
+    .brutal-poster { border-width: 3px; margin-bottom: 12px; }
+    .brutal-pill, .brutal-type { font-size: 0.75rem; padding: 4px 10px; border-width: 2px; box-shadow: 2px 2px 0px #000000; top: 8px; left: 8px; }
+    .brutal-type { bottom: 8px; right: 8px; box-shadow: -2px -2px 0px #000000; }
+    .brutal-card-title { font-size: 0.9rem; gap: 8px; }
+    .brutal-card-meta { font-size: 0.75rem; padding-top: 8px; border-top-width: 2px; }
+    .brutal-card-meta i { font-size: 1.2rem !important; }
+}
+
+.loader-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+    gap: 16px;
+    grid-column: 1 / -1;
+}
+.brutal-spinner {
+    width: 50px;
+    height: 50px;
+    background: #ffffff;
+    border: 4px solid #000000;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: brutal-spin 1s infinite steps(8);
+}
+@keyframes brutal-spin {
+    100% { transform: rotate(360deg); }
+}
+.loader-text {
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #000000;
+}
+.view-panel { display: none; }
+.view-panel.active { display: block; }
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0 30px 0;
+}
+.action-brutal {
+    background: #ffffff;
+    border: 3px solid #000000;
+    color: #000000;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 4px 4px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s, color 0.1s;
+    position: relative;
+    z-index: 10;
+}
+.action-brutal:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000000;
+}
+.action-brutal:active, .action-brutal.saved {
+    background: #000000;
+    color: #ffffff;
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px #000000;
+}
+.detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+@media (min-width: 1024px) {
+    .detail-grid {
+        flex-direction: row;
+    }
+    .detail-left {
+        flex: 1;
+        min-width: 0;
+    }
+    .detail-right {
+        width: 400px;
+        flex-shrink: 0;
+    }
+}
+.player-box {
+    background: #ffffff;
+    padding: 10px;
+    border: 3px solid #000000;
+    box-shadow: 8px 8px 0px #000000;
+    margin-bottom: 30px;
+}
+.player-ratio {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000000;
+    position: relative;
+    border: 2px solid #000000;
+}
+.player-ratio iframe, .player-ratio video {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+.now-playing {
+    background: #ffffff;
+    color: #000000;
+    border: 3px solid #000000;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+    box-shadow: 6px 6px 0px #000000;
+}
+.brutal-panel {
+    background: #ffffff;
+    border: 3px solid #000000;
+    padding: 20px;
+    box-shadow: 8px 8px 0px #000000;
+    margin-bottom: 30px;
+}
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 3px solid #000000;
+    padding-bottom: 12px;
+}
+.server-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.srv-btn {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    padding: 10px 16px;
+    font-size: 0.8rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 3px 3px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+    z-index: 5;
+}
+.srv-btn:hover, .srv-btn.active {
+    background: #000000;
+    color: #ffffff;
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000000;
+}
+.detail-info-box {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.info-poster {
+    width: 120px;
+    aspect-ratio: 9/16;
+    object-fit: cover;
+    border: 3px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
+}
+.info-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.info-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: #000000;
+    text-shadow: 1px 1px 0px #aaaaaa;
+}
+.tag-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.tag-item {
+    background: #ffffff;
+    border: 1px solid #000000;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #000000;
+    box-shadow: 2px 2px 0px #000000;
+}
+.synopsis {
+    background: #f9f9f9;
+    padding: 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.6;
+    color: #000000;
+    border: 2px solid #000000;
+    margin-bottom: 24px;
+    box-shadow: 4px 4px 0px #000000;
+}
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    background: #ffffff;
+    padding: 16px;
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+}
+.data-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.data-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #555555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.data-value {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #000000;
+    border-bottom: 1px solid #000000;
+    padding-bottom: 2px;
+}
+.ep-scroll {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+.ep-btn {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    padding: 12px 6px;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-align: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 3px 3px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+    z-index: 5;
+}
+.ep-btn:hover, .ep-btn.active {
+    background: #000000;
+    color: #ffffff;
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000000;
+}
+.dl-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #ffffff;
+    border: 2px solid #000000;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 4px 4px 0px #000000;
+    color: #000000;
+}
+.dl-qual {
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #000000;
+    padding-bottom: 6px;
+}
+.dl-wrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.dl-link {
+    background: #ffffff;
+    color: #000000;
+    text-decoration: none;
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: 1px solid #000000;
+    box-shadow: 2px 2px 0px #aaaaaa;
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+    position: relative;
+    z-index: 5;
+}
+.dl-link:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px #aaaaaa;
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 16px;
+    grid-column: 1 / -1;
+}
+.empty-state i {
+    font-size: 4rem;
+    color: #000000;
+    margin-bottom: 16px;
+    text-shadow: 2px 2px 0px #cccccc;
+}
+.empty-state p {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebarMenu">
+    <div class="sidebar-header">
+        <span>MENU NAV</span>
+        <button class="btn-close-sidebar" id="btnCloseSidebar"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="sidebar-content">
+        <a href="/" class="navigation-route-link"><i class="ph-bold ph-house"></i> BERANDA</a>
+        <a href="/profile" class="navigation-route-link"><i class="ph-bold ph-user-circle"></i> PROFIL & APIKEY</a>
+        <a href="/docs" class="navigation-route-link"><i class="ph-bold ph-book-bookmark"></i> DOKUMENTASI</a>
+        <a href="/snippet" class="navigation-route-link"><i class="ph-bold ph-code-block"></i> REPO SNIPPET</a>
+        <a href="/anime" class="navigation-route-link"><i class="ph-bold ph-play-circle"></i> NONTON ANIME</a>
+        <a href="/donghua" class="navigation-route-link route-active"><i class="ph-bold ph-sword"></i> NONTON DONGHUA</a>
+        <a href="/manga" class="navigation-route-link"><i class="ph-bold ph-book-open"></i> BACA MANGA</a>
+        <a href="/manhwa" class="navigation-route-link"><i class="ph-bold ph-books"></i> BACA MANHWA</a>
+        <a href="/film" class="navigation-route-link"><i class="ph-bold ph-film-strip"></i> NONTON FILM</a>
+        <a href="/tv" class="navigation-route-link"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+        <a href="/dramabox" class="navigation-route-link"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+        <a href="/music" class="navigation-route-link"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+        <a href="/panel" class="navigation-route-link"><i class="ph-bold ph-hard-drives"></i> CLAIM PANEL</a>
+        <a href="/apk" class="navigation-route-link"><i class="ph-bold ph-device-mobile"></i> UNDUH APK</a>
+        <a href="/tourl" class="navigation-route-link"><i class="ph-bold ph-cloud-arrow-up"></i> HOST MEDIA</a>
+        <a href="/ai" class="navigation-route-link"><i class="ph-bold ph-robot"></i> Saurus AI</a>
+    </div>
+</aside>
+
+<header>
+    <div class="container header-wrap">
+        <div class="header-left">
+            <button class="btn-menu" id="btnOpenSidebar"><i class="ph-bold ph-list"></i></button>
+            <div class="logo" id="logoBtn"><i class="ph-fill ph-planet"></i> DONGHUA</div>
+        </div>
+        <div class="search-brutal">
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="CARI DONGHUA...">
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <div id="viewHome" class="view-panel active">
+        <div class="hero-slider">
+            <div class="slider-container" id="sliderContainer"></div>
+            <div class="slider-controls" id="sliderControls"></div>
+        </div>
+
+        <div class="brutal-nav">
+            <div class="brutal-tab active" data-target="latest"><i class="ph-bold ph-sparkle"></i> UPDATE</div>
+            <div class="brutal-tab" data-target="movie"><i class="ph-bold ph-film-strip"></i> MOVIE</div>
+            <div class="brutal-tab" data-target="genres"><i class="ph-bold ph-swatches"></i> GENRE</div>
+            <div class="brutal-tab" data-target="favorites"><i class="ph-bold ph-heart"></i> FAVORIT</div>
+            <div class="brutal-tab" data-target="history"><i class="ph-bold ph-clock-counter-clockwise"></i> RIWAYAT</div>
+        </div>
+
+        <div id="mainContentArea"></div>
+    </div>
+
+    <div id="viewDetail" class="view-panel">
+        <div class="detail-header">
+            <button class="action-brutal" id="btnBackHome"><i class="ph-bold ph-arrow-left"></i> KEMBALI</button>
+            <button class="action-brutal" id="btnSaveFav"><i class="ph-bold ph-bookmark-simple"></i> SIMPAN</button>
+        </div>
+        <div id="detailContentArea"></div>
+    </div>
+</main>
+
+<script>
+let activeTab = 'latest';
+let currentDonghua = null;
+let currentEpisode = null;
+let currentSlide = 0;
+let slideInterval;
+
+const viewHome = document.getElementById('viewHome');
+const viewDetail = document.getElementById('viewDetail');
+const mainContentArea = document.getElementById('mainContentArea');
+const detailContentArea = document.getElementById('detailContentArea');
+const searchInput = document.getElementById('searchInput');
+
+const sidebarMenu = document.getElementById('sidebarMenu');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const btnOpenSidebar = document.getElementById('btnOpenSidebar');
+const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+
+btnOpenSidebar.addEventListener('click', () => {
+    sidebarMenu.classList.add('open');
+    sidebarOverlay.classList.add('open');
+});
+
+btnCloseSidebar.addEventListener('click', () => {
+    sidebarMenu.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+});
+
+sidebarOverlay.addEventListener('click', () => {
+    sidebarMenu.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+});
+
+function showLoader(container) {
+    container.innerHTML = `
+        <div class="loader-box">
+            <div class="brutal-spinner"></div>
+            <div class="loader-text">MENARIK DATA...</div>
+        </div>
+    `;
+}
+
+function showEmpty(container, text) {
+    container.innerHTML = `
+        <div class="empty-state">
+            <i class="ph-fill ph-ghost"></i>
+            <p>${text}</p>
+        </div>
+    `;
+}
+
+function getLocalData(key) {
+    return JSON.parse(localStorage.getItem(`Saurus_dh_neo_w_${key}`) || '[]');
+}
+
+function saveLocalData(key, data) {
+    localStorage.setItem(`Saurus_dh_neo_w_${key}`, JSON.stringify(data));
+}
+
+function initSlider(items) {
+    const container = document.getElementById('sliderContainer');
+    const controls = document.getElementById('sliderControls');
+    container.innerHTML = '';
+    controls.innerHTML = '';
+    
+    const sliceItems = items.slice(0, 3);
+    sliceItems.forEach((item, idx) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide-item';
+        slide.style.backgroundImage = `url('${item.poster}')`;
+        slide.innerHTML = `
+            <div class="slide-overlay">
+                <span class="slide-tag">RANK #${idx + 1} POPULER</span>
+                <h2 class="slide-title">${item.title}</h2>
+                <div class="slide-meta">
+                    <span><i class="ph-bold ph-monitor"></i> ${item.type || 'ONA'}</span>
+                    <span><i class="ph-bold ph-closed-captioning"></i> ${item.sub || 'SUB INDO'}</span>
+                </div>
+            </div>
+        `;
+        slide.addEventListener('click', () => openDetail(item.slug));
+        container.appendChild(slide);
+
+        const dot = document.createElement('div');
+        dot.className = `control-dot ${idx === 0 ? 'active' : ''}`;
+        dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            changeSlide(idx);
+            resetSlideInterval(sliceItems.length);
+        });
+        controls.appendChild(dot);
+    });
+
+    resetSlideInterval(sliceItems.length);
+}
+
+function changeSlide(idx) {
+    const container = document.getElementById('sliderContainer');
+    const dots = document.querySelectorAll('.control-dot');
+    currentSlide = idx;
+    container.style.transform = `translateX(-${idx * 33.333333}%)`;
+    dots.forEach((d, i) => {
+        if(i === idx) d.classList.add('active');
+        else d.classList.remove('active');
+    });
+}
+
+function resetSlideInterval(total) {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(() => {
+        let next = (currentSlide + 1) % total;
+        changeSlide(next);
+    }, 5000);
+}
+
+async function loadFeatured() {
+    try {
+        const res = await fetch('/api/donghua-popular');
+        const json = await res.json();
+        if(json.status === 'success' && json.data) {
+            initSlider(json.data);
+        }
+    } catch (e) {}
+}
+
+function renderBrutalGrid(items, container) {
+    container.innerHTML = '';
+    if (!items || items.length === 0) {
+        showEmpty(container, 'TIDAK ADA DATA DITEMUKAN');
+        return;
+    }
+    const grid = document.createElement('div');
+    grid.className = 'brutal-grid';
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'brutal-card';
+        card.innerHTML = `
+            <div class="brutal-poster">
+                <img src="${item.poster}" referrerpolicy="no-referrer" loading="lazy">
+                <span class="brutal-pill">${item.episode || item.status || 'ONGOING'}</span>
+                <span class="brutal-type">${item.type || 'ONA'}</span>
+            </div>
+            <div class="brutal-card-info">
+                <h3 class="brutal-card-title">${item.title}</h3>
+                <div class="brutal-card-meta">
+                    <span>${item.sub || 'SUB INDO'}</span>
+                    <i class="ph-bold ph-play-circle"></i>
+                </div>
+            </div>
+        `;
+        card.addEventListener('click', () => openDetail(item.slug));
+        grid.appendChild(card);
+    });
+    container.appendChild(grid);
+}
+
+async function handleTabChange(tab) {
+    activeTab = tab;
+    showLoader(mainContentArea);
+    try {
+        if (tab === 'latest') {
+            const res = await fetch('/api/donghua-list?page=1');
+            const json = await res.json();
+            renderBrutalGrid(json.data || [], mainContentArea);
+        } else if (tab === 'movie') {
+            const res = await fetch('/api/donghua-movie?page=1');
+            const json = await res.json();
+            renderBrutalGrid(json.data || [], mainContentArea);
+        } else if (tab === 'genres') {
+            renderGenres();
+        } else if (tab === 'favorites') {
+            renderBrutalGrid(getLocalData('fav'), mainContentArea);
+        } else if (tab === 'history') {
+            renderBrutalGrid(getLocalData('hist'), mainContentArea);
+        }
+    } catch(e) {
+        showEmpty(mainContentArea, 'GAGAL MENGAMBIL DATA SERVER');
+    }
+}
+
+function renderGenres() {
+    mainContentArea.innerHTML = '';
+    const genres = [
+        { name: 'ACTION', slug: 'action' },
+        { name: 'ADVENTURE', slug: 'adventure' },
+        { name: 'FANTASY', slug: 'fantasy' },
+        { name: 'ROMANCE', slug: 'romance' },
+        { name: 'MARTIAL ARTS', slug: 'martial-arts' }
+    ];
+    const wrap = document.createElement('div');
+    wrap.className = 'brutal-nav';
+    wrap.style.marginBottom = '30px';
+    
+    const targetArea = document.createElement('div');
+    
+    genres.forEach((g, i) => {
+        const btn = document.createElement('div');
+        btn.className = `brutal-tab ${i === 0 ? 'active' : ''}`;
+        btn.textContent = g.name;
+        btn.addEventListener('click', async () => {
+            wrap.querySelectorAll('.brutal-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            showLoader(targetArea);
+            const res = await fetch(`/api/donghua-genre?slug=${g.slug}`);
+            const json = await res.json();
+            renderBrutalGrid(json.data || [], targetArea);
+        });
+        wrap.appendChild(btn);
+    });
+    
+    mainContentArea.appendChild(wrap);
+    mainContentArea.appendChild(targetArea);
+    wrap.firstChild.click();
+}
+
+let searchTimer;
+searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(async () => {
+        const q = searchInput.value.trim();
+        if (q.length >= 2) {
+            document.querySelectorAll('.brutal-tab').forEach(t => t.classList.remove('active'));
+            showLoader(mainContentArea);
+            try {
+                const res = await fetch(`/api/donghua-search?q=${encodeURIComponent(q)}`);
+                const json = await res.json();
+                renderBrutalGrid(json.data || [], mainContentArea);
+            } catch(e) {
+                showEmpty(mainContentArea, 'PENCARIAN GAGAL');
+            }
+        } else if (q.length === 0) {
+            const activeEl = document.querySelector('.brutal-nav .brutal-tab.active');
+            if(activeEl) handleTabChange(activeEl.dataset.target);
+            else document.querySelector('.brutal-nav .brutal-tab').click();
+        }
+    }, 600);
+});
+
+function updateFavButton(slug) {
+    const favs = getLocalData('fav');
+    const btn = document.getElementById('btnSaveFav');
+    if(favs.some(x => x.slug === slug)) {
+        btn.innerHTML = '<i class="ph-fill ph-bookmark-simple"></i> TERSIMPAN';
+        btn.classList.add('saved');
+    } else {
+        btn.innerHTML = '<i class="ph-bold ph-bookmark-simple"></i> SIMPAN';
+        btn.classList.remove('saved');
+    }
+}
+
+async function openDetail(slug) {
+    viewHome.style.display = 'none';
+    viewDetail.style.display = 'block';
+    showLoader(detailContentArea);
+    
+    try {
+        const res = await fetch(`/api/donghua-detail?slug=${slug}`);
+        const json = await res.json();
+        
+        if (json.status === 'success' && json.data) {
+            currentDonghua = json.data;
+            currentDonghua.slug = slug;
+            
+            let hist = getLocalData('hist');
+            hist = hist.filter(x => x.slug !== slug);
+            hist.unshift({
+                title: currentDonghua.title,
+                slug: slug,
+                poster: currentDonghua.poster,
+                episode: currentDonghua.info?.status || 'ONA'
+            });
+            if(hist.length > 30) hist.pop();
+            saveLocalData('hist', hist);
+            
+            updateFavButton(slug);
+            renderDetailFull();
+        } else {
+            showEmpty(detailContentArea, 'DATA TIDAK DITEMUKAN');
+        }
+    } catch(e) {
+        showEmpty(detailContentArea, 'KESALAHAN KONEKSI SERVER');
+    }
+}
+
+function renderDetailFull() {
+    const d = currentDonghua;
+    const tags = (d.genres || []).map(g => `<div class="tag-item">${g.name}</div>`).join('');
+    
+    detailContentArea.innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-left">
+                <div class="player-box">
+                    <div class="player-ratio" id="playerFrameContainer">
+                        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ffffff;font-weight:900;text-transform:uppercase;font-size:1.2rem;letter-spacing:1px;border:3px dashed #ffffff;text-align:center;">
+                            <i class="ph-fill ph-play-circle" style="font-size:3rem;margin-right:10px;"></i>
+                            PILIH EPISODE
+                        </div>
+                    </div>
+                </div>
+                <div class="now-playing" id="nowPlayingTitle">MENUNGGU PILIHAN EPISODE...</div>
+                
+                <div class="brutal-panel" id="serverBox" style="display:none;">
+                    <div class="panel-title"><i class="ph-bold ph-hard-drives"></i> SUMBER STREAMING</div>
+                    <div class="server-list" id="serverListArea"></div>
+                </div>
+                
+                <div class="brutal-panel" id="downloadBox" style="display:none;">
+                    <div class="panel-title"><i class="ph-bold ph-download-simple"></i> LINK UNDUHAN</div>
+                    <div id="downloadListArea"></div>
+                </div>
+            </div>
+            
+            <div class="detail-right">
+                <div class="brutal-panel">
+                    <div class="detail-info-box">
+                        <img src="${d.poster}" class="info-poster" referrerpolicy="no-referrer">
+                        <div class="info-meta">
+                            <h1 class="info-title">${d.title}</h1>
+                            <div class="tag-wrap">${tags}</div>
+                        </div>
+                    </div>
+                    <div class="synopsis">${d.synopsis || 'SINOPSIS TIDAK TERSEDIA UNTUK DONGHUA INI.'}</div>
+                    <div class="data-grid">
+                        <div class="data-item"><span class="data-label">STATUS</span><span class="data-value">${d.info?.status || '-'}</span></div>
+                        <div class="data-item"><span class="data-label">STUDIO</span><span class="data-value">${d.info?.studio || '-'}</span></div>
+                        <div class="data-item"><span class="data-label">RILIS</span><span class="data-value">${d.info?.released || '-'}</span></div>
+                        <div class="data-item"><span class="data-label">TIPE</span><span class="data-value">${d.info?.type || '-'}</span></div>
+                    </div>
+                </div>
+                
+                <div class="brutal-panel">
+                    <div class="panel-title"><i class="ph-bold ph-list-numbers"></i> DAFTAR EPISODE</div>
+                    <div class="ep-scroll" id="episodeScrollArea"></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const epArea = document.getElementById('episodeScrollArea');
+    const eps = d.episodes || [];
+    
+    if (eps.length === 0) {
+        epArea.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#000000;font-weight:900;border:3px dashed #000000;">EPISODE KOSONG</div>';
+    } else {
+        eps.forEach(ep => {
+            const btn = document.createElement('div');
+            btn.className = 'ep-btn';
+            btn.textContent = ep.episode;
+            btn.addEventListener('click', () => {
+                epArea.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                triggerEpisodePlay(ep.slug, ep.title);
+            });
+            epArea.appendChild(btn);
+        });
+        epArea.firstChild.click();
+    }
+}
+
+async function triggerEpisodePlay(slug, title) {
+    const playerBox = document.getElementById('playerFrameContainer');
+    const srvBox = document.getElementById('serverBox');
+    const srvList = document.getElementById('serverListArea');
+    const dlBox = document.getElementById('downloadBox');
+    const dlList = document.getElementById('downloadListArea');
+    
+    document.getElementById('nowPlayingTitle').textContent = title;
+    playerBox.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;border:3px dashed #ffffff;">
+            <div class="brutal-spinner" style="margin-bottom:20px;"></div>
+            <div style="font-weight:900;letter-spacing:1px;color:#fff;">DEKRIPSI STREAM...</div>
+        </div>
+    `;
+    srvBox.style.display = 'none';
+    dlBox.style.display = 'none';
+
+    try {
+        const res = await fetch(`/api/donghua-episode?slug=${slug}`);
+        const json = await res.json();
+        
+        if(json.status === 'success' && json.data) {
+            currentEpisode = json.data;
+            const streams = currentEpisode.streams || [];
+            
+            if(streams.length > 0) {
+                srvList.innerHTML = '';
+                srvBox.style.display = 'block';
+                
+                streams.forEach((s, i) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'srv-btn';
+                    btn.textContent = s.server;
+                    btn.addEventListener('click', () => {
+                        srvList.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        injectMedia(s.url);
+                    });
+                    srvList.appendChild(btn);
+                });
+                srvList.firstChild.click();
+            } else {
+                playerBox.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ffffff;font-weight:900;font-size:1.2rem;letter-spacing:1px;border:3px dashed #ffffff;">STREAM KOSONG</div>';
+            }
+
+            const dls = currentEpisode.downloads || [];
+            if(dls.length > 0) {
+                dlList.innerHTML = '';
+                dlBox.style.display = 'block';
+                dls.forEach(dl => {
+                    const row = document.createElement('div');
+                    row.className = 'dl-row';
+                    row.innerHTML = `<div class="dl-qual">${dl.quality || 'STANDARD'}</div>`;
+                    
+                    const links = document.createElement('div');
+                    links.className = 'dl-wrap';
+                    
+                    (dl.links || []).forEach(l => {
+                        const a = document.createElement('a');
+                        a.className = 'dl-link';
+                        a.href = l.url;
+                        a.target = '_blank';
+                        a.textContent = l.server;
+                        links.appendChild(a);
+                    });
+                    
+                    row.appendChild(links);
+                    dlList.appendChild(row);
+                });
+            }
+        } else {
+            playerBox.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ffffff;font-weight:900;font-size:1.2rem;letter-spacing:1px;border:3px dashed #ffffff;">GAGAL MEMUAT DATA</div>';
+        }
+    } catch(e) {
+        playerBox.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ffffff;font-weight:900;font-size:1.2rem;letter-spacing:1px;border:3px dashed #ffffff;">KONEKSI GAGAL</div>';
+    }
+}
+
+function injectMedia(url) {
+    const p = document.getElementById('playerFrameContainer');
+    if(url.match(/\.(mp4|mkv|webm)($|\?)/i)) {
+        p.innerHTML = `<video src="${url}" controls autoplay></video>`;
+    } else {
+        p.innerHTML = `<iframe src="${url}" allowfullscreen scrolling="no"></iframe>`;
+    }
+    p.style.border = 'none';
+}
+
+document.querySelectorAll('.brutal-tab').forEach(t => {
+    t.addEventListener('click', () => {
+        document.querySelectorAll('.brutal-tab').forEach(btn => btn.classList.remove('active'));
+        t.classList.add('active');
+        handleTabChange(t.dataset.target);
+    });
+});
+
+document.getElementById('btnBackHome').addEventListener('click', () => {
+    viewDetail.style.display = 'none';
+    viewHome.style.display = 'block';
+    if(activeTab === 'favorites' || activeTab === 'history') {
+        handleTabChange(activeTab);
+    }
+});
+
+document.getElementById('btnSaveFav').addEventListener('click', () => {
+    if(!currentDonghua) return;
+    let favs = getLocalData('fav');
+    const exist = favs.some(x => x.slug === currentDonghua.slug);
+    
+    if(exist) {
+        favs = favs.filter(x => x.slug !== currentDonghua.slug);
+    } else {
+        favs.push({
+            title: currentDonghua.title,
+            slug: currentDonghua.slug,
+            poster: currentDonghua.poster,
+            episode: currentDonghua.info?.status || 'ONA'
+        });
+    }
+    saveLocalData('fav', favs);
+    updateFavButton(currentDonghua.slug);
+});
+
+document.getElementById('logoBtn').addEventListener('click', () => {
+    searchInput.value = '';
+    viewDetail.style.display = 'none';
+    viewHome.style.display = 'block';
+    const first = document.querySelector('.brutal-nav .brutal-tab');
+    first.click();
+});
+
+loadFeatured();
+handleTabChange('latest');
+</script>
+
+</body>
+</html>

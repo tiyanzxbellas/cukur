@@ -1,0 +1,60 @@
+const CACHE_NAME = 'elynn-api-v2';
+
+const STATIC_ASSETS = [
+  '/',
+  '/docs',
+  '/profile',
+  '/snippet',
+  '/apk',
+  '/tourl',
+  '/favicon.svg'
+];
+
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(STATIC_ASSETS);
+    })
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  
+  const url = new URL(e.request.url);
+  if (url.pathname.startsWith('/api/')) return;
+
+  e.respondWith(
+    fetch(e.request).then(response => {
+      if (!response || response.status !== 200 || response.type !== 'basic') {
+        return response;
+      }
+      const responseClone = response.clone();
+      caches.open(CACHE_NAME).then(cache => {
+        cache.put(e.request, responseClone);
+      });
+      return response;
+    }).catch(() => {
+      return caches.match(e.request).then(cached => {
+        if (cached) {
+          return cached;
+        }
+        if (e.request.mode === 'navigate') {
+          return caches.match('/');
+        }
+        return new Response('', { status: 404, statusText: 'Not Found' });
+      });
+    })
+  );
+});

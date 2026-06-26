@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<link rel="shortcut icon" href="/favicon.svg" type="image/x-icon">
+<meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F4F4F5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SaurusAPI">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>Nonton Anime - API Saurus Advanced</title>
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://api.Saurus.my.id/favicon.svg">
+<meta property="og:site_name" content="Saurus API">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script>
+</script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script>
+window._SaurusAuth = null; // diset setelah Firebase init
+</script>
+<style>
+:root {
+--bg-main: #F4F4F5;
+--bg-card: #FFFFFF;
+--border-dark: #000000;
+--text-main: #000000;
+--text-muted: #52525B;
+--bg-inverse: #000000;
+--text-inverse: #FFFFFF;
+--gray-light: #E4E4E7;
+--gray-med: #D4D4D8;
+--radius-sm: 8px;
+--radius-md: 16px;
+--radius-lg: 24px;
+--radius-pill: 999px;
+--border-thick: 2.5px solid var(--border-dark);
+--border-dashed: 2.5px dashed var(--border-dark);
+--shadow-solid: 4px 4px 0px var(--border-dark);
+--shadow-solid-sm: 2px 2px 0px var(--border-dark);
+--shadow-active: 0px 0px 0px transparent;
+--sidebar-width: 280px;
+}
+body.dark-theme {
+--bg-main: #121212;
+--bg-card: #1E1E1E;
+--border-dark: #000000;
+--text-main: #FFFFFF;
+--text-muted: #A1A1AA;
+--bg-inverse: #FFFFFF;
+--text-inverse: #000000;
+--gray-light: #27272A;
+--gray-med: #3F3F46;
+}
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Poppins', sans-serif;
+-webkit-tap-highlight-color: transparent;
+}
+body {
+background-color: var(--bg-main);
+color: var(--text-main);
+min-height: 100vh;
+overflow-x: hidden;
+display: flex;
+transition: background-color 0.3s, color 0.3s;
+}
+::-webkit-scrollbar {
+width: 0px;
+height: 0px;
+}
+.moving-background-pattern {
+position: fixed;
+inset: 0;
+z-index: 0;
+background-image: radial-gradient(var(--text-muted) 2px, transparent 2px);
+background-size: 32px 32px;
+opacity: 0.15;
+animation: pan-background 40s linear infinite;
+pointer-events: none;
+}
+@keyframes pan-background {
+0% { background-position: 0 0; }
+100% { background-position: 100vw 100vh; }
+}
+.brand-text, .menu-label, .section-title, .promo-title, .tab-btn, .btn-primary, .btn-secondary, .btn-select, .card-badge, .info-tags {
+font-weight: 800;
+letter-spacing: 0.5px;
+}
+.app-layout {
+display: flex;
+width: 100%;
+min-height: 100vh;
+position: relative;
+z-index: 1;
+}
+.sidebar {
+width: var(--sidebar-width);
+background: var(--bg-card);
+border-right: var(--border-thick);
+height: 100vh;
+position: fixed;
+top: 0;
+left: 0;
+display: flex;
+flex-direction: column;
+padding: 24px 16px;
+z-index: 1000;
+transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+box-shadow: var(--shadow-solid);
+overflow-y: auto;
+}
+.sidebar-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.8);
+z-index: 999;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.sidebar-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+.brand-zone {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 0 12px 32px 12px;
+}
+.brand-icon {
+width: 44px;
+height: 44px;
+background: var(--bg-inverse);
+border: var(--border-thick);
+border-radius: var(--radius-md);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+color: var(--text-inverse);
+box-shadow: var(--shadow-solid-sm);
+}
+.brand-text {
+font-size: 1.25rem;
+font-weight: 900;
+text-transform: uppercase;
+}
+.menu-label {
+font-size: 0.75rem;
+color: var(--text-muted);
+font-weight: 800;
+letter-spacing: 1px;
+margin: 0 12px 12px 12px;
+text-transform: uppercase;
+}
+.nav-menu {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.nav-item {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 14px 16px;
+border: 2px solid var(--border-dark);
+border-radius: var(--radius-md);
+background: var(--bg-card);
+color: var(--text-main);
+text-decoration: none;
+font-size: 0.9rem;
+font-weight: 800;
+box-shadow: var(--shadow-solid-sm);
+transition: transform 0.1s, background-color 0.2s, color 0.2s;
+text-transform: uppercase;
+}
+.nav-item i {
+font-size: 1.3rem;
+}
+.nav-item:hover {
+background: var(--gray-light);
+transform: translateX(4px);
+}
+.nav-item.active {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+}
+.promo-box {
+margin-top: auto;
+background: var(--gray-light);
+border: var(--border-thick);
+padding: 24px;
+border-radius: var(--radius-md);
+margin-bottom: 20px;
+box-shadow: var(--shadow-solid-sm);
+}
+.promo-title {
+font-size: 0.95rem;
+font-weight: 900;
+margin-bottom: 8px;
+text-transform: uppercase;
+}
+.promo-desc {
+font-size: 0.8rem;
+color: var(--text-main);
+line-height: 1.5;
+font-weight: 600;
+}
+.main-wrapper {
+flex: 1;
+margin-left: var(--sidebar-width);
+padding: 24px 32px;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+transition: margin-left 0.4s ease, padding 0.4s ease;
+width: calc(100% - var(--sidebar-width));
+}
+.top-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 20px;
+margin-bottom: 32px;
+}
+.header-actions {
+display: flex;
+align-items: center;
+gap: 12px;
+flex-shrink: 0;
+}
+.btn-icon {
+width: 48px;
+height: 48px;
+border-radius: var(--radius-md);
+background: var(--bg-card);
+border: var(--border-thick);
+color: var(--text-main);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+position: relative;
+flex-shrink: 0;
+box-shadow: var(--shadow-solid-sm);
+}
+.btn-icon:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+background: var(--gray-light);
+}
+.notif-badge {
+position: absolute;
+top: -2px;
+right: -2px;
+width: 12px;
+height: 12px;
+background: var(--bg-inverse);
+border-radius: 50%;
+border: 2px solid var(--border-dark);
+display: none;
+}
+.btn-mobile-menu {
+display: none;
+}
+.search-container {
+flex: 1;
+max-width: 600px;
+position: relative;
+margin: 0 auto;
+}
+.search-input {
+width: 100%;
+background: var(--bg-card);
+border: var(--border-thick);
+padding: 16px 20px 16px 56px;
+border-radius: var(--radius-pill);
+font-size: 0.95rem;
+font-weight: 800;
+color: var(--text-main);
+outline: none;
+box-shadow: var(--shadow-solid);
+}
+.search-input::placeholder {
+color: var(--text-muted);
+}
+.search-icon {
+position: absolute;
+left: 20px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 22px;
+color: var(--text-main);
+font-weight: 900;
+}
+.hero-banner-container {
+width: 100%;
+aspect-ratio: 16/9;
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+overflow: hidden;
+position: relative;
+margin-bottom: 32px;
+box-shadow: var(--shadow-solid);
+background: var(--bg-card);
+flex-shrink: 0;
+}
+.hero-banner-img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.hero-banner-overlay {
+position: absolute;
+inset: 0;
+background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+padding: 40px;
+color: #FFFFFF;
+}
+.hero-banner-badge {
+background: #FFFFFF;
+color: #000000;
+padding: 6px 14px;
+border-radius: var(--radius-pill);
+font-size: 0.8rem;
+font-weight: 900;
+border: 2px solid #000000;
+align-self: flex-start;
+margin-bottom: 12px;
+text-transform: uppercase;
+}
+.hero-banner-title {
+font-size: 2.5rem;
+font-weight: 900;
+line-height: 1.1;
+margin-bottom: 12px;
+text-transform: uppercase;
+text-shadow: 2px 2px 0px #000000;
+}
+.hero-banner-desc {
+font-size: 0.95rem;
+font-weight: 600;
+line-height: 1.6;
+margin-bottom: 24px;
+max-width: 80%;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+.hero-banner-btn {
+background: #FFFFFF;
+color: #000000;
+border: 2px solid #000000;
+padding: 16px 32px;
+border-radius: var(--radius-pill);
+font-weight: 900;
+font-size: 1rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 10px;
+text-transform: uppercase;
+box-shadow: 4px 4px 0px #000000;
+align-self: flex-start;
+transition: transform 0.1s, box-shadow 0.1s;
+}
+.hero-banner-btn:active {
+transform: translate(2px, 2px);
+box-shadow: 2px 2px 0px #000000;
+}
+.content-tabs {
+display: flex;
+gap: 12px;
+margin-bottom: 24px;
+overflow-x: auto;
+padding-bottom: 8px;
+white-space: nowrap;
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none;
+}
+.content-tabs::-webkit-scrollbar {
+display: none;
+}
+.tab-btn {
+flex-shrink: 0;
+background: var(--bg-card);
+border: var(--border-thick);
+padding: 14px 24px;
+border-radius: var(--radius-pill);
+color: var(--text-main);
+font-weight: 900;
+font-size: 0.85rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 8px;
+text-transform: uppercase;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.tab-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.tab-btn.active {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+}
+.section-title {
+font-size: 1.2rem;
+font-weight: 900;
+margin-bottom: 24px;
+display: flex;
+align-items: center;
+gap: 12px;
+text-transform: uppercase;
+}
+.section-title i {
+color: var(--text-inverse);
+background: var(--bg-inverse);
+padding: 6px;
+border: 2px solid var(--border-dark);
+border-radius: var(--radius-sm);
+font-size: 1.6rem;
+}
+.anime-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+gap: 20px;
+}
+.anime-card {
+background: var(--bg-card);
+border: var(--border-thick);
+border-radius: var(--radius-lg);
+overflow: hidden;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+position: relative;
+display: flex;
+flex-direction: column;
+box-shadow: var(--shadow-solid);
+}
+.anime-card:active {
+transform: translate(4px, 4px);
+box-shadow: var(--shadow-active);
+}
+.card-img-wrapper {
+position: relative;
+width: 100%;
+padding-top: 140%;
+overflow: hidden;
+}
+.card-img {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.card-overlay {
+position: absolute;
+inset: 0;
+background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, transparent 60%);
+}
+.card-badge {
+position: absolute;
+top: 12px;
+right: 12px;
+background: var(--bg-inverse);
+color: var(--text-inverse);
+padding: 6px 12px;
+border-radius: var(--radius-pill);
+font-size: 0.7rem;
+font-weight: 900;
+border: 2px solid var(--border-dark);
+z-index: 2;
+}
+.card-play-btn {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 52px;
+height: 52px;
+border-radius: 50%;
+background: var(--bg-inverse);
+border: 2px solid var(--border-dark);
+color: var(--text-inverse);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+opacity: 0;
+z-index: 3;
+transition: opacity 0.2s ease;
+box-shadow: var(--shadow-solid-sm);
+}
+.anime-card:hover .card-play-btn {
+opacity: 1;
+}
+.card-content {
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+padding: 16px;
+z-index: 2;
+}
+.card-title {
+font-size: 0.95rem;
+font-weight: 900;
+color: #FFFFFF;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+margin-bottom: 8px;
+line-height: 1.3;
+text-transform: uppercase;
+}
+.card-meta {
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-size: 0.8rem;
+font-weight: 900;
+color: rgba(255, 255, 255, 0.8);
+}
+.card-meta-score {
+color: #FFFFFF;
+display: flex;
+align-items: center;
+gap: 4px;
+}
+.pagination-container {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+margin-top: 40px;
+padding: 20px 0;
+}
+.page-btn {
+width: 44px;
+height: 44px;
+border-radius: var(--radius-sm);
+background: var(--bg-card);
+border: 2px solid var(--border-dark);
+color: var(--text-main);
+font-weight: 900;
+font-size: 0.95rem;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+box-shadow: var(--shadow-solid-sm);
+}
+.page-btn.active {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+}
+.page-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.page-dots {
+color: var(--text-muted);
+font-weight: 900;
+font-size: 1.2rem;
+padding: 0 4px;
+}
+.empty-state {
+grid-column: 1 / -1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 60px 20px;
+background: var(--bg-card);
+border-radius: var(--radius-lg);
+border: var(--border-thick);
+color: var(--text-main);
+text-align: center;
+font-weight: 800;
+box-shadow: var(--shadow-solid);
+text-transform: uppercase;
+}
+.empty-state i {
+font-size: 3rem;
+margin-bottom: 16px;
+color: var(--text-main);
+}
+.detail-view {
+display: none;
+flex-direction: column;
+gap: 24px;
+animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.detail-header-actions {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.btn-primary {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+border: var(--border-thick);
+padding: 16px 28px;
+border-radius: var(--radius-pill);
+font-weight: 900;
+font-size: 0.9rem;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+display: flex;
+align-items: center;
+gap: 8px;
+text-transform: uppercase;
+box-shadow: var(--shadow-solid-sm);
+}
+.btn-primary:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.btn-secondary {
+background: var(--bg-card);
+color: var(--text-main);
+border: var(--border-thick);
+padding: 16px 28px;
+border-radius: var(--radius-pill);
+font-weight: 900;
+font-size: 0.9rem;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s;
+display: flex;
+align-items: center;
+gap: 8px;
+text-transform: uppercase;
+box-shadow: var(--shadow-solid-sm);
+}
+.btn-secondary:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+background: var(--gray-light);
+}
+.quality-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+gap: 12px;
+}
+.player-container {
+width: 100%;
+background: #000;
+border-radius: var(--radius-lg);
+border: var(--border-thick);
+overflow: hidden;
+position: relative;
+box-shadow: var(--shadow-solid);
+aspect-ratio: 16/9;
+}
+.player-container.landscape-mode {
+position: fixed;
+top: 50%;
+left: 50%;
+width: 100vh;
+height: 100vw;
+transform: translate(-50%, -50%) rotate(90deg);
+z-index: 999999;
+border-radius: 0;
+border: none;
+}
+.player-iframe-wrapper {
+width: 100%;
+height: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.player-iframe-wrapper iframe, .player-iframe-wrapper video {
+width: 100%;
+height: 100%;
+border: none;
+outline: none;
+}
+.player-loading {
+display: flex;
+flex-direction: column;
+align-items: center;
+color: #FFFFFF;
+font-weight: 900;
+gap: 12px;
+text-transform: uppercase;
+}
+.player-loading i {
+font-size: 2.5rem;
+color: #FFFFFF;
+}
+.spin {
+animation: rotate 1s linear infinite;
+}
+@keyframes rotate { 100% { transform: rotate(360deg); } }
+.btn-close-theater {
+display: none;
+position: absolute;
+top: 30px;
+right: 30px;
+width: 50px;
+height: 50px;
+border-radius: var(--radius-md);
+background: var(--bg-card);
+border: 2px solid var(--border-dark);
+color: var(--text-main);
+font-size: 24px;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 1000000;
+box-shadow: var(--shadow-solid-sm);
+}
+.player-container.landscape-mode .btn-close-theater {
+display: flex;
+}
+.controls-row {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+}
+.info-panel {
+background: var(--bg-card);
+border-radius: var(--radius-lg);
+padding: 32px;
+display: flex;
+gap: 32px;
+border: var(--border-thick);
+box-shadow: var(--shadow-solid);
+}
+.info-poster {
+width: 220px;
+border-radius: var(--radius-md);
+aspect-ratio: 3/4;
+object-fit: cover;
+flex-shrink: 0;
+border: var(--border-thick);
+box-shadow: var(--shadow-solid-sm);
+}
+.info-details {
+flex: 1;
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+.info-title {
+font-size: 2rem;
+font-weight: 900;
+line-height: 1.2;
+text-transform: uppercase;
+}
+.info-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+.tag-chip {
+background: var(--bg-main);
+border: 2px solid var(--border-dark);
+color: var(--text-main);
+padding: 6px 14px;
+border-radius: var(--radius-pill);
+font-size: 0.75rem;
+font-weight: 900;
+text-transform: uppercase;
+}
+.info-synopsis {
+font-size: 0.9rem;
+line-height: 1.8;
+color: var(--text-main);
+background: var(--gray-light);
+padding: 20px;
+border-radius: var(--radius-md);
+max-height: 250px;
+overflow-y: auto;
+border: var(--border-thick);
+font-weight: 700;
+}
+.selection-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+gap: 12px;
+}
+.btn-select {
+background: var(--bg-card);
+border: 2px solid var(--border-dark);
+padding: 14px 10px;
+border-radius: var(--radius-md);
+color: var(--text-main);
+font-weight: 900;
+font-size: 0.85rem;
+cursor: pointer;
+transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+text-align: center;
+word-wrap: break-word;
+display: flex;
+align-items: center;
+justify-content: center;
+min-height: 50px;
+box-shadow: var(--shadow-solid-sm);
+text-transform: uppercase;
+}
+.btn-select:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+.btn-select.active {
+background: var(--bg-inverse);
+color: var(--text-inverse);
+}
+.comments-section {
+background: var(--bg-card);
+border-radius: var(--radius-lg);
+padding: 32px;
+border: var(--border-thick);
+box-shadow: var(--shadow-solid);
+}
+.comment-input-wrapper {
+background: var(--bg-main);
+border-radius: var(--radius-md);
+padding: 24px;
+margin-bottom: 24px;
+border: var(--border-thick);
+}
+.reply-badge {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+background: var(--bg-inverse);
+border: 2px solid var(--border-dark);
+color: var(--text-inverse);
+padding: 8px 16px;
+border-radius: var(--radius-pill);
+font-size: 0.75rem;
+font-weight: 900;
+margin-bottom: 12px;
+text-transform: uppercase;
+}
+.btn-cancel-reply {
+background: none;
+border: none;
+color: var(--text-inverse);
+cursor: pointer;
+font-size: 1rem;
+display: flex;
+align-items: center;
+}
+.comment-textarea {
+width: 100%;
+background: transparent;
+border: none;
+color: var(--text-main);
+font-size: 0.95rem;
+font-weight: 700;
+resize: vertical;
+min-height: 100px;
+outline: none;
+margin-bottom: 16px;
+}
+.comment-textarea::placeholder {
+color: var(--text-muted);
+}
+.comment-actions-bar {
+display: flex;
+justify-content: flex-end;
+}
+.thread-container {
+display: flex;
+flex-direction: column;
+gap: 24px;
+}
+.comment-card {
+display: flex;
+gap: 16px;
+}
+.comment-avatar {
+width: 48px;
+height: 48px;
+border-radius: var(--radius-md);
+object-fit: cover;
+background: var(--bg-main);
+border: 2px solid var(--border-dark);
+box-shadow: var(--shadow-solid-sm);
+}
+.comment-body {
+flex: 1;
+background: var(--bg-main);
+padding: 20px;
+border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+border: 2px solid var(--border-dark);
+}
+.comment-head {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+}
+.comment-author {
+font-weight: 900;
+font-size: 0.95rem;
+text-transform: uppercase;
+}
+.comment-date {
+font-size: 0.75rem;
+color: var(--text-muted);
+font-weight: 800;
+}
+.comment-text {
+font-size: 0.9rem;
+line-height: 1.6;
+color: var(--text-main);
+font-weight: 700;
+}
+.comment-tools {
+display: flex;
+gap: 16px;
+margin-top: 12px;
+}
+.tool-btn {
+background: none;
+border: none;
+color: var(--text-muted);
+font-size: 0.8rem;
+font-weight: 900;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 6px;
+transition: color 0.2s;
+text-transform: uppercase;
+}
+.tool-btn:hover, .tool-btn.active { color: var(--text-main); }
+.tool-btn.danger:hover { color: #EF4444; }
+.replies-box {
+margin-left: 64px;
+margin-top: 16px;
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+.replies-box .comment-avatar {
+width: 36px;
+height: 36px;
+}
+.notif-modal {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) scale(0.9);
+background: var(--bg-card);
+width: 90%;
+max-width: 450px;
+border-radius: var(--radius-lg);
+padding: 32px;
+border: var(--border-thick);
+box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+z-index: 10000;
+opacity: 0;
+visibility: hidden;
+transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+display: flex;
+flex-direction: column;
+max-height: 80vh;
+}
+.notif-modal.active {
+opacity: 1;
+visibility: visible;
+transform: translate(-50%, -50%) scale(1);
+}
+.notif-list {
+display: flex;
+flex-direction: column;
+gap: 12px;
+overflow-y: auto;
+margin: 20px 0;
+}
+.notif-card {
+display: flex;
+gap: 16px;
+background: var(--bg-main);
+padding: 16px;
+border-radius: var(--radius-md);
+border: 2px solid var(--border-dark);
+}
+.notif-icon {
+width: 44px;
+height: 44px;
+border-radius: var(--radius-md);
+background: var(--bg-card);
+border: 2px solid var(--border-dark);
+color: var(--border-dark);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+flex-shrink: 0;
+}
+.toast-msg {
+position: fixed;
+bottom: 40px;
+left: 50%;
+transform: translateX(-50%) translateY(100px);
+background: var(--bg-card);
+color: var(--text-main);
+padding: 16px 32px;
+border-radius: var(--radius-pill);
+font-size: 0.9rem;
+font-weight: 900;
+box-shadow: var(--shadow-solid);
+z-index: 999999;
+opacity: 0;
+transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+display: flex;
+align-items: center;
+gap: 12px;
+border: var(--border-thick);
+text-transform: uppercase;
+}
+.toast-msg.show {
+transform: translateX(-50%) translateY(0);
+opacity: 1;
+}
+@media (max-width: 1024px) {
+.sidebar {
+transform: translateX(-100%);
+}
+.sidebar.open {
+transform: translateX(0);
+}
+.main-wrapper {
+margin-left: 0;
+width: 100%;
+padding: 24px 20px;
+}
+.top-header {
+flex-wrap: wrap;
+justify-content: space-between;
+gap: 16px;
+}
+.btn-mobile-menu {
+display: flex;
+}
+.search-container {
+order: 3;
+width: 100%;
+max-width: 100%;
+margin: 0;
+}
+.header-actions {
+margin-left: auto;
+}
+.info-panel {
+flex-direction: column;
+align-items: center;
+text-align: center;
+padding: 24px;
+}
+.info-tags {
+justify-content: center;
+}
+.info-poster {
+width: 180px;
+}
+}
+@media (max-width: 768px) {
+.hero-banner-overlay {
+padding: 20px;
+}
+.hero-banner-title {
+font-size: 1.8rem;
+}
+.hero-banner-desc {
+max-width: 100%;
+font-size: 0.85rem;
+}
+}
+@media (max-width: 480px) {
+.anime-grid {
+grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+gap: 16px;
+}
+.card-title {
+font-size: 0.85rem;
+}
+.selection-grid {
+grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+}
+.quality-grid {
+grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+.pagination-container {
+flex-wrap: wrap;
+}
+}
+</style>
+<script>
+(function(){
+var t = localStorage.getItem('Saurus-theme');
+var dark = t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+if (dark) document.documentElement.classList.add('pre-dark');
+})();
+</script>
+<style>
+html.pre-dark body { background-color: #121212 !important; }
+</style>
+</head>
+<body>
+<div class="moving-background-pattern"></div>
+<style id="Saurus-auth-gate-style">
+#Saurus-auth-gate {
+position: fixed;
+inset: 0;
+z-index: 99999;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: var(--bg-main, #0D0F14);
+gap: 20px;
+padding: 32px 24px;
+text-align: center;
+font-family: 'Poppins', sans-serif;
+}
+#Saurus-auth-gate .gate-icon {
+animation: gate-bounce 1.2s ease-in-out infinite alternate;
+}
+@keyframes gate-bounce {
+from { transform: translateY(0) rotate(-5deg); }
+to   { transform: translateY(-12px) rotate(5deg); }
+}
+#Saurus-auth-gate .gate-title {
+font-size: 1.4rem;
+font-weight: 900;
+color: var(--text-main);
+letter-spacing: -0.5px;
+line-height: 1.3;
+text-transform: uppercase;
+}
+#Saurus-auth-gate .gate-sindiran {
+font-size: 0.85rem;
+color: var(--text-muted);
+font-weight: 700;
+max-width: 300px;
+line-height: 1.6;
+}
+#Saurus-auth-gate .gate-btn {
+margin-top: 8px;
+padding: 16px 32px;
+border-radius: 100px;
+border: 2.5px solid var(--border-dark);
+background: var(--bg-inverse);
+color: var(--text-inverse);
+font-size: 0.95rem;
+font-weight: 900;
+cursor: pointer;
+letter-spacing: 0.5px;
+box-shadow: var(--shadow-solid-sm);
+transition: transform 0.15s, box-shadow 0.15s;
+text-transform: uppercase;
+}
+#Saurus-auth-gate .gate-btn:active {
+transform: translate(2px, 2px);
+box-shadow: var(--shadow-active);
+}
+#Saurus-auth-gate .gate-sub {
+font-size: 0.75rem;
+color: var(--text-muted);
+font-weight: 800;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 4px;
+}
+</style>
+<div id="Saurus-auth-gate" style="display:none;">
+<div class="gate-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="var(--text-main)"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM112,56a32,32,0,0,1,64,0V80H112Zm96,152H48V96H208V208Zm-48-56a16,16,0,1,1-16-16A16,16,0,0,1,160,152Z"></path></svg>
+</div>
+<div class="gate-title">Login dulu, bro!</div>
+<div class="gate-sindiran" id="gate-sindiran-text">Fitur anime streaming butuh akun. Gratis kok, 10 detik doang.</div>
+<button class="gate-btn" onclick="window.location.href='/profile'">
+<i class="ph-bold ph-sign-in"></i> Login / Daftar Gratis
+</button>
+<div class="gate-sub">
+TENANG, GA MINTA KARTU KREDIT
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="var(--text-muted)"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-28-92a12,12,0,1,1,12-12A12,12,0,0,1,100,124Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,124Zm14.28,31.7a8,8,0,0,1-10.49-4A40,40,0,0,0,96.21,151.7a8,8,0,0,1-14.42-6.84A56,56,0,0,1,174.29,145.2,8,8,0,0,1,170.28,155.7Z"></path></svg>
+</div>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+<div class="brand-zone">
+<div class="brand-icon"><i class="ph-bold ph-lightning"></i></div>
+<div class="brand-text">API Saurus</div>
+</div>
+<div class="nav-menu">
+<div class="menu-label">NAVIGASI SISTEM</div>
+<a href="/" class="nav-item"><i class="ph-bold ph-house"></i> BERANDA</a>
+<a href="/profile" class="nav-item"><i class="ph-bold ph-user-circle"></i> PROFIL &amp; KUNCI</a>
+<a href="/docs" class="nav-item"><i class="ph-bold ph-book-bookmark"></i> DOKUMENTASI</a>
+<a href="/snippet" class="nav-item"><i class="ph-bold ph-code-block"></i> REPO SNIPPET</a>
+<a href="/anime" class="nav-item active"><i class="ph-bold ph-play-circle"></i> NONTON ANIME</a>
+<a href="/donghua" class="nav-item"><i class="ph-bold ph-sword"></i> NONTON DONGHUA</a>
+<a href="/manga" class="nav-item"><i class="ph-bold ph-book-open"></i> BACA MANGA</a>
+<a href="/manhwa" class="nav-item"><i class="ph-bold ph-books"></i> BACA MANHWA</a>
+<a href="/film" class="nav-item"><i class="ph-bold ph-film-strip"></i> NONTON FILM</a>
+<a href="/tv" class="nav-item"><i class="ph-bold ph-television"></i> STREAMING TV</a>
+<a href="/dramabox" class="nav-item"><i class="ph-bold ph-video"></i> DRAMABOX</a>
+<a href="/music" class="nav-item"><i class="ph-bold ph-headphones"></i> Saurus MUSIC</a>
+<a href="/panel" class="nav-item"><i class="ph-bold ph-hard-drives"></i> CLAIM PANEL</a>
+<a href="/apk" class="nav-item"><i class="ph-bold ph-device-mobile"></i> UNDUH APK</a>
+<a href="/tourl" class="nav-item"><i class="ph-bold ph-cloud-arrow-up"></i> MEDIA HOSTER</a>
+</div>
+<div class="promo-box">
+<div class="promo-title"><i class="ph-bold ph-sparkle"></i> NONTON GRATIS</div>
+<div class="promo-desc">Nikmati koleksi tayangan terbaru tanpa gangguan iklan komersial. Resolusi tinggi.</div>
+</div>
+</aside>
+<div class="main-wrapper">
+<header class="top-header">
+<button class="btn-icon btn-mobile-menu" id="btnMenu"><i class="ph-bold ph-list"></i></button>
+<div class="search-container" id="searchBoxContainer">
+<i class="ph-bold ph-magnifying-glass search-icon"></i>
+<input type="text" class="search-input" id="inputSearch" placeholder="Cari judul anime favoritmu disini...">
+</div>
+<div class="header-actions">
+<button class="btn-icon" id="btnBgm"><i id="bgmIcon" class="ph-bold ph-speaker-slash"></i></button>
+<button class="btn-icon" id="btnNotif">
+<i class="ph-bold ph-bell"></i>
+<div class="notif-badge" id="notifBadge"></div>
+</button>
+</div>
+</header>
+<div id="viewMain">
+<div class="hero-banner-container">
+<img src="https://files.catbox.moe/055tv6.jpg" class="hero-banner-img" alt="Hero Banner Anime">
+<div class="hero-banner-overlay">
+<div class="hero-banner-badge">REKOMENDASI Saurus</div>
+<div class="hero-banner-title">KIMETSU NO YAIBA</div>
+<div class="hero-banner-desc">Perjalanan Tanjirou Kamado membasmi iblis dan mencari obat untuk adiknya yang telah berubah menjadi iblis. Tonton animasi memukau dengan resolusi 4K sekarang juga.</div>
+<button class="hero-banner-btn" onclick="document.getElementById('inputSearch').focus();"><i class="ph-bold ph-magnifying-glass"></i> CARI SEKARANG</button>
+</div>
+</div>
+<div class="content-tabs" id="tabsContainer">
+<div class="tab-btn active" data-tab="latest"><i class="ph-bold ph-fire"></i> UPDATE TERBARU</div>
+<div class="tab-btn" data-tab="search" id="tabSearch" style="display:none;"><i class="ph-bold ph-magnifying-glass"></i> HASIL PENCARIAN</div>
+<div class="tab-btn" data-tab="favorites"><i class="ph-bold ph-heart"></i> TERSIMPAN</div>
+<div class="tab-btn" data-tab="history"><i class="ph-bold ph-clock-counter-clockwise"></i> RIWAYAT</div>
+</div>
+<div id="gridLatest" class="anime-grid"></div>
+<div id="gridSearch" class="anime-grid" style="display:none;"></div>
+<div id="gridFavorites" class="anime-grid" style="display:none;"></div>
+<div id="gridHistory" class="anime-grid" style="display:none;"></div>
+<div class="pagination-container" id="paginationContainer" style="display:none;">
+<button class="page-btn" id="btnPrevPage" aria-label="Previous"><i class="ph-bold ph-caret-left"></i></button>
+<div id="pageButtons" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"></div>
+<button class="page-btn" id="btnNextPage" aria-label="Next"><i class="ph-bold ph-caret-right"></i></button>
+</div>
+</div>
+<div id="viewDetail" class="detail-view">
+<div class="detail-header-actions">
+<button class="btn-secondary" id="btnBack"><i class="ph-bold ph-arrow-left"></i> KEMBALI</button>
+<button class="btn-primary" id="btnTheater"><i class="ph-bold ph-device-mobile-camera"></i> THEATER MODE</button>
+</div>
+<div>
+<div class="section-title"><i class="ph-fill ph-hard-drives"></i> RESOLUSI SERVER</div>
+<div class="quality-grid" id="gridQualities"></div>
+</div>
+<div class="player-container" id="playerWrap">
+<button class="btn-close-theater" id="btnCloseTheater"><i class="ph-bold ph-arrows-in"></i></button>
+<div class="player-iframe-wrapper" id="playerContent"></div>
+</div>
+<div class="controls-row">
+<button class="btn-secondary" id="btnSave"><i class="ph-bold ph-heart" id="iconSave"></i> <span id="textSave">SIMPAN KE FAVORIT</span></button>
+</div>
+<div id="downloadSection" style="display:none;">
+<button id="btn-toggle-downloads" class="btn-secondary" style="width:100%; justify-content:space-between;">
+<div style="display:flex; align-items:center; gap:8px;">
+<i class="ph-bold ph-download-simple"></i>
+<span id="btn-dl-label">UNDUHAN SERVER</span>
+<span id="btn-dl-count" style="background:var(--bg-inverse); color:var(--text-inverse); padding:2px 8px; border-radius:10px;">0</span>
+</div>
+<i class="ph-bold ph-caret-down dl-caret"></i>
+</button>
+<div style="display:none; margin-top:16px;" id="dl-expand-panel">
+<div class="quality-grid" id="gridDownloads"></div>
+</div>
+</div>
+<div>
+<div class="section-title"><i class="ph-fill ph-list-numbers"></i> DAFTAR EPISODE</div>
+<div class="selection-grid" id="gridEpisodes"></div>
+</div>
+<div class="info-panel">
+<img src="" class="info-poster" id="detailPoster" onerror="this.src='https://ui-avatars.com/api/?name=Anime&background=random&color=fff&size=512'">
+<div class="info-details">
+<div class="info-title" id="detailTitle"></div>
+<div class="info-tags" id="detailTags"></div>
+<div style="font-size:1.4rem; font-weight:900; color:var(--text-main); display:flex; gap:8px; align-items:center;">
+<i class="ph-fill ph-star"></i> <span id="detailScore"></span>
+</div>
+<div class="info-synopsis" id="detailSynopsis"></div>
+</div>
+</div>
+<div class="comments-section">
+<div class="section-title"><i class="ph-fill ph-chats-teardrop"></i> RUANG DISKUSI</div>
+<div class="comment-input-wrapper">
+<div class="reply-badge" id="replyBadge" style="display:none;">
+Membalas <span id="replyTarget"></span>
+<button class="btn-cancel-reply" id="btnCancelReply"><i class="ph-bold ph-x"></i></button>
+</div>
+<textarea class="comment-textarea" id="inputComment" placeholder="Bagikan pendapat lu mengenai episode ini..."></textarea>
+<div class="comment-actions-bar">
+<button class="btn-primary" id="btnSendComment"><i class="ph-bold ph-paper-plane-right"></i> KIRIM KOMENTAR</button>
+</div>
+</div>
+<div class="thread-container" id="commentsContainer"></div>
+</div>
+</div>
+</div>
+<div class="sidebar-overlay" id="notifOverlay"></div>
+<div class="notif-modal" id="notifModal">
+<div class="section-title" style="margin-bottom:0;"><i class="ph-fill ph-bell-ringing"></i> PEMBERITAHUAN</div>
+<div class="notif-list" id="notifList"></div>
+<button class="btn-secondary" id="btnCloseNotif" style="width:100%; justify-content:center;">TUTUP PUSAT NOTIFIKASI</button>
+</div>
+<div class="toast-msg" id="toastMsg"></div>
+<audio id="bgmAudio" loop preload="auto"><source src="https://files.catbox.moe/90oxoq.mp3" type="audio/mpeg"></audio>
+<script>
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const btnMenu = document.getElementById('btnMenu');
+function toggleSidebar() {
+sidebar.classList.toggle('open');
+sidebarOverlay.classList.toggle('active');
+}
+btnMenu.addEventListener('click', toggleSidebar);
+sidebarOverlay.addEventListener('click', toggleSidebar);
+const toast = document.getElementById('toastMsg');
+let toastTimer;
+function showToast(msg, type = 'success') {
+toast.innerHTML = type === 'success' ? `<i class="ph-bold ph-check-circle"></i> ${msg}` : `<i class="ph-bold ph-warning-circle"></i> ${msg}`;
+toast.className = `toast-msg show ${type}`;
+clearTimeout(toastTimer);
+toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+function getDisplayTitle(item, fallback = 'Judul tidak tersedia') {
+if (!item || typeof item !== 'object') return fallback;
+const candidates = [
+item.title,
+item.name,
+item.judul,
+item.original_title,
+item.displayTitle,
+item.animeTitle,
+item.mangaTitle,
+item.series_title,
+item.titles?.id,
+item.titles?.en,
+];
+for (const value of candidates) {
+if (typeof value === 'string' && value.trim()) return value.trim();
+}
+return fallback;
+}
+function getSafeText(value, fallback = '') {
+if (value === null || value === undefined) return fallback;
+const text = String(value).trim();
+return text || fallback;
+}
+const FB = {
+async _token() {
+try {
+const u = firebase.auth().currentUser;
+return u ? await u.getIdToken() : null;
+} catch { return null; }
+},
+async _authHeaders() {
+const t = await this._token();
+return t ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }
+: { 'Content-Type': 'application/json' };
+},
+async getComments(col, slug) {
+const r = await fetch(`/api/fb/comments?collection=${col}&slug=${encodeURIComponent(slug)}`);
+return r.json();
+},
+async postComment(col, slug, uid, name, photo, text, parentId, replyToName) {
+const r = await fetch('/api/fb/comment', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ collection: col, slug, uid, name, photo, text, parentId, replyToName })
+});
+return r.json();
+},
+async toggleLike(col, slug, cid, uid, remove) {
+const r = await fetch('/api/fb/like', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ collection: col, slug, cid, remove, uid })
+});
+return r.json();
+},
+async deleteComment(col, slug, cid) {
+const r = await fetch('/api/fb/delete-comment', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ collection: col, slug, cid, uid: userIdent.uid })
+});
+return r.json();
+},
+async getNotifs(uid) {
+const h = await this._authHeaders();
+const r = await fetch(`/api/fb/notif?uid=${encodeURIComponent(uid)}`, { headers: h });
+return r.json();
+},
+async pushNotif(targetUid, msg, type) {
+await fetch('/api/fb/push-notif', { method: 'POST',
+headers: await this._authHeaders(),
+body: JSON.stringify({ targetUid, msg, type, uid: userIdent.uid })
+}).catch(() => {});
+}
+};
+let userIdent = {
+uid: localStorage.getItem('Saurus_uid') || crypto.randomUUID(),
+name: 'Pengguna Saurus',
+photo: 'https://files.catbox.moe/9y8310.jpg'
+};
+if (!localStorage.getItem('Saurus_uid')) localStorage.setItem('Saurus_uid', userIdent.uid);
+const btnNotif = document.getElementById('btnNotif');
+const notifModal = document.getElementById('notifModal');
+const notifOverlay = document.getElementById('notifOverlay');
+const btnCloseNotif = document.getElementById('btnCloseNotif');
+function toggleNotif() {
+notifModal.classList.toggle('active');
+notifOverlay.classList.toggle('active');
+document.getElementById('notifBadge').style.display = 'none';
+}
+btnNotif.addEventListener('click', toggleNotif);
+btnCloseNotif.addEventListener('click', toggleNotif);
+notifOverlay.addEventListener('click', toggleNotif);
+const bgmAudio = document.getElementById('bgmAudio');
+const btnBgm = document.getElementById('btnBgm');
+const bgmIcon = document.getElementById('bgmIcon');
+let isBgmPlaying = localStorage.getItem('Saurus_bgm') === 'true';
+function updateBgmUI() {
+if(isBgmPlaying) {
+bgmIcon.className = 'ph-bold ph-speaker-high';
+btnBgm.style.color = 'var(--text-main)';
+} else {
+bgmIcon.className = 'ph-bold ph-speaker-slash';
+btnBgm.style.color = 'var(--text-muted)';
+}
+}
+if(isBgmPlaying) {
+bgmAudio.play().catch(() => {
+document.addEventListener('click', () => { if(isBgmPlaying) bgmAudio.play(); }, {once:true});
+});
+}
+updateBgmUI();
+btnBgm.addEventListener('click', () => {
+isBgmPlaying = !isBgmPlaying;
+localStorage.setItem('Saurus_bgm', isBgmPlaying);
+if(isBgmPlaying) bgmAudio.play();
+else bgmAudio.pause();
+updateBgmUI();
+});
+const viewMain = document.getElementById('viewMain');
+const viewDetail = document.getElementById('viewDetail');
+const searchBox = document.getElementById('searchBoxContainer');
+const tabs = document.querySelectorAll('.tab-btn');
+const grids = {
+latest: document.getElementById('gridLatest'),
+search: document.getElementById('gridSearch'),
+favorites: document.getElementById('gridFavorites'),
+history: document.getElementById('gridHistory')
+};
+const tabSearch = document.getElementById('tabSearch');
+function switchTab(targetTab) {
+tabs.forEach(t => t.classList.remove('active'));
+document.querySelector(`[data-tab="${targetTab}"]`).classList.add('active');
+Object.values(grids).forEach(g => g.style.display = 'none');
+grids[targetTab].style.display = 'grid';
+if(targetTab === 'favorites') loadLocalData('fav', grids.favorites, 'Belum ada anime yang disimpan.');
+if(targetTab === 'history') loadLocalData('hist', grids.history, 'Belum ada riwayat tontonan.');
+}
+tabs.forEach(tab => {
+tab.addEventListener('click', () => {
+if(tab.dataset.tab === 'search' && grids.search.innerHTML === '') return;
+switchTab(tab.dataset.tab);
+});
+});
+document.getElementById('btnBack').addEventListener('click', () => {
+viewDetail.style.display = 'none';
+viewMain.style.display = 'block';
+searchBox.style.display = 'block';
+if(unsubCommentsInterval) clearInterval(unsubCommentsInterval);
+});
+function getLocal(key) { return JSON.parse(localStorage.getItem(`Saurus_anm_${key}`) || '[]'); }
+function saveLocal(key, data) { localStorage.setItem(`Saurus_anm_${key}`, JSON.stringify(data)); }
+function addToHistory(anime) {
+let hist = getLocal('hist');
+hist = hist.filter(x => x.url !== anime.url);
+hist.unshift(anime);
+if(hist.length > 40) hist.pop();
+saveLocal('hist', hist);
+}
+function renderCard(item, container, badgeText = 'TV') {
+const card = document.createElement('div');
+card.className = 'anime-card';
+card.innerHTML = `
+<div class="card-img-wrapper">
+<div class="card-badge">${badgeText}</div>
+<img src="${item.thumb}" class="card-img" referrerpolicy="no-referrer" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(item.title)}&background=random&color=000&size=512'">
+<div class="card-overlay"></div>
+<div class="card-play-btn"><i class="ph-fill ph-play"></i></div>
+<div class="card-content">
+<div class="card-title">${getDisplayTitle(item)}</div>
+<div class="card-meta">
+<span><i class="ph-bold ph-monitor-play"></i> STREAM</span>
+<span class="card-meta-score"><i class="ph-fill ph-star"></i> ${item.score || 'N/A'}</span>
+</div>
+</div>
+</div>
+`;
+card.addEventListener('click', () => openDetail(item));
+container.appendChild(card);
+}
+function loadLocalData(key, container, emptyMsg) {
+const data = getLocal(key);
+container.innerHTML = '';
+if(data.length === 0) {
+container.innerHTML = `<div class="empty-state"><i class="ph-light ph-folder-open"></i><div>${emptyMsg}</div></div>`;
+return;
+}
+data.forEach(item => renderCard(item, container, key === 'fav' ? 'FAVORIT' : 'RIWAYAT'));
+}
+const ITEMS_PER_PAGE = 12;
+let allLatestData = [];
+let currentPage = 1;
+function renderPagination(totalPages) {
+const container = document.getElementById('paginationContainer');
+const pageButtons = document.getElementById('pageButtons');
+if (totalPages <= 1) { container.style.display = 'none'; return; }
+container.style.display = 'flex';
+pageButtons.innerHTML = '';
+const addBtn = (num, isActive) => {
+const b = document.createElement('button');
+b.className = 'page-btn' + (isActive ? ' active' : '');
+b.textContent = num;
+b.onclick = () => goToPage(num);
+pageButtons.appendChild(b);
+};
+const addDots = () => { const s = document.createElement('span'); s.className = 'page-dots'; s.textContent = '...'; pageButtons.appendChild(s); };
+if (totalPages <= 7) {
+for (let i = 1; i <= totalPages; i++) addBtn(i, i === currentPage);
+} else {
+addBtn(1, currentPage === 1);
+if (currentPage > 3) addDots();
+const start = Math.max(2, currentPage - 1);
+const end = Math.min(totalPages - 1, currentPage + 1);
+for (let i = start; i <= end; i++) addBtn(i, i === currentPage);
+if (currentPage < totalPages - 2) addDots();
+addBtn(totalPages, currentPage === totalPages);
+}
+document.getElementById('btnPrevPage').disabled = currentPage === 1;
+document.getElementById('btnNextPage').disabled = currentPage === totalPages;
+}
+function goToPage(page) {
+currentPage = page;
+const start = (page - 1) * ITEMS_PER_PAGE;
+const slice = allLatestData.slice(start, start + ITEMS_PER_PAGE);
+grids.latest.innerHTML = '';
+slice.forEach(x => renderCard({ url: x.url, title: x.title, thumb: x.thumbnail, score: x.episode }, grids.latest, x.day || 'ONGOING'));
+renderPagination(Math.ceil(allLatestData.length / ITEMS_PER_PAGE));
+grids.latest.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.getElementById('btnPrevPage').addEventListener('click', () => { if (currentPage > 1) goToPage(currentPage - 1); });
+document.getElementById('btnNextPage').addEventListener('click', () => { const total = Math.ceil(allLatestData.length / ITEMS_PER_PAGE); if (currentPage < total) goToPage(currentPage + 1); });
+async function fetchLatest() {
+grids.latest.innerHTML = '<div class="empty-state"><i class="ph-bold ph-spinner spin"></i><div>Menyinkronkan data pusat...</div></div>';
+try {
+const res = await fetch('/api/anime/latest');
+const json = await res.json();
+grids.latest.innerHTML = '';
+if(!json.ok || !json.data) throw new Error('Format data tidak valid');
+allLatestData = json.data;
+currentPage = 1;
+goToPage(1);
+} catch(e) {
+grids.latest.innerHTML = '<div class="empty-state"><i class="ph-light ph-warning-circle"></i><div>Gagal terhubung ke peladen utama.</div></div>';
+}
+}
+let searchTimer;
+document.getElementById('inputSearch').addEventListener('input', (e) => {
+clearTimeout(searchTimer);
+const q = e.target.value.trim();
+if(q.length >= 3) {
+searchTimer = setTimeout(async () => {
+tabSearch.style.display = 'flex';
+switchTab('search');
+grids.search.innerHTML = '<div class="empty-state"><i class="ph-bold ph-spinner spin"></i><div>Mencari di seluruh database...</div></div>';
+try {
+const res = await fetch(`/api/anime/search?q=${encodeURIComponent(q)}`);
+const json = await res.json();
+grids.search.innerHTML = '';
+if(!json.ok || !json.data || json.data.length === 0) {
+grids.search.innerHTML = '<div class="empty-state"><i class="ph-light ph-magnifying-glass-minus"></i><div>Tidak ada entitas yang cocok.</div></div>';
+return;
+}
+json.data.forEach(x => {
+renderCard({
+url: x.url,
+title: x.title,
+thumb: x.thumbnail,
+score: x.rating || 'N/A'
+}, grids.search, x.status || 'ANIME');
+});
+} catch(e) {
+grids.search.innerHTML = '<div class="empty-state"><i class="ph-light ph-warning-circle"></i><div>Kesalahan kueri penelusuran.</div></div>';
+}
+}, 800);
+} else if (q.length === 0) {
+tabSearch.style.display = 'none';
+switchTab('latest');
+}
+});
+let currentAnime = null;
+let currentSlug = '';
+let activeReq = null;
+function checkFav() {
+const favs = getLocal('fav');
+const isFav = favs.some(x => x.url === currentAnime.url);
+const i = document.getElementById('iconSave');
+const t = document.getElementById('textSave');
+if(isFav) {
+i.className = 'ph-fill ph-heart';
+i.style.color = '#EF4444';
+t.textContent = 'HAPUS DARI FAVORIT';
+} else {
+i.className = 'ph-bold ph-heart';
+i.style.color = '';
+t.textContent = 'SIMPAN KE FAVORIT';
+}
+}
+document.getElementById('btnSave').addEventListener('click', () => {
+let favs = getLocal('fav');
+const idx = favs.findIndex(x => x.url === currentAnime.url);
+if(idx > -1) {
+favs.splice(idx, 1);
+showToast('Dihapus dari koleksi favorit.', 'success');
+} else {
+favs.push(currentAnime);
+showToast('Berhasil diamankan ke favorit.', 'success');
+}
+saveLocal('fav', favs);
+checkFav();
+});
+const playerWrap = document.getElementById('playerWrap');
+document.getElementById('btnTheater').addEventListener('click', async () => {
+try {
+if(playerWrap.requestFullscreen) {
+await playerWrap.requestFullscreen();
+if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+} else {
+playerWrap.classList.add('landscape-mode');
+}
+} catch(e) { playerWrap.classList.add('landscape-mode'); }
+});
+document.getElementById('btnCloseTheater').addEventListener('click', async () => {
+try {
+if(document.fullscreenElement) {
+await document.exitFullscreen();
+if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+}
+} catch(e) {}
+playerWrap.classList.remove('landscape-mode');
+});
+document.addEventListener('fullscreenchange', () => {
+if(!document.fullscreenElement) playerWrap.classList.remove('landscape-mode');
+});
+async function openDetail(item) {
+viewMain.style.display = 'none';
+searchBox.style.display = 'none';
+viewDetail.style.display = 'flex';
+window.scrollTo(0, 0);
+currentAnime = item;
+currentSlug = btoa(item.url).substring(0, 25).replace(/[^a-zA-Z0-9]/g, '');
+addToHistory(item);
+checkFav();
+document.getElementById('detailTitle').textContent = getDisplayTitle(item);
+document.getElementById('detailPoster').src = item.thumb || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.title)}&background=random&color=000&size=512`;
+document.getElementById('detailScore').textContent = item.score || 'Menunggu kalkulasi...';
+document.getElementById('detailTags').innerHTML = '';
+document.getElementById('detailSynopsis').innerHTML = 'Mengekstraksi deskripsi dari pusat data...';
+document.getElementById('gridEpisodes').innerHTML = '';
+document.getElementById('gridQualities').innerHTML = '';
+document.getElementById('gridDownloads').innerHTML = '';
+document.getElementById('downloadSection').style.display = 'none';
+const pContent = document.getElementById('playerContent');
+pContent.innerHTML = '<div class="player-loading"><i class="ph-bold ph-spinner spin"></i><span>Membangun jembatan stream...</span></div>';
+initComments();
+try {
+const res = await fetch(`/api/anime/detail?url=${encodeURIComponent(item.url)}`);
+const json = await res.json();
+if(!json.ok || !json.data) throw new Error();
+const d = json.data;
+document.getElementById('detailTitle').textContent = getDisplayTitle(d, getDisplayTitle(item));
+document.getElementById('detailPoster').src = d.thumbnail || item.thumb || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.title)}&background=random&color=000&size=512`;
+document.getElementById('detailScore').textContent = d.score || d.rating || item.score || 'N/A';
+document.getElementById('detailSynopsis').textContent = d.synopsis || 'Tidak ada catatan sinopsis resmi.';
+if(d.genres && typeof d.genres === 'string') {
+document.getElementById('detailTags').innerHTML = d.genres.split(',').map(g => `<span class="tag-chip">${g.trim()}</span>`).join('');
+}
+const eps = d.episode_list || [];
+if(eps.length === 0) {
+pContent.innerHTML = '<div class="player-loading"><i class="ph-bold ph-warning-octagon" style="animation:none;"></i><span>Tidak terdeteksi struktur episode.</span></div>';
+} else {
+const gridEp = document.getElementById('gridEpisodes');
+[...eps].reverse().forEach(ep => {
+const btn = document.createElement('button');
+btn.className = 'btn-select';
+const match = ep.title.match(/(?:Episode|Ep\.?|E)\s*(\d+(\.\d+)?)/i);
+if (match) {
+btn.textContent = `EP ${match[1]}`;
+} else {
+const shortName = ep.title.replace(d.title, '').replace(/subtitle indonesia|sub indo/i, '').trim();
+btn.textContent = shortName.length > 0 && shortName.length < 25 ? shortName : 'EP';
+}
+btn.onclick = () => loadSources(ep.url, btn);
+gridEp.appendChild(btn);
+});
+loadSources(eps[eps.length-1].url, gridEp.firstChild);
+}
+} catch(e) {
+pContent.innerHTML = '<div class="player-loading"><i class="ph-bold ph-warning-octagon" style="animation:none;"></i><span>Gagal meresolusi entitas target dari database pusat.</span></div>';
+}
+}
+async function loadSources(url, btn) {
+if(activeReq) activeReq.abort();
+activeReq = new AbortController();
+document.querySelectorAll('#gridEpisodes .btn-select').forEach(b => b.classList.remove('active'));
+if(btn) btn.classList.add('active');
+const pContent = document.getElementById('playerContent');
+const qGrid = document.getElementById('gridQualities');
+const dGrid = document.getElementById('gridDownloads');
+const dSection = document.getElementById('downloadSection');
+pContent.innerHTML = '<div class="player-loading"><i class="ph-bold ph-spinner spin"></i><span>Mendekripsi jaringan server...</span></div>';
+qGrid.innerHTML = '';
+dGrid.innerHTML = '';
+dSection.style.display = 'none';
+try {
+const res = await fetch(`/api/anime/stream?url=${encodeURIComponent(url)}`, { signal: activeReq.signal });
+const json = await res.json();
+if(json.ok && json.data) {
+if(json.data.stream_links && json.data.stream_links.length > 0) {
+json.data.stream_links.forEach((s, i) => {
+const qb = document.createElement('button');
+qb.className = 'btn-select';
+const qMatch = (s.quality || '').match(/\d{3,4}p/i);
+qb.textContent = qMatch ? qMatch[0] : (s.quality || `SERVER ${i+1}`);
+qb.onclick = () => playVideo(s.url, qb);
+qGrid.appendChild(qb);
+});
+playVideo(json.data.stream_links[0].url, qGrid.firstChild);
+} else {
+pContent.innerHTML = '<div class="player-loading"><i class="ph-bold ph-warning-circle" style="animation:none;"></i><span>Mirror stream belum tersedia dari pusat.</span></div>';
+}
+if(json.data.downloads && json.data.downloads.length > 0) {
+dSection.style.display = 'block';
+let totalLinks = 0;
+json.data.downloads.forEach(dl => {
+dl.links.forEach(link => {
+totalLinks++;
+const a = document.createElement('a');
+a.className = 'btn-secondary';
+a.style.justifyContent = 'center';
+a.style.textDecoration = 'none';
+a.style.fontSize = '0.85rem';
+a.target = '_blank';
+a.href = link.url;
+const dlMatch = (dl.quality || '').match(/\d{3,4}p/i);
+const dlQuality = dlMatch ? dlMatch[0] : dl.quality;
+a.innerHTML = `<i class="ph-bold ph-download-simple"></i> ${dlQuality} - ${link.server}`;
+dGrid.appendChild(a);
+});
+});
+const dlCount = document.getElementById('btn-dl-count');
+if (dlCount) dlCount.textContent = totalLinks;
+const dlToggle = document.getElementById('btn-toggle-downloads');
+const dlPanel = document.getElementById('dl-expand-panel');
+if (dlToggle && dlPanel && !dlToggle._dlAttached) {
+dlToggle._dlAttached = true;
+dlToggle.addEventListener('click', () => {
+const isHidden = dlPanel.style.display === 'none';
+dlPanel.style.display = isHidden ? 'block' : 'none';
+});
+}
+if (dlPanel) { dlPanel.style.display = 'none'; }
+}
+}
+} catch(e) {
+if(e.name !== 'AbortError') pContent.innerHTML = '<div class="player-loading"><i class="ph-bold ph-warning-octagon" style="animation:none;"></i><span>Interupsi koneksi fatal.</span></div>';
+}
+}
+function playVideo(url, btn) {
+document.querySelectorAll('#gridQualities .btn-select').forEach(b => b.classList.remove('active'));
+if(btn) btn.classList.add('active');
+const pContent = document.getElementById('playerContent');
+const pdMatch = url.match(/pixeldrain\.com\/u\/([a-zA-Z0-9_-]+)/i);
+if (pdMatch) url = `https://pixeldrain.com/api/file/${pdMatch[1]}`;
+if(url.match(/\.(mp4|mkv|webm)($|\?)/i) || /pixeldrain\.com\/api\/file\//i.test(url)) {
+pContent.innerHTML = `<video controls autoplay style="width:100%; height:100%; object-fit:contain;"><source src="${url}" type="video/mp4"></video>`;
+} else {
+pContent.innerHTML = `<iframe src="${url}" allowfullscreen scrolling="no" style="width:100%; height:100%; border:none; outline:none;"></iframe>`;
+}
+}
+let unsubCommentsInterval = null;
+let replyData = null;
+function renderComments(docs) {
+const container = document.getElementById('commentsContainer');
+container.innerHTML = '';
+if(docs.length === 0) {
+container.innerHTML = '<div class="empty-state" style="padding:40px; border:none;"><i class="ph-light ph-chats-circle"></i><div>Ruang diskusi masih kosong. Mulai pembicaraan!</div></div>';
+return;
+}
+const parents = [];
+const childrenMap = {};
+docs.forEach(d => {
+if(d.parentId) {
+if(!childrenMap[d.parentId]) childrenMap[d.parentId] = [];
+childrenMap[d.parentId].push(d);
+} else parents.push(d);
+});
+parents.sort((a,b) => b.ts - a.ts).forEach(p => {
+const wrap = document.createElement('div');
+wrap.appendChild(createCommentNode(p, false));
+if(childrenMap[p.id]) {
+const rBox = document.createElement('div');
+rBox.className = 'replies-box';
+childrenMap[p.id].sort((a,b) => a.ts - b.ts).forEach(c => rBox.appendChild(createCommentNode(c, true)));
+wrap.appendChild(rBox);
+}
+container.appendChild(wrap);
+});
+}
+function createCommentNode(d, isReply) {
+const el = document.createElement('div');
+el.className = 'comment-card';
+const isMine = d.uid === userIdent.uid;
+const time = d.ts ? new Date(d.ts).toLocaleString('id-ID', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'Baru';
+const isLiked = (d.likes || []).includes(userIdent.uid);
+el.innerHTML = `
+<img src="${d.photo}" class="comment-avatar" onerror="this.src='https://files.catbox.moe/9y8310.jpg'">
+<div class="comment-body">
+<div class="comment-head">
+<span class="comment-author">${d.name}</span>
+<span class="comment-date">${time}</span>
+</div>
+<div class="comment-text">
+${isReply && d.replyToName ? `<span style="font-weight:900;">@${d.replyToName}</span> ` : ''}
+${d.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+</div>
+<div class="comment-tools">
+<button class="tool-btn ${isLiked?'active':''}" data-action="like" data-cid="${d.id}">
+<i class="${isLiked ? 'ph-fill' : 'ph-bold'} ph-heart"></i> <span class="like-count">${(d.likes||[]).length||''}</span>
+</button>
+<button class="tool-btn" data-action="reply" data-pid="${isReply ? d.parentId : d.id}" data-name="${d.name}" data-uid="${d.uid}">
+<i class="ph-bold ph-chat-circle"></i> Balas
+</button>
+${isMine ? `<button class="tool-btn danger" data-action="delete" data-cid="${d.id}"><i class="ph-bold ph-trash"></i> Hapus</button>` : ''}
+</div>
+</div>
+`;
+return el;
+}
+function initComments() {
+if(unsubCommentsInterval) clearInterval(unsubCommentsInterval);
+document.getElementById('commentsContainer').innerHTML = '<div class="empty-state" style="padding:40px; border:none;"><i class="ph-bold ph-spinner spin"></i><div>Mensinkronkan aliran data obrolan...</div></div>';
+const fetchC = async () => {
+try {
+const res = await FB.getComments('anime_comments', currentSlug);
+if(res.ok) renderComments(res.data);
+} catch(e){}
+};
+fetchC();
+unsubCommentsInterval = setInterval(fetchC, 6000);
+}
+window.prepReply = function(pid, rName, rUid) {
+replyData = { pid, rName, rUid };
+document.getElementById('replyBadge').style.display = 'inline-flex';
+document.getElementById('replyTarget').textContent = `@${rName}`;
+const inp = document.getElementById('inputComment');
+inp.placeholder = `Tulis balasan untuk @${rName}...`;
+inp.focus();
+};
+document.getElementById('btnCancelReply').onclick = () => {
+replyData = null;
+document.getElementById('replyBadge').style.display = 'none';
+document.getElementById('inputComment').placeholder = 'Bagikan pendapat lu mengenai episode ini...';
+};
+document.getElementById('btnSendComment').onclick = async () => {
+const inp = document.getElementById('inputComment');
+const txt = inp.value.trim();
+if(!txt) {
+showToast('Komentar tidak boleh kosong.', 'error');
+inp.focus();
+return;
+}
+const btn = document.getElementById('btnSendComment');
+const btnText = btn.innerHTML;
+btn.disabled = true;
+btn.innerHTML = '<i class="ph-bold ph-spinner spin"></i>';
+try {
+const res = await FB.postComment(
+'anime_comments', 
+currentSlug, 
+userIdent.uid, 
+userIdent.name, 
+userIdent.photo, 
+txt, 
+replyData?.pid, 
+replyData?.rName
+);
+if (res.ok) {
+showToast('Komentar berhasil diposting!', 'success');
+inp.value = '';
+document.getElementById('btnCancelReply').click();
+if (replyData && replyData.rUid) {
+try {
+await FB.pushNotif(replyData.rUid, `${userIdent.name} membalas komentar lu di ${getDisplayTitle(currentAnime, 'anime ini')}`, 'reply');
+} catch(e) {}
+}
+const commentsRes = await FB.getComments('anime_comments', currentSlug);
+if (commentsRes.ok) renderComments(commentsRes.data);
+} else {
+showToast('Gagal mengirim komentar: ' + (res.msg || 'Server error'), 'error');
+}
+} catch(e) {
+showToast('Koneksi sistem obrolan ditolak: ' + e.message, 'error');
+}
+btn.disabled = false;
+btn.innerHTML = btnText;
+};
+document.addEventListener('click', async (e) => {
+const likeBtn = e.target.closest('[data-action="like"]');
+const replyBtn = e.target.closest('[data-action="reply"]');
+const deleteBtn = e.target.closest('[data-action="delete"]');
+if (likeBtn) {
+const cid = likeBtn.dataset.cid;
+const isLiked = likeBtn.classList.contains('active');
+likeBtn.disabled = true;
+try {
+const res = await FB.toggleLike('anime_comments', currentSlug, cid, userIdent.uid, isLiked);
+if (res.ok) {
+likeBtn.classList.toggle('active');
+const countEl = likeBtn.querySelector('.like-count');
+const count = parseInt(countEl.textContent) || 0;
+countEl.textContent = isLiked ? Math.max(0, count - 1) : count + 1;
+showToast(isLiked ? 'Suara ditarik kembali.' : 'Suara Anda tercatat!', 'success');
+}
+} catch (err) {
+showToast('Sistem like sedang tidak tersedia.', 'error');
+}
+likeBtn.disabled = false;
+}
+if (replyBtn) {
+const pid = replyBtn.dataset.pid;
+const rName = replyBtn.dataset.name;
+const rUid = replyBtn.dataset.uid;
+prepReply(pid, rName, rUid);
+}
+if (deleteBtn) {
+const cid = deleteBtn.dataset.cid;
+if (confirm('Hapus komentar ini secara permanen?')) {
+deleteBtn.disabled = true;
+try {
+const res = await FB.deleteComment('anime_comments', currentSlug, cid);
+if (res.ok) {
+showToast('Komentar dihapus.', 'success');
+const res2 = await FB.getComments('anime_comments', currentSlug);
+if (res2.ok) renderComments(res2.data);
+}
+} catch (err) {
+showToast('Gagal menghapus komentar.', 'error');
+}
+deleteBtn.disabled = false;
+}
+}
+});
+setInterval(async () => {
+try {
+const res = await FB.getNotifs(userIdent.uid);
+if(res.ok && res.data) {
+const list = document.getElementById('notifList');
+const badge = document.getElementById('notifBadge');
+const unread = res.data.filter(n => !n.read);
+if(res.data.length === 0) {
+list.innerHTML = '<div class="empty-state" style="padding:20px; border:none;"><i class="ph-light ph-bell-slash"></i><div>Log kosong.</div></div>';
+} else {
+list.innerHTML = res.data.map(d => `
+<div class="notif-card">
+<div class="notif-icon"><i class="ph-bold ${d.type==='reply'?'ph-chat-circle':'ph-info'}"></i></div>
+<div>
+<div style="font-size:0.85rem; font-weight:800; margin-bottom:4px; line-height:1.4;">${d.msg}</div>
+<div style="font-size:0.7rem; color:var(--text-muted); font-weight:800;">${d.ts ? new Date(d.ts).toLocaleString('id-ID') : 'Baru saja'}</div>
+</div>
+</div>
+`).join('');
+}
+badge.style.display = unread.length > 0 ? 'block' : 'none';
+}
+} catch(e){}
+}, 8000);
+fetchLatest();
+</script>
+<script id="Saurus-auth-gate-logic">
+(function() {
+var gate = document.getElementById('Saurus-auth-gate');
+if (!gate) return;
+function showGate() {
+gate.style.display = 'flex';
+document.body.style.overflow = 'hidden';
+}
+function hideGate() {
+gate.style.display = 'none';
+document.body.style.overflow = '';
+}
+window._SaurusAuthReady = function(auth) {
+var gateTimeout = setTimeout(function() { showGate(); }, 3000);
+auth.onAuthStateChanged(function(user) {
+clearTimeout(gateTimeout);
+if (user) {
+hideGate();
+if (typeof userIdent !== 'undefined') {
+userIdent.uid   = user.uid;
+userIdent.name  = user.displayName || userIdent.name;
+userIdent.photo = user.photoURL    || userIdent.photo;
+}
+if (typeof auth === 'undefined') window.auth = window._SaurusAuth;
+} else {
+showGate();
+}
+});
+};
+if (window._SaurusAuth) window._SaurusAuthReady(window._SaurusAuth);
+})();
+</script>
+<script id="pwa-install-script">
+(function() {
+let deferredPrompt = null;
+const banner = document.getElementById('pwa-install-banner');
+const btnInstall = document.getElementById('pwa-btn-install');
+const btnClose = document.getElementById('pwa-btn-close');
+const DISMISSED_KEY = 'Saurus_pwa_dismissed';
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+if (localStorage.getItem(DISMISSED_KEY)) return;
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+setTimeout(() => {
+if (banner) banner.classList.add('pwa-visible');
+}, 1800);
+});
+if (btnInstall) {
+btnInstall.addEventListener('click', async () => {
+if (!deferredPrompt) return;
+deferredPrompt.prompt();
+const { outcome } = await deferredPrompt.userChoice;
+deferredPrompt = null;
+if (banner) banner.classList.remove('pwa-visible');
+if (outcome === 'accepted') localStorage.setItem(DISMISSED_KEY, '1');
+});
+}
+if (btnClose) {
+btnClose.addEventListener('click', () => {
+if (banner) banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+}
+window.addEventListener('appinstalled', () => {
+if (banner) banner.classList.remove('pwa-visible');
+localStorage.setItem(DISMISSED_KEY, '1');
+});
+})();
+</script>
+<script src="/shared.js"></script>
+<script>
+async function _initFirebase() {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) return;
+    const r = await fetch('/api/fb/client-config');
+    const j = await r.json();
+    if (!j.ok) throw new Error('Gagal load Firebase config');
+    if (!firebase.apps.length) firebase.initializeApp(j.data);
+
+    const auth = firebase.auth();
+    window._SaurusAuth = auth;
+    if (typeof window._SaurusAuthReady === 'function') window._SaurusAuthReady(auth);
+}
+_initFirebase().catch(e => console.error('Firebase init gagal:', e));
+</script>
+</body>
+</html>
