@@ -3,7 +3,7 @@
 const axios = require('axios');
 
 const NEOXR_BASE = 'https://api.neoxr.eu/api';
-const NEOXR_KEY  = process.env.NEOXR_APIKEY || 'yMb35i';
+const NEOXR_KEY  = process.env.NEOXR_APIKEY || 'LqHiHy';
 
 module.exports = {
   id:          'random-tempmail-read',
