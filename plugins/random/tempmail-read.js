@@ -21,8 +21,16 @@ module.exports = {
     const email = getInput(req, 'email');
     if (!email) return { ok: false, status: 400, message: "Parameter 'email' wajib diisi." };
 
+    // Fungsi helper untuk cek apakah response HTML
+    const isHtml = (data) => {
+      if (typeof data === 'string') {
+        return data.includes('<!DOCTYPE html>') || data.includes('<html');
+      }
+      return false;
+    };
+
     try {
-      // OPSI 1: Coba dengan header yang berbeda
+      // OPSI 1: Coba endpoint standar
       const { data } = await axios.get(`${NEOXR_BASE}/tempmailRead`, {
         params: { 
           email: email, 
@@ -31,47 +39,68 @@ module.exports = {
         timeout: 20000,
         headers: { 
           'Accept': 'application/json',
-          'Content-Type': 'application/json',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         },
       });
 
-      // Cek apakah response HTML
-      if (typeof data === 'string' && data.includes('<!DOCTYPE html>')) {
-        // OPSI 2: Coba endpoint berbeda
-        const altResponse = await axios.get(`${NEOXR_BASE}/tempmail`, {
-          params: { 
-            email: email, 
-            apikey: NEOXR_KEY 
-          },
-          timeout: 20000,
-          headers: { 'Accept': 'application/json' }
-        });
+      // Jika response HTML, coba alternatif
+      if (isHtml(data)) {
+        // OPSI 2: Coba endpoint /tempmail
+        try {
+          const altResponse = await axios.get(`${NEOXR_BASE}/tempmail`, {
+            params: { 
+              email: email, 
+              apikey: NEOXR_KEY 
+            },
+            timeout: 20000,
+            headers: { 'Accept': 'application/json' }
+          });
 
-        if (altResponse.data && !altResponse.data.includes('<!DOCTYPE html>')) {
-          return { ok: true, result: altResponse.data };
+          // Cek apakah response valid (bukan HTML)
+          if (!isHtml(altResponse.data)) {
+            // Cek berbagai format response
+            if (altResponse.data?.status === true) {
+              return { ok: true, result: altResponse.data.data || altResponse.data.result };
+            }
+            if (altResponse.data?.data) {
+              return { ok: true, result: altResponse.data.data };
+            }
+            return { ok: true, result: altResponse.data };
+          }
+        } catch (altErr) {
+          // Abaikan error alternatif
         }
 
-        // OPSI 3: Coba dengan POST
-        const postResponse = await axios.post(`${NEOXR_BASE}/tempmailRead`, {
-          email: email,
-          apikey: NEOXR_KEY
-        }, {
-          timeout: 20000,
-          headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
+        // OPSI 3: Coba POST
+        try {
+          const postResponse = await axios.post(`${NEOXR_BASE}/tempmailRead`, {
+            email: email,
+            apikey: NEOXR_KEY
+          }, {
+            timeout: 20000,
+            headers: { 
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
 
-        if (postResponse.data && !postResponse.data.includes('<!DOCTYPE html>')) {
-          return { ok: true, result: postResponse.data };
+          if (!isHtml(postResponse.data)) {
+            if (postResponse.data?.status === true) {
+              return { ok: true, result: postResponse.data.data || postResponse.data.result };
+            }
+            if (postResponse.data?.data) {
+              return { ok: true, result: postResponse.data.data };
+            }
+            return { ok: true, result: postResponse.data };
+          }
+        } catch (postErr) {
+          // Abaikan error POST
         }
 
         return { 
           ok: false, 
           status: 502, 
-          message: 'API mengembalikan HTML, mungkin endpoint atau API key tidak valid. Coba gunakan API key yang benar atau endpoint /tempmail' 
+          message: 'API mengembalikan HTML. Pastikan API key valid atau coba endpoint /tempmail' 
         };
       }
 
@@ -84,6 +113,11 @@ module.exports = {
         return { ok: true, result: data.data };
       }
 
+      // Jika response langsung array/object
+      if (data && typeof data === 'object') {
+        return { ok: true, result: data };
+      }
+
       return { ok: true, result: data };
 
     } catch (err) {
@@ -91,17 +125,17 @@ module.exports = {
       
       if (err.response?.data) {
         // Cek apakah error response HTML
-        if (typeof err.response.data === 'string' && err.response.data.includes('<!DOCTYPE html>')) {
+        if (isHtml(err.response.data)) {
           return { 
             ok: false, 
             status: 502, 
-            message: 'API endpoint tidak valid atau memerlukan autentikasi. Pastikan API key benar.' 
+            message: 'API endpoint tidak valid. Coba gunakan endpoint /tempmail atau periksa API key.' 
           };
         }
         return { 
           ok: false, 
           status: err.response.status, 
-          message: err.response.data?.message || 'Upstream API error.' 
+          message: err.response.data?.message || err.response.data?.error || 'Upstream API error.' 
         };
       }
       
