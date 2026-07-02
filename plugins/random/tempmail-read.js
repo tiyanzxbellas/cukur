@@ -22,16 +22,60 @@ module.exports = {
     if (!email) return { ok: false, status: 400, message: "Parameter 'email' wajib diisi." };
 
     try {
-      const { data } = await axios.get(`${NEOXR_BASE}/tempmail-read`, {
-        params:  { email, apikey: NEOXR_KEY },
+      // Perbaikan: Gunakan endpoint yang benar /tempmailRead
+      const { data } = await axios.get(`${NEOXR_BASE}/tempmailRead`, {
+        params:  { 
+          email: email, 
+          apikey: NEOXR_KEY 
+        },
         timeout: 20000,
-        headers: { Accept: 'application/json', 'User-Agent': 'ElynnAPI/1.0' },
+        headers: { 
+          'Accept': 'application/json', 
+          'User-Agent': 'ElynnAPI/1.0' 
+        },
       });
 
-      if (!data?.status) return { ok: false, status: 502, message: data?.message || 'Upstream API error.' };
-      return { ok: true, result: data.data };
+      // Cek response dari API
+      if (!data) {
+        return { ok: false, status: 502, message: 'No response from upstream API.' };
+      }
+
+      // Handle response sesuai format yang diberikan
+      // Jika data langsung berisi result
+      if (data.data) {
+        return { ok: true, result: data.data };
+      }
+      
+      // Jika data langsung berisi array inbox
+      if (Array.isArray(data)) {
+        return { ok: true, result: data };
+      }
+
+      // Jika ada status field
+      if (data.status === true) {
+        return { ok: true, result: data.data || data.result || data };
+      }
+
+      // Fallback: return apa adanya
+      return { ok: true, result: data };
+
     } catch (err) {
-      return { ok: false, status: 500, message: err?.message || 'Terjadi kesalahan internal.' };
+      console.error('TempMail Read Error:', err.message);
+      
+      // Handle error dari axios
+      if (err.response) {
+        return { 
+          ok: false, 
+          status: err.response.status, 
+          message: err.response.data?.message || 'Upstream API error.' 
+        };
+      }
+      
+      return { 
+        ok: false, 
+        status: 500, 
+        message: err.message || 'Terjadi kesalahan internal.' 
+      };
     }
   },
 };
